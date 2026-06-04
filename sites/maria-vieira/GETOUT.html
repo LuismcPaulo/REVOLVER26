@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GET OUT</title>
+<link rel="icon" href="images/pill.png">
+
+<style>
+html, body{
+  margin:0;
+  height:100%;
+  background:black;
+  overflow:hidden;
+  font-family: Arial, sans-serif;
+  color:white;
+}
+
+.scene{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+
+.box{
+  width:min(720px, 92vw);
+  background: rgba(15,15,15,0.92);
+  border: 1px solid rgba(255,255,255,0.20);
+  padding: 20px 20px 18px;
+  letter-spacing: 1px;
+  line-height: 1.6;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+.text{
+  font-size: 14px;
+  font-family: Arial, Helvetica, sans-serif;
+  opacity: 0.66;
+  white-space: pre-wrap;
+  min-height: 60px;
+  text-transform: uppercase;
+}
+
+.arrow{
+  position:absolute;
+  right:14px;
+  bottom:12px;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.arrow.show{
+  opacity: 0.6;
+}
+
+@keyframes blink{
+  0%,100%{opacity:0.2;}
+  50%{opacity:0.8;}
+}
+
+.arrow.show{
+  animation: blink 1.2s infinite;
+}
+
+/* ✅ fallback input para iPhone / browsers sem voz */
+.nameRow{
+  display:none;
+  margin-top: 12px;
+}
+
+.nameRow.show{
+  display:block;
+}
+
+.nameInput{
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.22);
+  color: white;
+  padding: 10px 10px;
+  border-radius: 0;
+  outline: none;
+  letter-spacing: 2px;
+  font-size: 12px;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+/* ✅ BOTÕES DE ESCOLHA */
+.choiceRow{
+  position:absolute;
+  right:12px;
+  bottom:10px;
+  display:none;
+  gap:8px;
+  z-index:5;
+}
+
+.choiceRow.show{
+  display:flex;
+}
+
+.choiceBtn{
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: white;
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 6px 10px;
+  cursor: pointer;
+  opacity: 0.7;
+  border-radius: 0;
+  user-select:none;
+}
+
+.choiceBtn:hover{
+  opacity: 1;
+}
+</style>
+</head>
+
+<body>
+
+<div class="scene">
+  <div class="box" id="box">
+    <div class="text" id="text"></div>
+
+    <!-- ✅ input só aparece quando voz não dá -->
+    <div class="nameRow" id="nameRow">
+      <input class="nameInput" id="nameInput" type="text" placeholder="TYPE YOUR NAME..." autocomplete="off" />
+    </div>
+
+    <!-- ✅ escolhas (aparecem só numa frase) -->
+    <div class="choiceRow" id="choiceRow">
+      <button class="choiceBtn" id="choiceNo">NO</button>
+      <button class="choiceBtn" id="choiceYes">YES</button>
+    </div>
+
+    <div class="arrow" id="arrow">→</div>
+  </div>
+</div>
+
+<audio id="blip" src="sons/click.mp3" preload="auto"></audio>
+
+<script>
+const box = document.getElementById("box");
+const textEl = document.getElementById("text");
+const arrow = document.getElementById("arrow");
+const blip = document.getElementById("blip");
+
+const nameRow = document.getElementById("nameRow");
+const nameInput = document.getElementById("nameInput");
+
+const choiceRow = document.getElementById("choiceRow");
+const choiceNo = document.getElementById("choiceNo");
+const choiceYes = document.getElementById("choiceYes");
+
+/* ✅ linhas base (as tuas) */
+const baseLines = [
+  "why are you always trying to get out?",
+  "why do you always do as your told?",
+  "Are you curious?",
+  "If not then what are you?",
+  "You can talk to me",
+  "i mean it",
+  "Do you want to make another choice? Stop Running from the truth?"
+];
+
+/* ✅ linhas finais (montadas com API) */
+let lines = [];
+let index = 0;
+let typing = false;
+let canAdvance = false;
+
+const TYPE_SPEED = 28;
+const PAUSE_AFTER = 700;
+
+let currentLineText = "";
+
+/* ✅ VOZ */
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+let listening = false;
+let waitingForName = false; // estamos na fase de pedir nome?
+let waitingForChoice = false; // ✅ estamos na fase dos botões?
+
+function playBlip(){
+  try{
+    blip.currentTime = 0;
+    blip.volume = 0.25;
+    blip.play().catch(()=>{});
+  }catch(e){}
+}
+
+/* ✅ API: cidade + fuso (aprox. por IP) + hora formatada */
+async function getPlaceAndTime(){
+  let city = "YOUR CITY";
+  let tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "YOUR TIMEZONE";
+
+  try{
+    const res = await fetch("https://ipapi.co/json/");
+    const data = await res.json();
+    if (data && data.city) city = data.city;
+    if (data && data.timezone) tz = data.timezone;
+  }catch(e){
+    // fallback
+  }
+
+  const now = new Date();
+  let timeStr = "";
+  try{
+    timeStr = new Intl.DateTimeFormat("pt-PT", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+      timeZone: tz
+    }).format(now);
+  }catch(e){
+    timeStr = new Intl.DateTimeFormat("pt-PT", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    }).format(now);
+  }
+
+  return { city, tz, timeStr };
+}
+
+function showNameInput(){
+  waitingForName = true;
+  nameRow.classList.add("show");
+  arrow.classList.remove("show");
+  canAdvance = false;
+  setTimeout(()=> nameInput.focus(), 50);
+}
+
+function hideNameInput(){
+  waitingForName = false;
+  nameRow.classList.remove("show");
+  nameInput.value = "";
+}
+
+/* ✅ quando escrevem o nome (Enter) */
+function submitTypedName(){
+  const typed = (nameInput.value || "").trim();
+  const name = typed ? typed.toUpperCase() : "UNKNOWN";
+
+  // inserir resposta logo a seguir
+  lines.splice(index + 1, 0, `... ${name}.`, "GOOD.");
+
+  hideNameInput();
+
+  setTimeout(()=>{
+    canAdvance = true;
+    arrow.classList.add("show");
+  }, 250);
+}
+
+nameInput.addEventListener("keydown", (e)=>{
+  if (e.key === "Enter"){
+    e.preventDefault();
+    submitTypedName();
+  }
+});
+
+/* ✅ iniciar reconhecimento de voz */
+function startNameRecognition(){
+  if (!SpeechRecognition){
+    showNameInput();
+    return;
+  }
+
+  try{
+    recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    listening = true;
+    canAdvance = false;
+    arrow.classList.remove("show");
+
+    recognition.onresult = (event) => {
+      const spoken = (event.results?.[0]?.[0]?.transcript || "").trim();
+      const name = spoken ? spoken.toUpperCase() : "UNKNOWN";
+
+      lines.splice(index + 1, 0, `... ${name}.`, "GOOD.");
+
+      listening = false;
+
+      setTimeout(()=>{
+        canAdvance = true;
+        arrow.classList.add("show");
+      }, 250);
+    };
+
+    recognition.onerror = () => {
+      listening = false;
+      showNameInput();
+    };
+
+    recognition.onend = () => {
+      if (listening){
+        listening = false;
+        showNameInput();
+      }
+    };
+
+    recognition.start();
+  }catch(e){
+    listening = false;
+    showNameInput();
+  }
+}
+
+/* ✅ mostra escolhas e bloqueia avanço */
+function showChoiceButtons(){
+  waitingForChoice = true;
+  canAdvance = false;
+  arrow.classList.remove("show");
+  choiceRow.classList.add("show");
+}
+
+/* ✅ escondê-las (se algum dia precisares) */
+function hideChoiceButtons(){
+  waitingForChoice = false;
+  choiceRow.classList.remove("show");
+}
+
+function typeLine(text){
+  typing = true;
+  canAdvance = false;
+  arrow.classList.remove("show");
+  textEl.textContent = "";
+
+  currentLineText = text;
+
+  let i = 0;
+
+  const interval = setInterval(()=>{
+
+    textEl.textContent += text[i];
+
+    if(text[i] !== " "){
+      playBlip();
+    }
+
+    i++;
+
+    if(i >= text.length){
+      clearInterval(interval);
+      typing = false;
+
+      if (currentLineText === "PLEASE SAY YOUR NAME." && !listening){
+        setTimeout(()=> startNameRecognition(), 250);
+        return;
+      }
+
+      if (currentLineText === "DO YOU WANT TO MAKE ANOTHER CHOICE? STOP RUNNING FROM THE TRUTH?"){
+        showChoiceButtons();
+        return;
+      }
+
+      setTimeout(()=>{
+        canAdvance = true;
+        arrow.classList.add("show");
+      }, PAUSE_AFTER);
+    }
+
+  }, TYPE_SPEED);
+}
+
+function nextLine(){
+  if(typing) return;
+  if(!canAdvance) return;
+  if(waitingForName) return;
+  if(waitingForChoice) return;
+
+  index++;
+
+  if(index >= lines.length){
+    arrow.classList.remove("show");
+    return;
+  }
+
+  typeLine(lines[index]);
+}
+
+/* ✅ iniciar tudo */
+(async function init(){
+  const { city, tz, timeStr } = await getPlaceAndTime();
+
+  lines = [
+    `IT IS ${timeStr} IN ${String(city).toUpperCase()}.`,
+    `TIMEZONE: ${String(tz).toUpperCase()}.`,
+    "PLEASE SAY YOUR NAME.",
+    ...baseLines.map(s => (s || "").toUpperCase())
+  ];
+
+  index = 0;
+  typeLine(lines[index]);
+})();
+
+/* clique na caixa avança (exceto input/choice) */
+box.addEventListener("click", () => {
+  if (waitingForName) return;
+  if (waitingForChoice) return;
+  nextLine();
+});
+
+/* teclado (space/enter) avança (exceto input/choice) */
+window.addEventListener("keydown",(e)=>{
+  if (waitingForName) return;
+  if (waitingForChoice) return;
+  if(e.key === " " || e.key === "Enter"){
+    e.preventDefault();
+    nextLine();
+  }
+});
+
+/* ✅ ações dos botões */
+choiceNo.addEventListener("click", (e)=>{
+  e.stopPropagation();
+  window.location.href = "Error.html";
+});
+
+choiceYes.addEventListener("click", (e)=>{
+  e.stopPropagation();
+  window.location.href = "red.html";
+});
+</script>
+
+</body>
+</html>

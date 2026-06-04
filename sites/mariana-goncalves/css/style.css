@@ -1,0 +1,505 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background: none !important;
+  background-color: transparent !important;
+  height: 100vh;
+  width: 100vw;
+  overflow-y: scroll; /* Keeps scrolling functionality */
+  scrollbar-width: none; /* Hides scrollbar in Firefox */
+  -ms-overflow-style: none; /* Hides scrollbar in IE/Edge */
+}
+
+/* Hides scrollbar in Chrome/Safari/Opera */
+html::-webkit-scrollbar, 
+body::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  background: transparent;
+}
+
+.image-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  line-height: 0;
+}
+
+.background-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 0;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+
+/* Page 1 */
+
+.door {
+  position: absolute;
+  top: 13%;
+  left: 39.4%;
+  width: 21%;
+  height: auto;
+  object-fit: cover;
+  transform-origin: right center;
+  z-index: 20;
+  pointer-events: none;
+  box-shadow:transparent;
+  backface-visibility: visible;
+  /* Start closed */
+  transform: rotateY(0deg);
+  /* Add transition for smooth animation */
+  transition: transform 3s ease-in-out;
+}
+
+.door.open {
+  transform: rotateY(90deg);
+  /* Remove the animation property, use transition instead */
+}
+
+/* Invisible button that covers where the knocker would be */
+.knocker-button {
+  position: absolute;
+  top: 28%;
+  left: 47.5%;
+  width: 5%;
+  height: 17%;
+  background: transparent;
+  border: transparent;
+  cursor: url('../images/dagger.png'), pointer;
+  padding: 0;
+  z-index: 30;
+}
+
+/* For debugging - uncomment to see button area
+.knocker-button {
+  border: 3px solid green;
+  background: rgba(0,255,0,0.2);
+}
+
+.door {
+  border: 3px solid blue;
+}
+*/
+
+/* Page 2 */
+
+#buttonjester {
+  position: absolute;
+  top: 42%; 
+  left: 17%;
+  width: 15%; 
+  height: 57%; 
+  background: transparent;
+  border: transparent;
+  cursor: url('../images/dagger.png'), pointer;
+  padding: 0;
+}
+
+#jester {
+  position: absolute;
+  top: 40%;
+  left: 15%;
+  width: auto;
+  height: 60%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+#jesterclose {
+  position: absolute;
+  top: 10%;
+  left: 5%;
+  width: auto;
+  height: 90%;
+  z-index: 2; 
+  pointer-events: none; 
+}
+
+
+/* Update speech container positioning */
+.speech-container {
+  position: absolute;
+  top: 8%; /* This is relative to image-container now */
+  left: 45%;
+  width: 50%;
+  height: auto; /* Let height scale proportionally */
+  z-index: 3;
+  pointer-events: none;
+}
+
+.speech-image {
+  width: 100%;
+  height: auto; /* Maintain aspect ratio */
+  display: block;
+}
+
+.plaque-container {
+  position: absolute;
+  top: 70%;
+  left: 40%;
+  width: 25%; /* Set a percentage width relative to container */
+  height: auto; /* Let height scale proportionally */
+  z-index: 5;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.plaque-image {
+  width: 100%;
+  height: auto; /* Maintain aspect ratio */
+  display: block;
+}
+
+.speech-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  max-height: 80%;
+  overflow-y: auto;
+  font-family: 'Jacquard 24', sans-serif;
+  font-size: 2.1vw; /* This will scale with viewport width */
+  color: #392d24;
+  text-align: center;
+  padding: 10px;
+  pointer-events: none;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  word-wrap: break-word;
+  z-index: 4;
+}
+
+.plaque-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Jacquard 24', sans-serif;
+  font-size: 1.5vw; /* This will scale with viewport width */
+  color: #241508;
+  text-align: center;
+  width: 80%;
+  pointer-events: none;
+  z-index: 6;
+}
+
+#buttonknights {
+  position: absolute;
+  top: 52%; 
+  left: 73%;
+  width: 15%; 
+  height: 40%;
+  background: transparent;
+  border: transparent;
+  cursor: url('../images/dagger.png'), pointer;
+  padding: 0;
+}
+
+/* Page 3 */
+
+#beast {
+  position: absolute;
+  top: 40%; 
+  left: 20%;
+  width: auto;
+  height: 50%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+#beastclose {
+  position: absolute;
+  top: 9%; 
+  left: 5%;
+  width: auto;
+  height: 90%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+#buttonbeast {
+  position: absolute;
+  top: 40%;
+  left: 20%;
+  width: 17%;
+  height: 50%;
+  background: transparent;
+  border: transparent;
+  cursor: url('../images/dagger.png'), pointer;
+  padding: 0;
+  z-index: 3;
+}
+
+/* Style for individual plaques - using their IDs */
+#plaque-fight, #plaque-home {
+  position: relative !important; /* Override the existing .plaque-container positioning */
+  width: 40% !important;
+  height: auto;
+  cursor: pointer;
+  transition: transform 0.2s;
+  pointer-events: auto; /* Plaques themselves are clickable */
+  top: auto !important;
+  left: auto !important;
+}
+
+#plaque-fight:hover, #plaque-home:hover {
+  transform: scale(1.05);
+}
+
+.plaque-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.plaque-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Jacquard 24', sans-serif;
+  font-size: 1.5vw;
+  color: #120f18;
+  text-align: center;
+  width: 90%;
+  pointer-events: none;
+  z-index: 6;
+  white-space: nowrap;
+}
+
+#plaques-container {
+  position: absolute !important;
+  top: 70% !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 60% !important;
+  display: none;
+  flex-direction: row !important;
+  justify-content: space-between !important;
+  gap: 30px !important;
+  z-index: 9999 !important;
+  pointer-events: none !important;
+}
+
+#plaque-fight, #plaque-home {
+  position: relative !important;
+  width: 50% !important;
+  height: auto !important;
+  cursor: pointer !important;
+  transition: transform 0.2s !important;
+  pointer-events: auto !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: 10000 !important;
+}
+
+#plaque-fight:hover, #plaque-home:hover {
+  transform: scale(1.05) !important;
+}
+
+/* Page 5 */
+
+.heartbeat-lights {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* So clicks pass through to buttons */
+  z-index: 10;
+}
+
+.light {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  animation: heartbeat 2s ease-in-out infinite;
+}
+
+.light1 {
+  animation-delay: 0s;
+  z-index: 13;
+}
+
+.light2 {
+  animation-delay: 0.3s; /* Slight delay for second light */
+  z-index: 12;
+}
+
+.light3 {
+  animation-delay: 0.6s; /* Slight delay for third light */
+  z-index: 11;
+}
+
+@keyframes heartbeat {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%);
+  }
+  15% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+  30% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%); 
+  }
+  45% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+  60% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%); 
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.phrase-left, .phrase-right {
+  position: fixed;
+  top: 30%; 
+  font-family: 'Jacquard 24', sans-serif;
+  font-size: 4vw;
+  color: #ff0000;
+  text-shadow: 0 0 10px rgba(255, 0, 0, 0.5),
+               0 0 20px rgba(255, 0, 0, 0.3),
+               0 0 30px rgba(255, 0, 0, 0.2);
+  opacity: 0;
+  transition: opacity 2s ease-in-out;
+  z-index: 20;
+  pointer-events: none;
+  white-space: nowrap;
+  /* Removed text-transform: uppercase */
+  letter-spacing: 2px; /* Reduced letter spacing for normal text */
+  animation: textGlow 3s infinite alternate;
+}
+
+.phrase-left {
+  left: 5%;
+  transform-origin: left;
+}
+
+.phrase-right {
+  right: 5%;
+  transform-origin: right;
+}
+
+.phrase-left.visible, 
+.phrase-right.visible {
+  opacity: 1;
+}
+
+/* Optional glow animation for the text */
+@keyframes textGlow {
+  from {
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.5),
+                 0 0 20px rgba(255, 0, 0, 0.3),
+                 0 0 30px rgba(255, 0, 0, 0.2);
+  }
+  to {
+    text-shadow: 0 0 15px rgba(255, 0, 0, 0.8),
+                 0 0 25px rgba(255, 0, 0, 0.5),
+                 0 0 35px rgba(255, 0, 0, 0.3),
+                 0 0 45px rgba(255, 0, 0, 0.1);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .phrase-left, .phrase-right {
+    font-size: 5vw;
+    top: 20px;  /* Changed from bottom to top */
+  }
+  
+  .phrase-left {
+    left: 20px;
+  }
+  
+  .phrase-right {
+    right: 20px;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .phrase-left, .phrase-right {
+    font-size: 6vw;
+    white-space: normal;
+    text-align: center;
+    width: auto;
+    max-width: 40%;
+  }
+}
+
+.teeth-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+  background-color: black;
+}
+
+.teeth-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.teeth-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+   animation: teethClose 0.2s ease-in-out forwards;
+}
+
+@keyframes teethClose {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  80% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

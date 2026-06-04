@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>very strange</title>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Jacquard+24&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="images/beetle.png">
+</head>
+<body>
+
+<div class="image-container">
+  <img src="images/2.jpg" alt="Background" class="background-image">
+  <img id="jester" src="images/jester2.png" alt="Your Image" class="image">
+  <img id="jesterclose" src="images/jester3.png" alt="Jester Close Image" class="image" style="display: none;">
+  <button id="buttonjester" class="invisible-button" onclick="handleJesterClick()" aria-label="Button description"></button>
+  <button id="buttonknights" class="invisible-button" onclick="playSound()" aria-label="Button description"></button>
+</div>
+
+  <!-- Speech bubble-->
+  <div id="speechbubble" class="speech-container" style="display: none;">
+    <img src="images/speechjester.png" alt="Speech Bubble" class="speech-image">
+    <div id="speechtext" class="speech-text"></div>
+  </div>
+
+  <!-- Plaque -->
+  <div id="plaque" class="plaque-container" style="display: none;" onclick="goToCave()">
+    <img src="images/plaque.png" alt="Plaque" class="plaque-image">
+    <div id="plaquetext" class="plaque-text">Travel to the Cave</div>
+  </div>
+
+
+<!-- Audio element -->
+<audio id="knightsSound" preload="auto">
+  <source src="audio/knightsound.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="backgroundMusic" autoplay loop muted preload="auto">
+  <source src="audio/Instrumental.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+function playSound() {
+  var sound = document.getElementById("knightsSound");
+  sound.currentTime = 0; // Rewind to start (allows replaying before sound ends)
+  sound.play().catch(function(error) {
+    console.log("Audio playback failed: " + error);
+  });
+}
+
+function changeJesterImage() {
+  var jesterOpen = document.getElementById("jester");
+  var jesterClose = document.getElementById("jesterclose");
+  
+  // Check which one is currently visible
+  if (jesterOpen.style.display !== "none") {
+    // Switch to close jester
+    jesterOpen.style.display = "none";
+    jesterClose.style.display = "block";
+
+    }
+}
+
+
+// Array of jester lines
+const jesterLines = [
+  "Oh… Hello there traveler… How can I help you?",
+  "You seek the treasure? So do my masters. We've been camped here for about five moons… They are too frightened to face the beast.",
+  "Yes, the beast… It guards what you seek, my friend.",
+  "I don't know how to face it, no. I hear my masters are planning to make it an offer… I fear I may become trading bargain…",
+  "Where does it live? Deep in the cave just over the field.",
+  "I wish you luck in your demand my friend. May your heart stay pure and your conscience clean."
+];
+
+let currentLineIndex = 0;
+
+// Your original playSound function (unchanged)
+function playSound() {
+  var sound = document.getElementById("knightsSound");
+  sound.currentTime = 0; // Rewind to start (allows replaying before sound ends)
+  sound.play().catch(function(error) {
+    console.log("Audio playback failed: " + error);
+  });
+}
+
+// Single function to handle jester clicks - stops after 6 lines and shows plaque
+function handleJesterClick() {
+  var jesterOpen = document.getElementById("jester");
+  var jesterClose = document.getElementById("jesterclose");
+  var speechContainer = document.getElementById("speechbubble");
+  var speechText = document.getElementById("speechtext");
+  var plaque = document.getElementById("plaque");
+  
+  if (jesterOpen.style.display !== "none") {
+    // First click: switch to close jester
+    jesterOpen.style.display = "none";
+    jesterClose.style.display = "block";
+    
+    // Show speech bubble with first line
+    speechContainer.style.display = "block";
+    speechText.textContent = jesterLines[0];
+    currentLineIndex = 1;
+  } else {
+    // Only show next line if we haven't reached the end
+    if (currentLineIndex < jesterLines.length) {
+      speechText.textContent = jesterLines[currentLineIndex];
+      currentLineIndex++;
+      
+      // If this was the last line (after showing 6th), show the plaque
+      if (currentLineIndex === jesterLines.length) {
+        plaque.style.display = "block";
+      }
+    }
+  }
+}
+
+
+// Add this new function for plaque click
+function goToCave() {
+  window.location.href = "page3.html";
+}
+
+
+document.getElementById("knightsSound").volume = 0.5; // Knight sound volume
+
+document.getElementById("backgroundMusic").volume = 0.06; // Background volume
+
+window.addEventListener('load', function() {
+  var bgMusic = document.getElementById("backgroundMusic");
+  
+  // Try to unmute after 1 second (works in some browsers)
+  setTimeout(function() {
+    bgMusic.muted = false;
+  }, 1000);
+});
+
+// Or unmute on first click anywhere
+document.body.addEventListener('click', function unmute() {
+  var bgMusic = document.getElementById("backgroundMusic");
+  bgMusic.muted = false;
+  document.body.removeEventListener('click', unmute);
+}, { once: true });
+
+
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>the good ending</title>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Jacquard+24&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="images/beetle.png">
+</head>
+<body>
+<div class="image-container">
+  <img src="images/gameover.jpg" alt="Background" class="background-image">
+</div>
+
+<!-- Audio element -->
+<audio id="backgroundMusic" autoplay loop muted preload="auto">
+  <source src="audio/thefinaltune.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+// Background music settings
+document.getElementById("backgroundMusic").volume = 0.06;
+
+window.addEventListener('load', function() {
+  var bgMusic = document.getElementById("backgroundMusic");
+  
+  setTimeout(function() {
+    bgMusic.muted = false;
+  }, 1000);
+});
+
+document.body.addEventListener('click', function unmute() {
+  var bgMusic = document.getElementById("backgroundMusic");
+  bgMusic.muted = false;
+  document.body.removeEventListener('click', unmute);
+}, { once: true });
+
+</script>
+
+</body>
+</html>

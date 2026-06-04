@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <title>LET'S PLAY</title>
+    <link rel="icon" href="images/pill.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div id="clickHint" aria-live="polite"></div>
+<div class="scene">
+<img src="images/matrix.png" class="artwork" alt="Matrix choice">
+<svg class="overlay"
+     viewBox="0 0 3000 2560"
+     xmlns="http://www.w3.org/2000/svg">
+   
+   
+    <a data-link="red.html" data-sound="sons/hover.mp3" data-pitch="low">
+  <ellipse class="pill pill-red"
+           cx="706" cy="1294" rx="73" ry="259"/>
+</a>
+
+<a data-link="blue.html" data-sound="sons/hover.mp3" data-pitch="high">
+  <ellipse class="pill pill-blue"
+           cx="2330" cy="1270" rx="73" ry="260"/>
+</a>
+</svg>
+
+</div>
+
+
+ <!-- SOM DE HOVER -->
+  <audio id="hoverSound" src="sons/hover.mp3" preload="auto"></audio>
+
+ <script>
+   const hintEl = document.getElementById("clickHint");
+  function getTimeNow(){
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, "0");
+  const mm = String(now.getMinutes()).padStart(2, "0");
+  const ss = String(now.getSeconds()).padStart(2, "0");
+  return `${hh}:${mm}:${ss}`;
+}
+
+const hintText = `CLICK HERE TO CHOOSE  —  ${getTimeNow()}`;
+  // typing effect
+  let i = 0;
+  const speed = 55; // ms por letra (ajusta)
+  function typeHint(){
+  if (i <= hintText.length){
+    hintEl.textContent = hintText.slice(0, i);
+    i++;
+    setTimeout(typeHint, speed);
+  } else {
+    /* remove o cursor quando acaba */
+    hintEl.classList.add("done");
+  }
+}
+
+
+  typeHint();
+
+  // esconder no primeiro clique/toque
+  function hideHint(){
+    if (!hintEl) return;
+    hintEl.style.transition = "opacity 300ms ease";
+    hintEl.style.opacity = "0";
+    setTimeout(() => hintEl.remove(), 320);
+  }
+
+  document.addEventListener("click", hideHint, { once: true });
+  document.addEventListener("touchstart", hideHint, { once: true }); 
+  const unlockEl = document.getElementById("hoverSound"); // só para desbloquear
+  const pills = document.querySelectorAll(".pill");
+  const links = document.querySelectorAll("a[data-link]");
+
+  let unlocked = false;
+  let lastHoverTime = 0;
+
+  function unlockAudio() {
+    if (unlocked) return Promise.resolve(true);
+
+    unlockEl.volume = 0;
+    return unlockEl.play().then(() => {
+      unlockEl.pause();
+      unlockEl.currentTime = 0;
+      unlockEl.volume = 1;
+      unlocked = true;
+      return true;
+    }).catch(() => false);
+  }
+
+  function playPitchedSound(pitchMode, src) {
+    if (!unlocked) return;
+
+    const a = new Audio(src);
+
+    // Intervalos de pitch (ajusta se quiseres)
+    let min, max;
+    if (pitchMode === "low") {      // 🔴 mais grave
+      min = 0.76; max = 0.78;
+    } else if (pitchMode === "high") { // 🔵 mais agudo
+      min = 1.10; max = 1.30;
+    } else {                        // neutro
+      min = 0.95; max = 1.08;
+    }
+
+    a.playbackRate = min + Math.random() * (max - min);
+    a.volume = 0.9;
+
+    a.play().catch(()=>{});
+  }
+
+  // desbloqueio fiável na 1ª interação
+  document.addEventListener("click", unlockAudio, { once: true });
+  document.addEventListener("touchstart", unlockAudio, { once: true });
+  document.addEventListener("keydown", unlockAudio, { once: true });
+
+  // DESKTOP: hover → toca som com pitch conforme o comprimido
+  pills.forEach(pill => {
+    pill.addEventListener("mouseenter", () => {
+      const now = Date.now();
+      if (now - lastHoverTime < 120) return;
+      lastHoverTime = now;
+
+      const link = pill.closest("a[data-link]");
+      if (!link) return;
+
+      const pitchMode = link.dataset.pitch || "neutral";
+      const src = link.dataset.sound || "sons/hover.mp3";
+
+      playPitchedSound(pitchMode, src);
+    });
+  });
+
+  // CLIQUE/TOQUE: som + delay + navegação
+  links.forEach(link => {
+    link.addEventListener("click", async (e) => {
+      e.preventDefault();
+
+      await unlockAudio();
+
+      const pitchMode = link.dataset.pitch || "neutral";
+      const src = link.dataset.sound || "sons/hover.mp3";
+      playPitchedSound(pitchMode, src);
+
+      const destination = link.dataset.link;
+      setTimeout(() => {
+        window.location.href = destination;
+      }, 350);
+    });
+
+    // MOBILE: toque responsivo
+    link.addEventListener("touchstart", async () => {
+      await unlockAudio();
+      const pitchMode = link.dataset.pitch || "neutral";
+      const src = link.dataset.sound || "sons/hover.mp3";
+      playPitchedSound(pitchMode, src);
+    }, { passive: true });
+  });
+  const hint = document.getElementById("clickHint");
+
+function hideHint() {
+  hint.style.opacity = "0";
+  setTimeout(() => hint.remove(), 400);
+}
+
+document.addEventListener("click", hideHint, { once: true });
+document.addEventListener("touchstart", hideHint, { once: true });
+</script>

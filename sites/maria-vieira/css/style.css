@@ -1,0 +1,103 @@
+
+ html, body {
+  margin: 0;
+  height: 100%;
+  background: black;
+
+}
+
+body {
+  display: flex;
+  justify-content: center; /* centro horizontal */
+  align-items: center;     /* centro vertical */
+}
+
+/* container da imagem */
+.scene {
+  position: relative;
+}
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  }
+
+.artwork {
+  max-width: 100vw;
+  max-height: 100vh;
+  width: auto;
+  height: auto;
+  display: block;
+  z-index: 1;
+  }
+
+  /* SVG por cima */
+
+
+.pill{
+  stroke: none;
+  pointer-events: all;
+  cursor: help;
+
+  fill: rgba(255,255,255,0.001);
+
+  transition:
+    filter 180ms ease,
+    transform 180ms ease,
+    fill 180ms ease;
+}
+
+.pill:hover{
+  fill: rgba(255,255,255,0.03);
+}
+
+/* 🔴 glow suave vermelho */
+.pill-red:hover{
+  filter:
+    drop-shadow(0 0 18px rgba(255,0,0,0.35))
+    drop-shadow(0 0 45px rgba(255,0,0,0.18));
+}
+
+/* 🔵 glow suave azul */
+.pill-blue:hover{
+  filter:
+    drop-shadow(0 0 18px rgba(0,120,255,0.35))
+    drop-shadow(0 0 45px rgba(0,120,255,0.18));
+}
+
+/* ligeiro crescimento */
+.pill-red:hover,
+.pill-blue:hover{
+  transform: scale(1.015);
+}
+#clickHint{
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+
+  color: white;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  letter-spacing: 3px;
+
+  opacity: 0.85;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* cursor a piscar tipo terminal */
+#clickHint.done::after{
+  content: "▍";
+  margin-left: 6px;
+  animation: blink 0.8s step-end infinite;
+  opacity: 0.9;
+}
+
+@keyframes blink{
+  50% { opacity: 0; }
+}

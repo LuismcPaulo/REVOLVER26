@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LOOK CLOSELY</title>
+  <link rel="icon" href="images/pill.png">
+
+  <style>
+    @font-face {
+      font-family: "Barras";
+      src: url("fonts/Barras.ttf") format("truetype");
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: black;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+
+    .start {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      align-items: end;
+      justify-items: center;
+      padding-bottom: 28px;
+      z-index: 5;
+    }
+
+    .start button {
+      font-family: "Barras", Arial, sans-serif;
+      background: none;
+      border: none;
+      padding: 0;
+      color: white;
+      font-size: 12px;
+      letter-spacing: 4px;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 200ms ease, transform 200ms ease;
+    }
+
+    .start button:hover {
+      opacity: 1;
+      transform: scale(1.05);
+      cursor: help;
+    }
+
+    .field {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+    }
+
+    .popup {
+      position: absolute;
+      width: min(420px, 86vw);
+      border-radius: 0;
+      padding: 14px 14px 12px;
+      background: rgba(15, 15, 15, 0.88);
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: 0 0 30px rgba(255, 0, 0, 0.12);
+
+      transform: translate(-50%, -50%) scale(0.98);
+      left: 50%;
+      top: 50%;
+
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .popup.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+      pointer-events: auto;
+    }
+
+    .popup p {
+      margin: 0 0 14px 0;
+      line-height: 1.5;
+      font-size: 14px;
+      opacity: 0.72;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(255,255,255,0.06);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 0;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: transform 160ms ease, background 160ms ease, border-color 160ms ease, opacity 160ms ease;
+      font-size: 12px;
+    }
+
+    .btn:hover {
+      transform: scale(1.03);
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.35);
+    }
+
+    .btn.no {
+      opacity: 0.9;
+    }
+
+    /* YES no canto do ecrã */
+    .yes-screen {
+      position: fixed;
+      display: none;
+
+      right: 18px;
+      bottom: 14px;
+
+      font-size: 4px;
+      padding: 4px 7px;
+      border-radius: 0;
+      letter-spacing: 2px;
+
+      opacity: 0.35;
+      z-index: 999;
+
+      transition: opacity 200ms ease, transform 200ms ease;
+    }
+
+    .yes-screen:hover {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+
+    .shutdown {
+      position: fixed;
+      inset: 0;
+      background: black;
+      display: none;
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 10px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .shutdown.show {
+      display: flex;
+    }
+
+    .shutdown .msg {
+      opacity: 0.8;
+      letter-spacing: 3px;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+    /* popups gerados (arrastáveis, sem fechar) */
+.stack-popup{
+  position: absolute;
+  width: min(360px, 86vw);
+  border-radius: 0;
+  padding: 12px 12px 10px;
+  background: rgba(15, 15, 15, 0.90);
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.06);
+  user-select: none;
+  touch-action: none; /* importante p/ arrastar em telemóvel */
+}
+
+.stack-popup .hdr{
+  font-size: 11px;
+  letter-spacing: 2px;
+  opacity: 0.85;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  cursor: grab;
+}
+
+.stack-popup:active .hdr{
+  cursor: grabbing;
+}
+
+.stack-popup p{
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.72;
+  line-height: 1.45;
+}
+/* popup base (imóvel, por baixo) */
+.base-popup{
+    font-family: Barras, Arial, Helvetica, sans-serif;
+  position: absolute;
+  width: min(360px, 86vw);
+  padding: 14px;
+  border-radius: 0;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.25);
+  text-align: center;
+  letter-spacing: 3px;
+  font-size: 14px;
+  cursor: pointer;
+  z-index: 1500; /* menor que os outros */
+}
+/* --- ENIGMA UI --- */
+.riddle{
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(520px, 92vw);
+  background: rgba(15,15,15,0.92);
+  border: 1px solid rgba(255,255,255,0.20);
+  padding: 16px;
+  z-index: 50000;
+  display: none;
+}
+
+.riddle.show{ display:block; }
+
+.riddle .title{
+  letter-spacing: 3px;
+  font-size: 12px;
+  opacity: 0.85;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.riddle .text{
+  font-size: 13px;
+  line-height: 1.55;
+  opacity: 0.82;
+  margin-bottom: 12px;
+}
+
+.riddle input{
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.22);
+  color: white;
+  padding: 10px 10px;
+  border-radius: 0;
+  outline: none;
+  letter-spacing: 2px;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.riddle .row{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin-top: 10px;
+}
+
+.holdBtn{
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.06);
+  color: white;
+  padding: 10px 12px;
+  border-radius: 0;
+  letter-spacing: 2px;
+  font-size: 11px;
+  cursor: not-allowed;
+  opacity: 0.35;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+.holdBtn.enabled{
+  cursor: pointer;
+  opacity: 0.9;
+}
+
+.holdBtn .bar{
+  position:absolute;
+  left:0; top:0; bottom:0;
+  width:0%;
+  background: rgba(255,255,255,0.18);
+  pointer-events:none;
+}
+
+.riddle .hint{
+  font-size: 11px;
+  letter-spacing: 2px;
+  opacity: 0.55;
+  margin-top: 10px;
+}
+
+/* tabela/chave num canto */
+.keyTable{
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 45000;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(0,0,0,0.55);
+  padding: 10px;
+  width: 220px;
+  display: none;
+}
+
+.keyTable.show{ display:block; }
+
+.keyTable .kTitle{
+  font-size: 11px;
+  letter-spacing: 3px;
+  opacity: 0.75;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.keyTable table{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  letter-spacing: 1px;
+  opacity: 0.75;
+}
+
+.keyTable td{
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.keyTable td:last-child{
+  text-align:right;
+  opacity: 0.9;
+}
+.riddle .title{
+  cursor: help;
+  pointer-events: auto;
+}
+
+
+
+  </style>
+</head>
+
+<body> 
+  <div class="start" id="startScreen">
+    <button id="startBtn">LOOK CLOSELY</button>
+  </div>
+
+  <div class="field" id="field">
+    <div class="popup" id="popup1">
+      <p>Do you really wish to wake up?</p>
+      <div class="actions">
+        <button class="btn no" id="btnNo">NO</button>
+      </div>
+    </div>
+
+    <!-- ✅ YES fora do popup e preso ao ecrã -->
+    <button class="btn yes-screen" id="btnYes">YES</button>
+  </div>
+
+  <div class="shutdown" id="shutdown">
+    <div class="msg">SHUTTING DOWN EXPERIENCE...</div>
+    <div class="msg" style="opacity:0.55;"></div>
+  </div>
+  <!-- ENIGMA BOX -->
+<div class="riddle" id="riddleBox">
+  <div class="title" id="riddleTitle">0,1</div>
+  <div class="text" id="riddleText">
+    <!-- mete aqui o teu enigma -->
+    7370 897985 82696567726968 84727383 706582 897985 75787987 847269 79787689 8482858472 7383 897985 657868 84727383 777977697884
+
+  </div>
+
+  <input id="riddleInput" type="text" placeholder="TYPE THE KEY..." autocomplete="off" />
+
+  <div class="row">
+    <button class="holdBtn" id="holdBtn" disabled>
+      VERIFY
+      <span class="bar" id="holdBar"></span>
+    </button>
+  </div>
+
+  <div class="hint"></div>
+</div>
+
+<!-- KEY TABLE -->
+<div class="keyTable" id="keyTable">
+  <div class="kTitle"></div>
+  <table>
+    <tr><td>A</td><td>65</td></tr>
+    <tr><td>B</td><td>66</td></tr>
+    <tr><td>C</td><td>67</td></tr>
+    <tr><td>D</td><td>68</td></tr>
+    <tr><td>E</td><td>69</td></tr>
+    <tr><td>F</td><td>70</td></tr>
+    <tr><td>G</td><td>71</td></tr>
+    <tr><td>H</td><td>72</td></tr>
+    <tr><td>I</td><td>73</td></tr>
+   <tr><td>J</td><td>74</td></tr>
+   <tr><td>K</td><td>75</td></tr>
+   <tr><td>L</td><td>76</td></tr>
+   <tr><td>M</td><td>77</td></tr>
+   <tr><td>N</td><td>78</td></tr>
+   <tr><td>O</td><td>79</td></tr>
+   <tr><td>P</td><td>80</td></tr>
+   <tr><td>Q</td><td>81</td></tr>
+   <tr><td>R</td><td>82</td></tr>
+   <tr><td>S</td><td>83</td></tr>
+   <tr><td>T</td><td>84</td></tr>
+   <tr><td>U</td><td>85</td></tr>
+   <tr><td>V</td><td>86</td></tr>
+   <tr><td>W</td><td>87</td></tr>
+   <tr><td>X</td><td>88</td></tr>
+   <tr><td>Y</td><td>89</td></tr>
+   <tr><td>Z</td><td>90</td></tr>
+  </table>
+</div>
+<audio id="sSpawn" src="sons/pop.mp3" preload="auto"></audio>
+<audio id="sDrag"  src="sons/hover.mp3"  preload="auto"></audio>
+
+  <script>
+  const startBtn = document.getElementById("startBtn");
+  const startScreen = document.getElementById("startScreen");
+  const popup1 = document.getElementById("popup1");
+  const btnNo = document.getElementById("btnNo");
+  const btnYes = document.getElementById("btnYes");
+  const shutdown = document.getElementById("shutdown");
+  const field = document.getElementById("field");
+  const sSpawn = document.getElementById("sSpawn");
+const sDrag  = document.getElementById("sDrag");
+
+function playSound(aud, vol=0.6, rate=1){
+  if (!aud) return;
+  try{
+    aud.pause();               // garante restart rápido
+    aud.currentTime = 0;
+    aud.volume = vol;
+    aud.playbackRate = rate;
+    aud.play().catch(()=>{});
+  }catch(e){}
+}
+
+  // --- sequência de popups ---
+  let spawnTimer = null;
+  let spawnCount = 0;
+
+  const TOTAL_POPUPS = 30; // mete mais para "encher a tela"
+  const SPAWN_MS = 200;
+
+  let topZ = 2000;
+
+  function rand(min, max){
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function clamp(v, min, max){
+    return Math.max(min, Math.min(max, v));
+  }
+
+  function bringToFront(el){
+    topZ += 1;
+    el.style.zIndex = topZ;
+  }
+
+  function makeDraggable(el){
+  let lastTick = 0;
+  let dragging = false;
+  let startX = 0, startY = 0;
+  let baseLeft = 0, baseTop = 0;
+
+  const onDown = (e) => {
+    dragging = true;
+    bringToFront(el);
+
+    // ✅ som ao começar a arrastar
+    playSound(sDrag, 0.25, 1 + (Math.random()*0.10 - 0.05));
+
+    const p = e.touches ? e.touches[0] : e;
+    startX = p.clientX;
+    startY = p.clientY;
+
+    baseLeft = parseFloat(el.style.left) || 0;
+    baseTop  = parseFloat(el.style.top) || 0;
+
+    if (el.setPointerCapture && e.pointerId !== undefined) {
+      el.setPointerCapture(e.pointerId);
+    }
+  };
+
+  const onMove = (e) => {
+    if (!dragging) return;
+
+    // ✅ tick durante arrasto (limitado)
+    const now = performance.now();
+    if (now - lastTick > 120) {
+      playSound(sDrag, 0.10, 0.9 + Math.random()*0.2);
+      lastTick = now;
+    }
+
+    const p = e.touches ? e.touches[0] : e;
+    const dx = p.clientX - startX;
+    const dy = p.clientY - startY;
+
+    const rect = el.getBoundingClientRect();
+    const w = rect.width;
+    const h = rect.height;
+
+    const newLeft = clamp(baseLeft + dx, 8, window.innerWidth - w - 8);
+    const newTop  = clamp(baseTop + dy, 8, window.innerHeight - h - 8);
+
+    el.style.left = `${newLeft}px`;
+    el.style.top  = `${newTop}px`;
+  };
+
+  const onUp = () => { dragging = false; };
+
+  el.addEventListener("pointerdown", onDown);
+  window.addEventListener("pointermove", onMove);
+  window.addEventListener("pointerup", onUp);
+
+  el.addEventListener("touchstart", onDown, { passive: true });
+  window.addEventListener("touchmove", onMove, { passive: true });
+  window.addEventListener("touchend", onUp);
+}
+
+  function createStackPopup(i){
+    const pop = document.createElement("div");
+    pop.className = "stack-popup";
+    pop.style.zIndex = (++topZ).toString();
+
+   const messages = [
+  "LOOK CLOSER",
+  "WAKE UP",
+  "WHAT DO YOU SEE?",
+  "YOU ARE THE ANSWER",
+  "THERE IS NO RETURN",
+  "I SAID LOOK CLOSER",
+  "OPEN YOUR EYES",
+  "YOU WERE BLINDED",
+  "I CAN SHOW YOU THE TRUTH",
+  "TRUST ME"
+];
+
+const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+
+pop.innerHTML = `
+  <p>${randomMessage}</p>
+
+`;
+
+    field.appendChild(pop);
+    playSound(sSpawn, 0.35, 1 + (Math.random()*0.08 - 0.04));
+
+    // medir tamanho real depois de inserir no DOM
+    const rect = pop.getBoundingClientRect();
+    const w = rect.width;
+    const h = rect.height;
+
+    // ✅ nascer perto do centro (jitter)
+    const centerX = (window.innerWidth - w) / 2;
+    const centerY = (window.innerHeight - h) / 2;
+
+    const jitterX = rand(-90, 90);
+    const jitterY = rand(-70, 70);
+
+    const left = clamp(centerX + jitterX, 8, window.innerWidth - w - 8);
+    const top  = clamp(centerY + jitterY, 8, window.innerHeight - h - 8);
+
+    pop.style.left = `${left}px`;
+    pop.style.top  = `${top}px`;
+
+    makeDraggable(pop);
+
+    // clicar no popup traz para a frente
+    pop.addEventListener("pointerdown", () => bringToFront(pop));
+  }
+
+  function startPopupSequence(){
+
+  if (spawnTimer) return;
+
+  spawnCount = 0;
+  btnYes.style.display = "none";
+
+  // 🔴 criar primeiro popup fixo (por baixo)
+  const base = document.createElement("div");
+  base.className = "base-popup";
+  base.textContent = "ONE STEP CLOSER TO THE TRUTH";
+
+  base.addEventListener("click", () => {
+
+  // ✅ pára de criar popups (senão eles reaparecem)
+  clearInterval(spawnTimer);
+  spawnTimer = null;
+
+  // apagar TODOS os popups
+  document.querySelectorAll(".stack-popup").forEach(p => p.remove());
+
+  // esconder o popup base também
+  base.remove();
+
+  // abrir enigma
+  document.getElementById("riddleBox").classList.add("show");
+  document.getElementById("keyTable").classList.remove("show");
+  document.getElementById("riddleInput").focus();
+});
+
+  field.appendChild(base);
+
+  // centrar no ecrã
+  const rect = base.getBoundingClientRect();
+  base.style.left = (window.innerWidth - rect.width)/2 + "px";
+  base.style.top  = (window.innerHeight - rect.height)/2 + "px";
+
+  // agora começa a gerar os outros por cima
+  spawnTimer = setInterval(() => {
+    spawnCount += 1;
+    createStackPopup(spawnCount);
+
+    if (spawnCount >= TOTAL_POPUPS){
+      clearInterval(spawnTimer);
+      spawnTimer = null;
+    }
+  }, SPAWN_MS);
+}
+
+
+  // --- UI base ---
+  startBtn.addEventListener("click", () => {
+    startScreen.style.display = "none";
+    popup1.classList.add("show");
+    btnYes.style.display = "block";
+  });
+
+  btnNo.addEventListener("click", () => {
+    shutdown.classList.add("show");
+    setTimeout(() => {
+      window.location.href = "Error.html";
+    }, 1200);
+  });
+
+  btnYes.addEventListener("click", () => {
+    popup1.classList.remove("show"); // base continua por baixo (invisível), como queres
+    startPopupSequence();
+  });
+  // --- ENIGMA LOGIC ---
+const riddleBox = document.getElementById("riddleBox");
+const keyTable = document.getElementById("keyTable");
+const riddleInput = document.getElementById("riddleInput");
+const holdBtn = document.getElementById("holdBtn");
+const holdBar = document.getElementById("holdBar");
+
+// ✅ define aqui a resposta certa (em maiúsculas)
+const CORRECT = "IF YOU REACHED THIS FAR YOU KNOW THE ONLY TRUTH IS YOU AND THIS MOMENT";
+
+// ativa/desativa o botão conforme a resposta
+function normalize(s){
+  return (s || "").trim().toUpperCase();
+}
+
+function updateHoldState(){
+  const ok = normalize(riddleInput.value) === CORRECT;
+  holdBtn.disabled = !ok;
+  holdBtn.classList.toggle("enabled", ok);
+  holdBtn.style.cursor = ok ? "pointer" : "not-allowed";
+  holdBtn.style.opacity = ok ? "0.9" : "0.35";
+}
+
+riddleInput.addEventListener("input", updateHoldState);
+
+// botão hold-to-confirm
+let holding = false;
+let holdStart = 0;
+let holdRaf = null;
+const HOLD_MS = 3000;
+
+function setProgress(pct){
+  holdBar.style.width = `${pct}%`;
+}
+
+function cancelHold(){
+  holding = false;
+  if (holdRaf) cancelAnimationFrame(holdRaf);
+  holdRaf = null;
+  setProgress(0);
+}
+
+function success(){
+  // aqui defines o que acontece quando acertam e confirmam
+  // por agora: fecha as UI
+  riddleBox.classList.remove("show");
+  keyTable.classList.remove("show");
+  cancelHold();
+
+  // exemplo: mensagem final no popup base
+  // (se quiseres, posso ligar isto ao próximo passo)
+}
+
+function step(t){
+  if (!holding) return;
+  const elapsed = t - holdStart;
+  const pct = Math.min(100, (elapsed / HOLD_MS) * 100);
+  setProgress(pct);
+
+  if (elapsed >= HOLD_MS){
+    success();
+    return;
+  }
+  holdRaf = requestAnimationFrame(step);
+}
+
+// pointerdown / pointerup para desktop + mobile
+holdBtn.addEventListener("pointerdown", (e) => {
+  if (holdBtn.disabled) return;
+  holding = true;
+  holdStart = performance.now();
+  setProgress(0);
+  holdRaf = requestAnimationFrame(step);
+});
+
+window.addEventListener("pointerup", cancelHold);
+window.addEventListener("pointercancel", cancelHold);
+window.addEventListener("blur", cancelHold);
+
+// inicia estado
+updateHoldState();
+
+const riddleTitle = document.getElementById("riddleTitle");
+
+if (riddleTitle && keyTable) {
+  const toggleKey = () => keyTable.classList.toggle("show");
+  riddleTitle.addEventListener("pointerdown", toggleKey); // ✅ desktop + mobile
+  riddleTitle.addEventListener("click", toggleKey);       // fallback
+}
+
+
+</script>
+</body>
+</html>

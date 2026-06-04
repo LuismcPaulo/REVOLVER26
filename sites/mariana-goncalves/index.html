@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>strange</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" type="image/png" href="images/beetle.png">
+</head>
+<body>
+
+<audio id="doorSound" src="audio/door.mp3" preload="auto"></audio>
+
+<div class="image-container">
+  <img src="images/1.jpg" alt="Background" class="background-image">
+  <img src="images/door.png" class="door" alt="Door" id="doorImage">
+  <button class="knocker-button" id="knockerButton" aria-label="Open door"></button>
+</div>
+
+<!-- Add fullscreen script - make sure path is correct -->
+<script src="js/fullscreen.js"></script>
+
+<!-- Your existing door script -->
+<script>
+// Your existing door code here
+const knockerButton = document.getElementById('knockerButton');
+const doorImage = document.getElementById('doorImage');
+const doorSound = document.getElementById('doorSound');
+
+if (knockerButton && doorImage) {
+  knockerButton.addEventListener('click', function(event) {
+    event.stopPropagation();
+    
+    console.log('Door clicked!');
+    
+    if (doorSound) {
+      doorSound.currentTime = 0;
+      doorSound.play().catch(e => console.log('Sound error:', e));
+    }
+    
+    doorImage.classList.add('open');
+    
+    setTimeout(function() {
+      window.location.href = 'page2.html';
+    }, 3000);
+  });
+}
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>01000101 01110010 01110010 01101111</title>
+ <link rel="icon" href="images/pill.png">
+
+<style>
+html, body{
+  margin:0;
+  height:100%;
+  background:black;
+  cursor:none;
+  overflow:hidden;
+  font-family: Arial, sans-serif;
+}
+
+/* imagens */
+#stage{
+  position:fixed;
+  inset:0;
+  z-index:1;
+}
+
+.tile{
+  position:absolute;
+  opacity:0;
+  transition:opacity 100ms linear;
+}
+
+.tile img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  user-select:none;
+  pointer-events:none;
+}
+
+#escape{
+  position:fixed;
+
+  font-size:5px;
+  letter-spacing:2px;
+  color:white;
+
+  padding:4px 8px;
+  border:1px solid rgba(255,255,255,0.25);
+  background:rgba(0,0,0,0.4);
+
+  z-index:99999;
+  cursor:pointer;
+  user-select:none;
+
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 220ms ease, transform 220ms ease;
+}
+
+#escape.visible{
+  opacity:0.8;
+  pointer-events:auto;
+}
+
+#escape.visible:hover{
+  opacity:1;
+  transform: scale(1.03);
+  cursor: help;
+}
+
+/* blackout */
+#blackout{
+  position:fixed;
+  inset:0;
+  background:black;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 400ms ease;
+  z-index:100000;
+}
+
+#blackout.on{
+  opacity:1;
+}
+
+/* tremor aplicado ao stage (controlado por JS) */
+#stage{
+  transform: translate(0,0);
+  will-change: transform;
+}
+</style>
+</head>
+
+<body>
+
+<div id="stage"></div>
+
+<!-- ✅ BOTÃO SECRETO -->
+<div id="escape">GET OUT</div>
+
+<div id="blackout"></div>
+
+<audio id="sound" src="sons/Error.mp3"></audio>
+
+<script>
+const stage = document.getElementById("stage");
+const blackout = document.getElementById("blackout");
+const sound = document.getElementById("sound");
+const escapeBtn = document.getElementById("escape");
+
+// --- GO BACK: aparece após 3 teclas, muda de canto, e desaparece rápido ---
+let keyPresses = 0;
+let hideEscapeTimer = null;
+
+const SHOW_AFTER_KEYS = 3;     // só aparece depois de 3 teclas
+const VISIBLE_MS = 1200;       // tempo que fica visível antes de desaparecer
+const MARGIN = 12;             // margem ao canto
+
+function placeEscapeRandomCorner(){
+  const corners = ["tl", "tr", "bl", "br"];
+  const c = corners[Math.floor(Math.random() * corners.length)];
+
+  // limpa posições antigas
+  escapeBtn.style.top = "auto";
+  escapeBtn.style.right = "auto";
+  escapeBtn.style.bottom = "auto";
+  escapeBtn.style.left = "auto";
+
+  if (c === "tl"){ escapeBtn.style.top = MARGIN+"px"; escapeBtn.style.left = MARGIN+"px"; }
+  if (c === "tr"){ escapeBtn.style.top = MARGIN+"px"; escapeBtn.style.right = MARGIN+"px"; }
+  if (c === "bl"){ escapeBtn.style.bottom = MARGIN+"px"; escapeBtn.style.left = MARGIN+"px"; }
+  if (c === "br"){ escapeBtn.style.bottom = MARGIN+"px"; escapeBtn.style.right = MARGIN+"px"; }
+}
+
+function showEscapeTemporarily(){
+  placeEscapeRandomCorner();
+  escapeBtn.classList.add("visible");
+
+  clearTimeout(hideEscapeTimer);
+  hideEscapeTimer = setTimeout(() => {
+    escapeBtn.classList.remove("visible");
+  }, VISIBLE_MS);
+}
+
+/* CONFIG */
+const IMAGE = "images/Error.png";
+const TOTAL = 160;
+const SPEED = 50;
+
+/* som */
+sound.loop = true;
+sound.playbackRate = 1.55;
+sound.play().catch(()=>{});
+
+// base do som (define um ponto de partida)
+sound.volume = 0.35;
+
+/* criar imagens */
+let count = 0;
+
+const timer = setInterval(()=>{
+
+  const tile = document.createElement("div");
+  tile.className = "tile";
+
+  const size = 80 + Math.random()*160;
+
+  tile.style.width = size+"px";
+  tile.style.height = size+"px";
+
+  tile.style.left =
+    Math.random()*(window.innerWidth-size)+"px";
+
+  tile.style.top =
+    Math.random()*(window.innerHeight-size)+"px";
+
+  const img = document.createElement("img");
+  img.src = IMAGE;
+
+  tile.appendChild(img);
+  stage.appendChild(tile);
+
+  requestAnimationFrame(()=>{
+    tile.style.opacity = 1;
+  });
+
+  count++;
+
+  if(count >= TOTAL){
+    clearInterval(timer);
+  }
+
+}, SPEED);
+
+escapeBtn.addEventListener("click", () => {
+  // pára som e imagens (mantém como quiseres)
+  sound.pause();
+  sound.currentTime = 0;
+  clearInterval(timer);
+
+  // opcional: blackout antes de sair
+  blackout.classList.add("on");
+
+  setTimeout(() => {
+    window.location.href = "GETOUT.html"; // <-- muda para a página que quiseres
+  }, 400);
+});
+
+/* ✅ ESCAPE ALTERNATIVO – precisa insistir + volume + tremor */
+let keyCount = 0;
+let keyTimer = null;
+
+const REQUIRED_PRESSES = 30;   // dificuldade
+const RESET_DELAY = 2000;      // pausa -> reset
+
+// tremor contínuo (controlado por progress)
+let shakeRaf = null;
+let shakeAmount = 0;
+
+function startShake(){
+  if (shakeRaf) return;
+
+  const loop = () => {
+    const x = (Math.random()*2 - 1) * shakeAmount;
+    const y = (Math.random()*2 - 1) * shakeAmount;
+
+    stage.style.transform = `translate(${x}px, ${y}px)`;
+
+    shakeRaf = requestAnimationFrame(loop);
+  };
+
+  shakeRaf = requestAnimationFrame(loop);
+}
+
+function stopShake(){
+  if (shakeRaf) cancelAnimationFrame(shakeRaf);
+  shakeRaf = null;
+  shakeAmount = 0;
+  stage.style.transform = "translate(0,0)";
+}
+
+function returnToStart(){
+  sound.pause();
+  sound.currentTime = 0;
+
+  clearInterval(timer);
+
+  stopShake();
+
+  blackout.classList.add("on");
+
+  setTimeout(()=>{
+    window.location.href = "GETOUT.html"; // muda se o teu ficheiro inicial tiver outro nome
+  }, 600);
+}
+
+/* ✅ Mostrar botão apenas quando pressionam uma tecla */
+let escapeShown = false;
+
+/* ✅ FUNÇÃO ÚNICA: teclado + mobile */
+function handleInput(){
+
+  // (1) mostra o GO BACK após 3 inputs
+  keyPresses++;
+  if (keyPresses >= SHOW_AFTER_KEYS) {
+    showEscapeTemporarily();
+  }
+
+  // (2) tremor + volume + escape alternativo após N inputs
+  keyCount++;
+
+  clearTimeout(keyTimer);
+  keyTimer = setTimeout(() => {
+    keyCount = 0;
+    shakeAmount = 0;
+  }, RESET_DELAY);
+
+  const progress = Math.min(1, keyCount / REQUIRED_PRESSES);
+
+  const targetVol = 0.35 + progress * 0.45;
+  sound.volume = Math.min(0.80, targetVol);
+
+  shakeAmount = 0.4 + progress * 4.0;
+  startShake();
+
+  if (keyCount >= REQUIRED_PRESSES) {
+    returnToStart();
+  }
+
+  // (3) primeira interação também “revela” (mantém a tua lógica)
+  if (!escapeShown) {
+    escapeBtn.classList.add("visible");
+    escapeShown = true;
+  }
+}
+
+/* DESKTOP – letras A–Z ou SPACE */
+window.addEventListener("keydown", (e) => {
+  const key = e.key;
+  if (!(key === " " || /^[a-zA-Z]$/.test(key))) return;
+  handleInput();
+});
+
+/* MOBILE – toque no ecrã */
+window.addEventListener("touchstart", () => {
+  handleInput();
+}, { passive: true });
+
+</script>
+</body>
+</html>

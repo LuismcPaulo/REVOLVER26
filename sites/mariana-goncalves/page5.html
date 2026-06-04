@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>the bad ending</title>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Jacquard+24&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="images/beetle.png">
+</head>
+<body>
+<div class="image-container">
+  <img src="images/theend.jpg" alt="Background" class="background-image">
+</div>
+
+<div class="heartbeat-lights">
+  <img src="images/light1.png" alt="Light 1" class="light light1">
+  <img src="images/light2.png" alt="Light 2" class="light light2">
+  <img src="images/light3.png" alt="Light 3" class="light light3">
+</div>
+
+<!-- Audio element -->
+<audio id="backgroundMusic" autoplay loop muted preload="auto">
+  <source src="audio/thebadendinginstrumental.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+// Background music settings
+document.getElementById("backgroundMusic").volume = 0.06;
+
+window.addEventListener('load', function() {
+  var bgMusic = document.getElementById("backgroundMusic");
+  
+  setTimeout(function() {
+    bgMusic.muted = false;
+  }, 1000);
+});
+
+document.body.addEventListener('click', function unmute() {
+  var bgMusic = document.getElementById("backgroundMusic");
+  bgMusic.muted = false;
+  document.body.removeEventListener('click', unmute);
+}, { once: true });
+
+</script>
+
+<!-- Text phrases with fade-in effects -->
+<div class="phrase-left">Was it worth it?</div>
+<div class="phrase-right">Now perish, mortal.</div>
+
+<div class="teeth-overlay" id="teethOverlay">
+  <img src="images/teeth.png" alt="Teeth" class="teeth-image">
+</div>
+
+<script>
+// Add fade-in classes with delays and teeth effect
+window.addEventListener('load', function() {
+  const leftPhrase = document.querySelector('.phrase-left');
+  const rightPhrase = document.querySelector('.phrase-right');
+  const teethOverlay = document.getElementById('teethOverlay');
+  
+  // Left phrase appears after 2 seconds
+  setTimeout(function() {
+    leftPhrase.classList.add('visible');
+  }, 2000);
+  
+  // Right phrase appears after 5 seconds
+  setTimeout(function() {
+    rightPhrase.classList.add('visible');
+    
+    // Trigger teeth effect after 5.5 seconds
+    setTimeout(function() {
+      teethOverlay.classList.add('active');
+      
+      // Redirect after animation
+      setTimeout(function() {
+        window.location.href = "index.html";
+      }, 150);
+    }, 3000);
+  }, 5000);
+});
+</script>
+
+</body>
+</html>
