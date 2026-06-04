@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Mirror Me</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    font-family: 'Share Tech Mono', monospace;
+    color: #ff1a1a;
+}
+
+body {
+    position: relative;
+}
+
+#upgradeBtn {
+    position: absolute;
+    z-index: 1000;
+    padding: clamp(14px, 3.8vw, 20px) clamp(20px, 6vw, 40px);
+    font-size: clamp(16px, 3.4vw, 20px);
+    cursor: pointer;
+    border: 2px solid #ff1a1a;
+    border-radius: 5px;
+    background: rgba(0,0,0,0.5);
+    color: #ff1a1a;
+    text-shadow: 0 0 5px #ff1a1a, 0 0 10px #ff4d4d;
+    transition: all 0.3s ease;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+}
+
+#upgradeBtn:hover {
+    box-shadow: 0 0 20px #ff4d4d;
+    transform: translate(-50%,-50%) scale(1.05);
+    background: rgba(0,0,0,0.7);
+}
+
+#doneText {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    font-size: clamp(16px, 4vw, 24px);
+    cursor: pointer;
+    z-index: 1001;
+    color: #fff;
+    text-shadow: 0 0 5px #ff1a1a, 0 0 10px #ff4d4d;
+}
+
+#blackout {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.94);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 900;
+}
+
+#blackout::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(255, 26, 26, 0.08) 0px,
+            rgba(255, 26, 26, 0.08) 2px,
+            transparent 2px,
+            transparent 9px
+        ),
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 26, 26, 0.06) 46%,
+            rgba(255, 26, 26, 0.12) 50%,
+            rgba(255, 26, 26, 0.06) 54%,
+            transparent 100%
+        );
+    opacity: 0;
+    mix-blend-mode: screen;
+    animation: blackoutGlitch 0.22s steps(2, end) infinite;
+}
+
+#blackout.glitching::before {
+    opacity: 1;
+}
+
+@keyframes blackoutGlitch {
+    0% { transform: translate(0, 0); }
+    20% { transform: translate(-8px, 0); }
+    40% { transform: translate(6px, -2px); }
+    60% { transform: translate(-4px, 2px); }
+    80% { transform: translate(3px, 0); }
+    100% { transform: translate(0, 0); }
+}
+
+canvas.monitor {
+    position: absolute;
+    border: 1px solid #ff1a1a;
+    border-radius: 5px;
+    box-shadow: 0 0 15px #ff1a1a;
+    mix-blend-mode: screen;
+    z-index: 100;
+}
+
+canvas#binaryBg {
+    position: fixed;
+    top:0;
+    left:0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+@media (max-width: 768px) {
+    #upgradeBtn {
+        width: min(90vw, 420px);
+    }
+
+    #doneText {
+        width: min(92vw, 560px);
+        text-align: center;
+    }
+}
+</style>
+</head>
+<body>
+
+<canvas id="binaryBg"></canvas>
+<div id="blackout"></div>
+<button id="upgradeBtn">CLICK TO CONTINUE</button>
+<div id="doneText" onclick="window.location.href='pagina03.html'">when you're done, click here</div>
+
+<script>
+/* ================= Fundo Binary Code ================= */
+const canvas = document.getElementById('binaryBg');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const cols = 100;
+const fontSize = 20;
+const drops = [];
+let matrixSpeed = 1;
+
+for(let i=0;i<cols;i++){
+    drops[i] = Math.random() * canvas.height;
+}
+
+function drawBinary(){
+    ctx.fillStyle = 'rgba(0,0,0,0.1)';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.fillStyle = '#ff1a1a';
+    ctx.font = fontSize + "px monospace";
+
+    for(let i=0;i<drops.length;i++){
+        const text = Math.random() > 0.5 ? '0' : '1';
+        ctx.fillText(text, i*fontSize, drops[i]);
+        drops[i] += fontSize * matrixSpeed;
+        if(drops[i] > canvas.height) drops[i] = 0;
+    }
+
+    requestAnimationFrame(drawBinary);
+}
+
+drawBinary();
+
+window.addEventListener('resize', ()=>{
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+
+/* ================= Monitores ================= */
+const NUM_MONITORS = 12;
+const SCATTER_CLICKS = 7;
+const MERGE_CLICKS = 10;
+const monitors = [];
+const effectsList = ['mirror','colorShift','noise','pixelate','glitch'];
+let clickStep = 0;
+let activated = false;
+let systemFailure = false;
+let exploding = false;
+let sceneStarted = false;
+let drawRunning = false;
+let signalTimer = null;
+let finalFrameTick = 0;
+let finalRevealActive = false;
+let darknessLevel = 0;
+let targetDarkness = 0;
+
+const video = document.createElement('video');
+video.autoplay = true;
+video.playsInline = true;
+video.style.display='none';
+document.body.appendChild(video);
+
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+let masterGain = null;
+let finalNoiseSource = null;
+let finalNoiseGain = null;
+let distortionCurve = null;
+
+function initAudio(){
+    return;
+    if(!AudioCtx) return;
+    if(!audioCtx){
+        audioCtx = new AudioCtx();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = 0.9;
+        masterGain.connect(audioCtx.destination);
+    }
+    if(audioCtx.state === 'suspended'){
+        audioCtx.resume();
+    }
+}
+
+function getDistortionCurve(amount = 120){
+    if(distortionCurve) return distortionCurve;
+    const samples = 2048;
+    const curve = new Float32Array(samples);
+    const k = amount;
+    for(let i=0;i<samples;i++){
+        const x = i * 2 / samples - 1;
+        curve[i] = ((3 + k) * x * 20 * (Math.PI / 180)) / (Math.PI + k * Math.abs(x));
+    }
+    distortionCurve = curve;
+    return curve;
+}
+
+function playSignalBeep(progress){
+    if(!audioCtx || !masterGain) return;
+
+    const now = audioCtx.currentTime;
+    const intensity = 0.12 + progress * 0.3;
+    const base = 52 + progress * 120;
+
+    const chirp = audioCtx.createOscillator();
+    const chirpGain = audioCtx.createGain();
+    const chirpDist = audioCtx.createWaveShaper();
+    const chirpLP = audioCtx.createBiquadFilter();
+    chirpLP.type = 'lowpass';
+    chirpLP.frequency.setValueAtTime(280 + progress * 420, now);
+    chirpLP.Q.value = 1.3;
+    chirpDist.curve = getDistortionCurve(320);
+    chirpDist.oversample = '4x';
+    chirp.type = 'sawtooth';
+    chirp.frequency.setValueAtTime(base * 1.25, now);
+    chirp.frequency.exponentialRampToValueAtTime(base * 0.58, now + 0.11);
+    chirpGain.gain.setValueAtTime(0.0001, now);
+    chirpGain.gain.exponentialRampToValueAtTime(intensity, now + 0.008);
+    chirpGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+    chirp.connect(chirpDist);
+    chirpDist.connect(chirpLP);
+    chirpLP.connect(chirpGain);
+    chirpGain.connect(masterGain);
+    chirp.start(now);
+    chirp.stop(now + 0.17);
+
+    const sparkle = audioCtx.createOscillator();
+    const sparkleGain = audioCtx.createGain();
+    const sparkleDist = audioCtx.createWaveShaper();
+    sparkleDist.curve = getDistortionCurve(300);
+    sparkleDist.oversample = '4x';
+    sparkle.type = 'square';
+    sparkle.frequency.setValueAtTime(base * 0.8, now + 0.01);
+    sparkle.frequency.exponentialRampToValueAtTime(base * 0.32, now + 0.13);
+    sparkleGain.gain.setValueAtTime(0.0001, now + 0.008);
+    sparkleGain.gain.exponentialRampToValueAtTime(0.09 + progress * 0.14, now + 0.024);
+    sparkleGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+    sparkle.connect(sparkleDist);
+    sparkleDist.connect(sparkleGain);
+    sparkleGain.connect(masterGain);
+    sparkle.start(now + 0.008);
+    sparkle.stop(now + 0.16);
+
+    const sub = audioCtx.createOscillator();
+    const subGain = audioCtx.createGain();
+    const subDist = audioCtx.createWaveShaper();
+    subDist.curve = getDistortionCurve(260);
+    subDist.oversample = '4x';
+    sub.type = 'sine';
+    sub.frequency.setValueAtTime(46 + progress * 35, now);
+    sub.frequency.exponentialRampToValueAtTime(28 + progress * 24, now + 0.17);
+    subGain.gain.setValueAtTime(0.0001, now);
+    subGain.gain.exponentialRampToValueAtTime(0.18 + progress * 0.2, now + 0.012);
+    subGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.17);
+    sub.connect(subDist);
+    subDist.connect(subGain);
+    subGain.connect(masterGain);
+    sub.start(now);
+    sub.stop(now + 0.18);
+
+    const clickBuffer = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate * 0.03), audioCtx.sampleRate);
+    const clickData = clickBuffer.getChannelData(0);
+    for(let i=0;i<clickData.length;i++){
+        clickData[i] = (Math.random() * 2 - 1) * (1 - i / clickData.length);
+    }
+    const clickSource = audioCtx.createBufferSource();
+    const clickHP = audioCtx.createBiquadFilter();
+    clickHP.type = 'bandpass';
+    clickHP.frequency.value = 180;
+    clickHP.Q.value = 1.9;
+    const clickGain = audioCtx.createGain();
+    clickGain.gain.setValueAtTime(0.0001, now);
+    clickGain.gain.exponentialRampToValueAtTime(0.1 + progress * 0.14, now + 0.004);
+    clickGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
+    clickSource.buffer = clickBuffer;
+    clickSource.connect(clickHP);
+    clickHP.connect(clickGain);
+    clickGain.connect(masterGain);
+    clickSource.start(now);
+}
+
+function updateSignalLoop(){
+    if(signalTimer){
+        clearInterval(signalTimer);
+        signalTimer = null;
+    }
+    if(!sceneStarted || systemFailure || exploding) return;
+
+    const progress = Math.min(1, clickStep / MERGE_CLICKS);
+    const interval = Math.max(110, 700 - progress * 560);
+
+    const tick = ()=>playSignalBeep(progress);
+    tick();
+    signalTimer = setInterval(tick, interval);
+}
+
+function stopSignalLoop(){
+    if(signalTimer){
+        clearInterval(signalTimer);
+        signalTimer = null;
+    }
+}
+
+function startFinalWhiteNoise(){
+    if(!audioCtx || !masterGain || finalNoiseSource) return;
+
+    const seconds = 2;
+    const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * seconds, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let i=0;i<data.length;i++){
+        data[i] = Math.random() * 2 - 1;
+    }
+
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+    source.loop = true;
+
+    const hp = audioCtx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 130;
+    const lp = audioCtx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 1600;
+    const dist = audioCtx.createWaveShaper();
+    dist.curve = getDistortionCurve(140);
+    dist.oversample = '4x';
+
+    finalNoiseGain = audioCtx.createGain();
+    finalNoiseGain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+    finalNoiseGain.gain.exponentialRampToValueAtTime(0.5, audioCtx.currentTime + 0.45);
+
+    source.connect(hp);
+    hp.connect(lp);
+    lp.connect(dist);
+    dist.connect(finalNoiseGain);
+    finalNoiseGain.connect(masterGain);
+    source.start();
+    finalNoiseSource = source;
+}
+
+function playBlackoutBlast(){
+    if(!audioCtx || !masterGain) return;
+
+    const now = audioCtx.currentTime;
+    const chaosGain = audioCtx.createGain();
+    chaosGain.gain.setValueAtTime(0.0001, now);
+    chaosGain.gain.exponentialRampToValueAtTime(0.9, now + 0.02);
+    chaosGain.gain.exponentialRampToValueAtTime(0.42, now + 0.7);
+    chaosGain.gain.exponentialRampToValueAtTime(0.08, now + 2.8);
+    chaosGain.gain.exponentialRampToValueAtTime(0.001, now + 4.2);
+    chaosGain.connect(masterGain);
+
+    const chaosDist = audioCtx.createWaveShaper();
+    chaosDist.curve = getDistortionCurve(260);
+    chaosDist.oversample = '4x';
+
+    // Camada principal: ruído digital filtrado e movimentado (mais grave)
+    const noiseBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 4.2, audioCtx.sampleRate);
+    const noiseData = noiseBuffer.getChannelData(0);
+    for(let i=0;i<noiseData.length;i++){
+        const gate = Math.random() > 0.72 ? 0 : 1;
+        noiseData[i] = (Math.random() * 2 - 1) * gate;
+    }
+    const noiseSource = audioCtx.createBufferSource();
+    noiseSource.buffer = noiseBuffer;
+    const hp = audioCtx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.setValueAtTime(90, now);
+    hp.frequency.exponentialRampToValueAtTime(380, now + 1.4);
+    const bp = audioCtx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.setValueAtTime(320, now);
+    bp.frequency.exponentialRampToValueAtTime(900, now + 2.5);
+    bp.Q.value = 0.9;
+    const lp = audioCtx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(1200, now);
+    lp.frequency.exponentialRampToValueAtTime(700, now + 2.4);
+    noiseSource.connect(hp);
+    hp.connect(bp);
+    bp.connect(lp);
+    lp.connect(chaosDist);
+    chaosDist.connect(chaosGain);
+    noiseSource.start(now);
+
+    // Sweep tonal grave e distorcido
+    const sweep = audioCtx.createOscillator();
+    const sweepGain = audioCtx.createGain();
+    const sweepDist = audioCtx.createWaveShaper();
+    sweepDist.curve = getDistortionCurve(280);
+    sweepDist.oversample = '4x';
+    sweep.type = 'sawtooth';
+    sweep.frequency.setValueAtTime(420, now);
+    sweep.frequency.exponentialRampToValueAtTime(62, now + 2.2);
+    sweepGain.gain.setValueAtTime(0.0001, now);
+    sweepGain.gain.exponentialRampToValueAtTime(0.46, now + 0.03);
+    sweepGain.gain.exponentialRampToValueAtTime(0.001, now + 2.4);
+    sweep.connect(sweepDist);
+    sweepDist.connect(sweepGain);
+    sweepGain.connect(masterGain);
+    sweep.start(now);
+    sweep.stop(now + 2.5);
+
+    // Bursts glitch rítmicos (menos agudos)
+    for(let i=0;i<22;i++){
+        const t = now + 0.04 + i * 0.085;
+        const glitch = audioCtx.createOscillator();
+        const glitchGain = audioCtx.createGain();
+        const glitchDist = audioCtx.createWaveShaper();
+        glitchDist.curve = getDistortionCurve(240);
+        glitchDist.oversample = '4x';
+        glitch.type = 'square';
+        glitch.frequency.setValueAtTime(180 + Math.random() * 760, t);
+        glitch.frequency.exponentialRampToValueAtTime(70 + Math.random() * 180, t + 0.06);
+        glitchGain.gain.setValueAtTime(0.0001, t);
+        glitchGain.gain.exponentialRampToValueAtTime(0.36, t + 0.007);
+        glitchGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.07);
+        glitch.connect(glitchDist);
+        glitchDist.connect(glitchGain);
+        glitchGain.connect(masterGain);
+        glitch.start(t);
+        glitch.stop(t + 0.075);
+    }
+}
+
+function createMonitors(){
+    if(monitors.length > 0) return;
+
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    const radius = Math.min(window.innerWidth, window.innerHeight) * 0.24;
+
+    for(let i=0;i<NUM_MONITORS;i++){
+        const monitorCanvas = document.createElement('canvas');
+        monitorCanvas.width = 150 + Math.random()*70;
+        monitorCanvas.height = 110 + Math.random()*60;
+        monitorCanvas.classList.add('monitor');
+
+        const angle = (i/NUM_MONITORS) * Math.PI * 2;
+        const x = centerX + radius*Math.cos(angle) - monitorCanvas.width/2;
+        const y = centerY + radius*Math.sin(angle) - monitorCanvas.height/2;
+
+        monitorCanvas.style.left = x + 'px';
+        monitorCanvas.style.top = y + 'px';
+        monitorCanvas.style.transformOrigin = 'center center';
+        document.body.appendChild(monitorCanvas);
+
+        const seed = Math.random() * 1000;
+        const speed = 0.6 + Math.random() * 1.2;
+        applyShardShape(monitorCanvas, seed, speed, 0.55 + Math.random() * 0.25);
+
+        monitors.push({
+            canvas: monitorCanvas,
+            ctx: monitorCanvas.getContext('2d'),
+            x,
+            y,
+            dx: (Math.random()-0.5)*5,
+            dy: (Math.random()-0.5)*5,
+            rotation: 0,
+            speed: (Math.random()-0.5)*3,
+            scale: 1,
+            targetScale: 1,
+            attract: 0,
+            morphEnergy: 0.55 + Math.random() * 0.25,
+            morphSeed: seed,
+            morphSpeed: speed,
+            visible: true,
+            effects: []
+        });
+    }
+}
+
+function clamp(value, min, max){
+    return Math.max(min, Math.min(max, value));
+}
+
+function updateOrganicShape(monitor, tick){
+    const e = clamp(monitor.morphEnergy, 0, 1);
+    const canvas = monitor.canvas;
+
+    if(e < 0.03){
+        canvas.style.clipPath = 'none';
+        canvas.style.borderRadius = '10px';
+        return;
+    }
+
+    const t = tick * 0.017 * monitor.morphSpeed + monitor.morphSeed;
+    const a = Math.sin(t * 0.91);
+    const b = Math.sin(t * 1.33 + 1.2);
+    const c = Math.sin(t * 1.71 + 2.4);
+    const d = Math.sin(t * 2.13 + 0.6);
+
+    const r1 = 12 + e * 36 + a * (6 + e * 10);
+    const r2 = 16 + e * 28 + b * (5 + e * 8);
+    const r3 = 14 + e * 38 + c * (7 + e * 11);
+    const r4 = 18 + e * 32 + d * (6 + e * 9);
+    const v1 = 14 + e * 30 + b * (6 + e * 9);
+    const v2 = 22 + e * 26 + c * (5 + e * 8);
+    const v3 = 11 + e * 34 + d * (7 + e * 10);
+    const v4 = 24 + e * 24 + a * (5 + e * 8);
+
+    canvas.style.borderRadius = `${clamp(r1, 4, 74)}% ${clamp(r2, 4, 74)}% ${clamp(r3, 4, 74)}% ${clamp(r4, 4, 74)}% / ${clamp(v1, 4, 74)}% ${clamp(v2, 4, 74)}% ${clamp(v3, 4, 74)}% ${clamp(v4, 4, 74)}%`;
+
+    const points = 9;
+    const amp = 4 + e * 13;
+    const squish = 0.86 + Math.sin(t * 0.67) * 0.2;
+    const coords = [];
+    for(let i=0;i<points;i++){
+        const ang = (Math.PI * 2 * i) / points;
+        const wave = Math.sin(ang * 3 + t * 1.8) * amp + Math.sin(ang * 5 - t * 1.2) * amp * 0.45;
+        const radius = 42 + wave;
+        const x = 50 + Math.cos(ang) * radius;
+        const y = 50 + Math.sin(ang) * radius * squish;
+        coords.push(`${clamp(x, 2, 98)}% ${clamp(y, 2, 98)}%`);
+    }
+    canvas.style.clipPath = `polygon(${coords.join(',')})`;
+}
+
+function applyShardShape(canvas, seed, speed, energy){
+    const t = seed * 0.01 + speed * 7.0;
+    const points = 7 + Math.floor((seed % 1) * 4);
+    const amp = 10 + energy * 18;
+    const coords = [];
+    for(let i=0;i<points;i++){
+        const ang = (Math.PI * 2 * i) / points;
+        const wave = Math.sin(ang * 3 + t * 1.4) * amp + Math.sin(ang * 5 - t * 0.9) * amp * 0.5;
+        const radius = 42 + wave;
+        const x = 50 + Math.cos(ang) * radius;
+        const y = 50 + Math.sin(ang) * radius * (0.9 + Math.sin(t * 0.7) * 0.16);
+        coords.push(`${clamp(x, 2, 98)}% ${clamp(y, 2, 98)}%`);
+    }
+    canvas.style.clipPath = `polygon(${coords.join(',')})`;
+    canvas.style.borderRadius = `${10 + energy * 20}% ${8 + energy * 14}% ${12 + energy * 22}% ${7 + energy * 16}% / ${9 + energy * 18}% ${13 + energy * 15}% ${8 + energy * 20}% ${14 + energy * 17}%`;
+}
+
+function applyEffect(effectCtx, effectCanvas, effect){
+    if(effect === 'mirror'){
+        effectCtx.save();
+        effectCtx.translate(effectCanvas.width, 0);
+        effectCtx.scale(-1, 1);
+        effectCtx.drawImage(effectCanvas, 0, 0);
+        effectCtx.restore();
+        return;
+    }
+
+    if(effect === 'glitch'){
+        for(let i=0;i<12;i++){
+            const sliceY = Math.floor(Math.random() * effectCanvas.height);
+            const sliceH = Math.max(2, Math.floor(Math.random() * 18));
+            const shift = (Math.random() - 0.5) * 40;
+            effectCtx.drawImage(
+                effectCanvas,
+                0, sliceY, effectCanvas.width, sliceH,
+                shift, sliceY, effectCanvas.width, sliceH
+            );
+        }
+        effectCtx.fillStyle = `rgba(255, 26, 26, ${Math.random() * 0.25})`;
+        effectCtx.fillRect(0, 0, effectCanvas.width, effectCanvas.height);
+        return;
+    }
+
+    const imageData = effectCtx.getImageData(0,0,effectCanvas.width,effectCanvas.height);
+    const data = imageData.data;
+
+    switch(effect){
+        case 'colorShift':
+            for(let i=0;i<data.length;i+=4){
+                const r = data[i];
+                const g = data[i+1];
+                const b = data[i+2];
+                const t = clamp(darknessLevel, 0, 1);
+                const luma = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
+                const shadowCrush = luma < 0.52
+                    ? (0.9 - t * 0.5 + luma * (0.35 + t * 0.42))
+                    : (0.96 - t * 0.24 + luma * (0.12 + t * 0.16));
+                const blackDrop = (4 + Math.random() * 6) + t * (16 + Math.random() * 12);
+                const darkBoost = (0.78 + Math.random() * 0.12) - t * 0.2;
+                data[i] = clamp(((r * 0.84 + g * 0.16) * darkBoost + (56 - t * 20)) * shadowCrush - blackDrop * (0.1 + t * 0.26), 0, 255); // vermelho dominante progressivo
+                data[i+1] = clamp(((g * 0.24 + r * 0.08) * darkBoost + (8 - t * 5)) * shadowCrush - blackDrop * (0.14 + t * 0.32), 0, 96 - t * 24); // verde baixo
+                data[i+2] = clamp(((b * 0.1 + r * 0.05) * darkBoost + (3 - t * 2)) * shadowCrush - blackDrop * (0.18 + t * 0.36), 0, 52 - t * 20); // azul reduzido
+            }
+            effectCtx.putImageData(imageData,0,0);
+            break;
+        case 'noise':
+            for(let i=0;i<data.length;i+=4){
+                const rand = Math.random()*80 - 40;
+                data[i] += rand;
+                data[i+1] += rand;
+                data[i+2] += rand;
+            }
+            effectCtx.putImageData(imageData,0,0);
+            break;
+        case 'pixelate':
+            {
+                const size = 10;
+                for(let y=0;y<effectCanvas.height;y+=size){
+                    for(let x=0;x<effectCanvas.width;x+=size){
+                        const idx = (y*effectCanvas.width+x)*4;
+                        const r = data[idx];
+                        const g = data[idx+1];
+                        const b = data[idx+2];
+                        for(let py=0;py<size;py++){
+                            for(let px=0;px<size;px++){
+                                if(y+py<effectCanvas.height && x+px<effectCanvas.width){
+                                    const fillIdx = ((y+py)*effectCanvas.width+(x+px))*4;
+                                    data[fillIdx] = r;
+                                    data[fillIdx+1] = g;
+                                    data[fillIdx+2] = b;
+                                }
+                            }
+                        }
+                    }
+                }
+                effectCtx.putImageData(imageData,0,0);
+            }
+            break;
+    }
+}
+
+function triggerSystemFailure(){
+    systemFailure = true;
+    targetDarkness = 1;
+    matrixSpeed = 2.8;
+    finalRevealActive = true;
+    upgradeBtn.style.display = 'none';
+    stopSignalLoop();
+    playBlackoutBlast();
+    startFinalWhiteNoise();
+    blackout.classList.add('glitching');
+    blackout.style.transition = 'opacity 0.35s ease';
+    blackout.style.opacity = '1';
+
+    setTimeout(()=>{
+        monitors.forEach((m, index)=>{
+            if(index === 0){
+                m.x = 0;
+                m.y = 0;
+                m.dx = 0;
+                m.dy = 0;
+                m.rotation = 0;
+                m.speed = 0;
+                m.scale = 1;
+                m.targetScale = 1;
+                m.canvas.width = window.innerWidth;
+                m.canvas.height = window.innerHeight;
+                m.canvas.style.left = '0px';
+                m.canvas.style.top = '0px';
+                m.canvas.style.transform = 'none';
+                m.canvas.style.border = '0';
+                m.canvas.style.borderRadius = '0';
+                m.canvas.style.clipPath = 'none';
+                m.canvas.style.boxShadow = 'none';
+                m.canvas.style.mixBlendMode = 'screen';
+                m.canvas.style.display = 'block';
+                m.canvas.style.opacity = '0';
+                m.canvas.style.transition = 'opacity 2.8s ease';
+                m.effects = ['noise','colorShift','glitch','noise','colorShift'];
+                m.visible = true;
+            }else{
+                m.visible = false;
+                m.canvas.style.display = 'none';
+            }
+        });
+
+        requestAnimationFrame(()=>{
+            monitors[0].canvas.style.opacity = '1';
+            blackout.style.transition = 'opacity 2.6s ease';
+            blackout.style.opacity = '0';
+            setTimeout(()=>{
+                blackout.classList.remove('glitching');
+            }, 2600);
+        });
+
+        doneText.textContent = 'SYSTEM FAILURE // CLICK TO ESCAPE';
+        doneText.style.display = 'block';
+    }, 900);
+}
+
+function startExplosionSequence(){
+    exploding = true;
+    matrixSpeed = 3.4;
+    monitors.forEach(m=>{
+        const angle = Math.atan2(m.y - window.innerHeight/2, m.x - window.innerWidth/2) + (Math.random()-0.5)*0.7;
+        const power = 18 + Math.random()*12;
+        m.dx = Math.cos(angle) * power;
+        m.dy = Math.sin(angle) * power;
+        m.speed = (Math.random()-0.5) * 24;
+        m.targetScale = 0.8 + Math.random()*0.8;
+        m.effects = ['glitch','noise','colorShift'];
+    });
+
+    setTimeout(()=>{
+        exploding = false;
+        triggerSystemFailure();
+    }, 650);
+}
+
+function keepMonitorsSeparated(){
+    for(let i=0;i<monitors.length;i++){
+        const a = monitors[i];
+        if(!a.visible) continue;
+
+        for(let j=i+1;j<monitors.length;j++){
+            const b = monitors[j];
+            if(!b.visible) continue;
+
+            const acx = a.x + (a.canvas.width * a.scale) / 2;
+            const acy = a.y + (a.canvas.height * a.scale) / 2;
+            const bcx = b.x + (b.canvas.width * b.scale) / 2;
+            const bcy = b.y + (b.canvas.height * b.scale) / 2;
+
+            let dx = bcx - acx;
+            let dy = bcy - acy;
+            let dist = Math.hypot(dx, dy);
+            if(dist < 0.001){
+                dist = 0.001;
+                dx = (Math.random()-0.5) * 0.1;
+                dy = (Math.random()-0.5) * 0.1;
+            }
+
+            const minDist = Math.min(
+                (a.canvas.width * a.scale + b.canvas.width * b.scale) * 0.42,
+                260
+            );
+
+            if(dist < minDist){
+                const push = (minDist - dist) / minDist;
+                const nx = dx / dist;
+                const ny = dy / dist;
+                const force = 1.2 + push * 3.2;
+
+                a.dx -= nx * force;
+                a.dy -= ny * force;
+                b.dx += nx * force;
+                b.dy += ny * force;
+            }
+        }
+    }
+}
+
+function draw(){
+    darknessLevel += (targetDarkness - darknessLevel) * 0.085;
+
+    if(activated && !systemFailure){
+        keepMonitorsSeparated();
+    }
+
+    monitors.forEach(m=>{
+        if(!m.visible) return;
+
+        const monitorCtx = m.ctx;
+        const monitorCanvas = m.canvas;
+
+        if(activated && !systemFailure){
+            m.x += m.dx;
+            m.y += m.dy;
+            m.rotation += m.speed * (1 - m.attract * 0.85);
+            updateOrganicShape(m, finalFrameTick);
+
+            if(!exploding){
+                const targetX = window.innerWidth/2 - (monitorCanvas.width * m.scale)/2;
+                const targetY = window.innerHeight/2 - (monitorCanvas.height * m.scale)/2;
+                m.x += (targetX - m.x) * (0.01 + m.attract * 0.14);
+                m.y += (targetY - m.y) * (0.01 + m.attract * 0.14);
+            }
+
+            if(m.x<0 || m.x + monitorCanvas.width * m.scale > window.innerWidth) m.dx *= -1;
+            if(m.y<0 || m.y + monitorCanvas.height * m.scale > window.innerHeight) m.dy *= -1;
+
+            m.scale += (m.targetScale - m.scale) * (exploding ? 0.28 : 0.16);
+            m.dx *= exploding ? 0.985 : 0.98;
+            m.dy *= exploding ? 0.985 : 0.98;
+
+            monitorCanvas.style.left = m.x + 'px';
+            monitorCanvas.style.top = m.y + 'px';
+            monitorCanvas.style.transform = `scale(${m.scale}) rotate(${m.rotation}deg)`;
+        }
+
+        if(systemFailure){
+            monitorCanvas.style.left = '0px';
+            monitorCanvas.style.top = '0px';
+            monitorCanvas.style.transform = 'none';
+        }
+
+        const shouldFreezeFrame =
+            finalRevealActive &&
+            systemFailure &&
+            m === monitors[0] &&
+            (finalFrameTick % 5 === 1 || finalFrameTick % 9 === 3);
+
+        if(!shouldFreezeFrame){
+            monitorCtx.save();
+            monitorCtx.clearRect(0,0,monitorCanvas.width,monitorCanvas.height);
+            monitorCtx.translate(monitorCanvas.width/2,monitorCanvas.height/2);
+            monitorCtx.rotate((m.rotation*Math.PI)/180);
+            monitorCtx.drawImage(video,-monitorCanvas.width/2,-monitorCanvas.height/2,monitorCanvas.width,monitorCanvas.height);
+            monitorCtx.restore();
+        }
+
+        m.effects.forEach(effect => applyEffect(monitorCtx, monitorCanvas, effect));
+    });
+
+    finalFrameTick++;
+    requestAnimationFrame(draw);
+}
+
+async function startCamera(){
+    try{
+        const stream = await navigator.mediaDevices.getUserMedia({video:true,audio:false});
+        video.srcObject = stream;
+        await video.play();
+        if(!drawRunning){
+            drawRunning = true;
+            requestAnimationFrame(draw);
+        }
+    }catch(err){
+        alert("Erro ao acessar a câmara: " + err);
+    }
+}
+
+const upgradeBtn = document.getElementById('upgradeBtn');
+const doneText = document.getElementById('doneText');
+const blackout = document.getElementById('blackout');
+
+upgradeBtn.addEventListener('click', ()=>{
+    if(systemFailure || exploding) return;
+
+    initAudio();
+
+    if(!sceneStarted){
+        sceneStarted = true;
+        createMonitors();
+    }
+
+    activated = true;
+    clickStep++;
+    targetDarkness = clamp((clickStep - 1) / (MERGE_CLICKS - 1), 0, 1);
+    updateSignalLoop();
+
+    if(clickStep <= SCATTER_CLICKS){
+        const scatterProgress = clickStep / SCATTER_CLICKS;
+        matrixSpeed = 1 + scatterProgress * 0.8;
+
+        monitors.forEach(m=>{
+            m.attract = 0;
+            m.morphEnergy = Math.min(1, 0.55 + scatterProgress * 0.4);
+            const angle = Math.atan2(m.y - window.innerHeight/2, m.x - window.innerWidth/2) + (Math.random()-0.5)*0.8;
+            const push = 4 + scatterProgress * 12;
+            m.dx += Math.cos(angle) * push;
+            m.dy += Math.sin(angle) * push;
+            m.targetScale = 0.88 + Math.random() * 0.36;
+            m.speed += (Math.random()-0.5) * 2.2;
+
+            const nextEffect = effectsList[Math.min(clickStep-1, effectsList.length-1)];
+            if(nextEffect && !m.effects.includes(nextEffect)){
+                m.effects.push(nextEffect);
+            }
+        });
+    }else{
+        const joinProgress = (clickStep - SCATTER_CLICKS) / (MERGE_CLICKS - SCATTER_CLICKS);
+        matrixSpeed = 1.8 + joinProgress * 1.4;
+
+        monitors.forEach(m=>{
+            m.attract = 0.22 + joinProgress * 0.58;
+            m.morphEnergy = Math.min(1, 0.62 + joinProgress * 0.38);
+            m.targetScale = 1.15 + joinProgress * 1.25;
+            m.dx *= 0.78;
+            m.dy *= 0.78;
+            m.speed *= 0.82;
+            if(!m.effects.includes('noise')) m.effects.push('noise');
+            if(joinProgress > 0.6 && !m.effects.includes('glitch')) m.effects.push('glitch');
+        });
+    }
+
+    if(clickStep >= MERGE_CLICKS){
+        startExplosionSequence();
+    }
+});
+
+window.addEventListener('resize', ()=>{
+    if(!sceneStarted) return;
+
+    if(systemFailure && monitors[0]){
+        const primary = monitors[0];
+        primary.canvas.width = window.innerWidth;
+        primary.canvas.height = window.innerHeight;
+    }
+});
+
+startCamera();
+</script>
+
+</body>
+</html>

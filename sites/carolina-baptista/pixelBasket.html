@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pixel Basket Challenge</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            background-color: #0d0221;
+            background-image: 
+                linear-gradient(rgba(138, 43, 226, 0.2) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(138, 43, 226, 0.2) 2px, transparent 2px);
+            background-size: 30px 30px;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Press Start 2P', cursive;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            touch-action: none;
+        }
+
+        .hud {
+            position: fixed;
+            top: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            z-index: 100;
+        }
+
+        .hud-item {
+            background: #2e1065;
+            border: 4px solid #c084fc;
+            padding: 10px 20px;
+            color: #fff;
+            font-size: 0.8rem;
+            box-shadow: 
+                inset 2px 2px 0px rgba(255,255,255,0.2),
+                inset -2px -2px 0px rgba(0,0,0,0.5),
+                4px 4px 0px #000000;
+        }
+
+        .hud-item span {
+            color: #f0abfc;
+        }
+
+        #game-area {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #basket {
+            position: absolute;
+            bottom: 100px;
+            width: 100px;
+            height: 80px;
+            background: #7c3aed;
+            border: 4px solid #c084fc;
+            box-shadow: 
+                inset 4px 4px 0px rgba(255,255,255,0.3),
+                inset -4px -4px 0px rgba(0,0,0,0.5),
+                4px 4px 0px #000000;
+            transform: translateX(-50%);
+            z-index: 10;
+            left: 50%;
+        }
+
+        #basket::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 10px;
+            width: 80px;
+            height: 10px;
+            background: #5b21b6;
+            border: 2px solid #c084fc;
+        }
+
+        .ball {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle at 30% 30%, #f0abfc, #c084fc, #7c3aed);
+            border: 3px solid #fff;
+            border-radius: 50%;
+            box-shadow: 
+                inset 4px 4px 0px rgba(255,255,255,0.4),
+                inset -4px -4px 0px rgba(0,0,0,0.3),
+                4px 4px 0px #000000;
+            animation: bounce 0.5s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0px); }
+            to { transform: translateY(-10px); }
+        }
+
+        #win-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 2, 33, 0.95);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        #win-screen h1 {
+            color: #4ade80;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-shadow: 4px 4px 0px #14532d, 8px 8px 0px #000000;
+            animation: pulse 0.5s infinite;
+        }
+
+        #win-screen p {
+            color: #d8b4fe;
+            font-size: 0.7rem;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.8;
+        }
+
+        #win-screen .stats {
+            background: #2e1065;
+            border: 4px solid #c084fc;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 
+                inset 2px 2px 0px rgba(255,255,255,0.2),
+                inset -2px -2px 0px rgba(0,0,0,0.5),
+                4px 4px 0px #000000;
+        }
+
+        #win-screen .stats p {
+            margin: 10px 0;
+            color: #fff;
+        }
+
+        .pixel-btn {
+            background: #7c3aed;
+            border: 4px solid #c084fc;
+            padding: 20px 40px;
+            color: #fff;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 
+                inset 4px 4px 0px rgba(255,255,255,0.3),
+                inset -4px -4px 0px rgba(0,0,0,0.5),
+                8px 8px 0px #000000;
+            transition: all 0.1s;
+            text-transform: uppercase;
+        }
+
+        .pixel-btn:hover {
+            background: #8b5cf6;
+            transform: translate(2px, 2px);
+            box-shadow: 
+                inset 4px 4px 0px rgba(255,255,255,0.3),
+                inset -4px -4px 0px rgba(0,0,0,0.5),
+                4px 4px 0px #000000;
+        }
+
+        .pixel-btn:active {
+            transform: translate(6px, 6px);
+            box-shadow: none;
+        }
+
+        #gameover-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 2, 33, 0.95);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        #gameover-screen h1 {
+            color: #ef4444;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-shadow: 4px 4px 0px #7f1d1d, 8px 8px 0px #000000;
+        }
+
+        #gameover-screen p {
+            color: #d8b4fe;
+            font-size: 0.7rem;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.8;
+        }
+
+        #start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 2, 33, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        #start-screen h1 {
+            color: #c084fc;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            text-shadow: 4px 4px 0px #5b21b6, 8px 8px 0px #000000;
+            text-align: center;
+            line-height: 1.8;
+        }
+
+        #start-screen p {
+            color: #d8b4fe;
+            font-size: 0.6rem;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 2;
+            max-width: 80%;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #f0abfc;
+            pointer-events: none;
+            animation: particleFade 1s forwards;
+        }
+
+        @keyframes particleFade {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0); }
+        }
+
+        @media (max-width: 600px) {
+            #basket {
+                width: 80px;
+                height: 60px;
+                bottom: 80px;
+            }
+            .ball {
+                width: 35px;
+                height: 35px;
+            }
+            .hud-item {
+                font-size: 0.6rem;
+                padding: 8px 15px;
+            }
+        }
+        
+        
+        #win-critique, #go-critique {
+            font-style: italic;
+            color: #a78bfa;
+            transition: opacity 0.3s;
+        }
+        #win-critique:hover, #go-critique:hover {
+            opacity: 0.9;
+        }
+        #win-critique small, #go-critique small {
+            font-style: normal;
+            color: #d8b4fe;
+            display: block;
+            margin-top: 15px;
+            opacity: 0.85;
+        }
+    </style>
+</head>
+<body>
+
+  
+    <audio id="bgMusic" loop>
+        <source src="ballgame.mp3" type="audio/mpeg">
+        <source src="ballgame.mp3" type="audio/ogg">
+        Seu navegador não suporta áudio HTML5.
+    </audio>
+
+    <audio id="winSound">
+        <source src="BIGWIN.mp3" type="audio/mpeg">
+        <source src="BIGWIN.mp3" type="audio/ogg">
+        Seu navegador não suporta áudio HTML5.
+    </audio>
+
+    <audio id="gameOverSound">
+        <source src="game-over.mp3" type="audio/mpeg">
+        <source src="game-over.mp3" type="audio/ogg">
+        Seu navegador não suporta áudio HTML5.
+    </audio>
+
+    
+    <audio id="collectSound">
+        <source src="bolitas.mp3" type="audio/mpeg">
+        <source src="bolitas.mp3" type="audio/ogg">
+        Seu navegador não suporta áudio HTML5.
+    </audio>
+
+   
+    <audio id="buttonSound">
+        <source src="bolitas.mp3" type="audio/mpeg">
+        <source src="bolitas.mp3" type="audio/ogg">
+        Seu navegador não suporta áudio HTML5.
+    </audio>
+
+    
+    <div class="hud">
+        <div class="hud-item">BALLS: <span id="score">0</span>/30</div>
+        <div class="hud-item">TIME: <span id="timer">30</span>s</div>
+    </div>
+
+    
+    <div id="game-area">
+        <div id="basket"></div>
+    </div>
+
+    
+    <div id="start-screen">
+        <h1>🏀 PIXEL BASKET<br>CHALLENGE</h1>
+        <p>Colect 30 balls in 30 seconds!<br><br>
+        Drag your finger/mouse to move the basket</p>
+        <button class="pixel-btn" onclick="playButtonSound(); startGame()">START</button>
+    </div>
+
+    
+    <div id="win-screen">
+        <h1>🎉 YOU WIN! 🎉</h1>
+        <div class="stats">
+            <p>BALLS: <span id="final-score">30</span>/30</p>
+            <p>TIME LEFT: <span id="time-left">0</span>s</p>
+        </div>
+        <p id="win-critique">Level 2 Unlocked!<br>Return to select new game</p>
+        <button class="pixel-btn" onclick="playButtonSound(); returnToMenu()">CONTINUE</button>
+    </div>
+
+   
+    <div id="gameover-screen">
+        <h1>💀 GAME OVER</h1>
+        <div class="stats">
+            <p>BALLS: <span id="go-score">0</span>/30</p>
+        </div>
+        <p id="go-critique">Try again!</p>
+        <button class="pixel-btn" onclick="playButtonSound(); restartGame()">RETRY</button>
+    </div>
+
+    <script>
+        let score = 0;
+        let timeLeft = 30;
+        let gameActive = false;
+        let timerInterval;
+        let spawnInterval;
+        const totalBalls = 30;
+        const basket = document.getElementById('basket');
+        const gameArea = document.getElementById('game-area');
+        const scoreDisplay = document.getElementById('score');
+        const timerDisplay = document.getElementById('timer');
+        const startScreen = document.getElementById('start-screen');
+        const winScreen = document.getElementById('win-screen');
+        const gameoverScreen = document.getElementById('gameover-screen');
+        const bgMusic = document.getElementById('bgMusic');
+        const winSound = document.getElementById('winSound');
+        const gameOverSound = document.getElementById('gameOverSound');
+        const collectSound = document.getElementById('collectSound');
+        const buttonSound = document.getElementById('buttonSound'); // 🔘 Novo som de botão
+
+        const MENU_URL = '/mm/cb';
+
+        
+        const timeCritiques = {
+            win: [
+                "You won the game. But what did you win in life?",
+                "30 balls collected.But what did you accomplish today?",
+                "Victory! Now go do something that truly matters.",
+                "You beat the level. Did you escape something, or face it?",
+                "Well played. But the real challenge waits outside."
+            ],
+            lose: [
+                "You lost. But was this time well spent?",
+                "The balls fell. So does time, never to return.",
+                "Maybe the real game was the time we spent along the way.",
+                "Try again? Or try something new?"
+            ]
+        };
+
+        
+        function playButtonSound() {
+            if (buttonSound) {
+                buttonSound.currentTime = 0;
+                buttonSound.volume = 0.4; 
+                buttonSound.play().catch(e => {
+                    console.log("Button sound failed to play:", e);
+                });
+            }
+        }
+
+       
+        gameArea.addEventListener('mousemove', (e) => {
+            if (!gameActive) return;
+            const rect = gameArea.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            const basketWidth = basket.offsetWidth;
+            x = Math.max(basketWidth/2, Math.min(rect.width - basketWidth/2, x));
+            basket.style.left = x + 'px';
+        });
+
+      
+        gameArea.addEventListener('touchmove', (e) => {
+            if (!gameActive) return;
+            e.preventDefault();
+            const rect = gameArea.getBoundingClientRect();
+            let x = e.touches[0].clientX - rect.left;
+            const basketWidth = basket.offsetWidth;
+            x = Math.max(basketWidth/2, Math.min(rect.width - basketWidth/2, x));
+            basket.style.left = x + 'px';
+        }, { passive: false });
+
+        
+        function startGame() {
+            bgMusic.volume = 0.4;
+            bgMusic.currentTime = 0;
+            bgMusic.play().catch(e => {
+                console.log("Autoplay bloqueado, mas o jogo continua:", e);
+            });
+
+            startScreen.style.display = 'none';
+            winScreen.style.display = 'none';
+            gameoverScreen.style.display = 'none';
+            
+            score = 0;
+            timeLeft = 30;
+            gameActive = true;
+            
+            scoreDisplay.textContent = score;
+            timerDisplay.textContent = timeLeft;
+            
+            document.querySelectorAll('.ball').forEach(ball => ball.remove());
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    endGame(false);
+                }
+            }, 1000);
+            
+            spawnInterval = setInterval(spawnBall, 800);
+        }
+
+        
+        function spawnBall() {
+            if (!gameActive || score >= totalBalls) return;
+            
+            const ball = document.createElement('div');
+            ball.className = 'ball';
+            
+            const maxX = gameArea.offsetWidth - 40;
+            const randomX = Math.floor(Math.random() * maxX);
+            ball.style.left = randomX + 'px';
+            ball.style.top = '-40px';
+            
+            gameArea.appendChild(ball);
+            
+            let ballY = -40;
+            const fallInterval = setInterval(() => {
+                if (!gameActive) {
+                    clearInterval(fallInterval);
+                    if (ball.parentNode) ball.remove();
+                    return;
+                }
+                
+                ballY += 5;
+                ball.style.top = ballY + 'px';
+                
+                if (checkCollision(ball, basket)) {
+                    clearInterval(fallInterval);
+                    collectBall(ball);
+                }
+                
+                if (ballY > gameArea.offsetHeight) {
+                    clearInterval(fallInterval);
+                    if (ball.parentNode) ball.remove();
+                }
+            }, 16);
+        }
+
+        
+        function checkCollision(ball, basket) {
+            const ballRect = ball.getBoundingClientRect();
+            const basketRect = basket.getBoundingClientRect();
+            
+            return !(
+                ballRect.top > basketRect.bottom ||
+                ballRect.bottom < basketRect.top ||
+                ballRect.right < basketRect.left ||
+                ballRect.left > basketRect.right
+            );
+        }
+
+       
+        function collectBall(ball) {
+            if (ball.parentNode) ball.remove();
+            score++;
+            scoreDisplay.textContent = score;
+            
+            
+            playCollectSound();
+            
+            createParticles(ball.style.left, ball.style.top);
+            
+            if (score >= totalBalls) {
+                endGame(true);
+            }
+        }
+
+        
+        function playCollectSound() {
+            if (collectSound) {
+                collectSound.currentTime = 0;
+                collectSound.volume = 0.3;
+                collectSound.play().catch(e => {
+                    console.log("Collect sound failed to play:", e);
+                });
+            }
+        }
+
+        
+        function createParticles(x, y) {
+            for (let i = 0; i < 8; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = x;
+                particle.style.top = y;
+                particle.style.transform = `translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 - 50}px)`;
+                gameArea.appendChild(particle);
+                
+                setTimeout(() => {
+                    if (particle.parentNode) particle.remove();
+                }, 1000);
+            }
+        }
+
+        
+        function endGame(won) {
+            gameActive = false;
+            clearInterval(timerInterval);
+            clearInterval(spawnInterval);
+            
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+            
+            if (won) {
+                winSound.loop = false;
+                winSound.currentTime = 0;
+                winSound.volume = 0.6;
+                winSound.play().catch(e => {
+                    console.log("Win sound failed to play:", e);
+                });
+                
+                localStorage.setItem('gameLevel_1', 'completed');
+                localStorage.setItem('gameLevel_2', 'unlocked');
+                
+                document.getElementById('final-score').textContent = score;
+                document.getElementById('time-left').textContent = timeLeft;
+                winScreen.style.display = 'flex';
+                
+                
+                const winCritique = document.getElementById('win-critique');
+                if (winCritique) {
+                    const randomPhrase = timeCritiques.win[Math.floor(Math.random() * timeCritiques.win.length)];
+                    winCritique.innerHTML = `${randomPhrase}<br><br><small>Level 2 Unlocked!<br>Return to select new game</small>`;
+                }
+            } else {
+                gameOverSound.loop = false;
+                gameOverSound.currentTime = 0;
+                gameOverSound.volume = 0.6;
+                gameOverSound.play().catch(e => {
+                    console.log("Game over sound failed to play:", e);
+                });
+                
+                document.getElementById('go-score').textContent = score;
+                gameoverScreen.style.display = 'flex';
+                
+               
+                const goCritique = document.getElementById('go-critique');
+                if (goCritique) {
+                    const randomPhrase = timeCritiques.lose[Math.floor(Math.random() * timeCritiques.lose.length)];
+                    goCritique.innerHTML = randomPhrase;
+                }
+            }
+        }
+
+       
+        function restartGame() {
+            winSound.pause();
+            winSound.currentTime = 0;
+            gameOverSound.pause();
+            gameOverSound.currentTime = 0;
+            
+            startGame();
+        }
+
+        
+        function returnToMenu() {
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+            winSound.pause();
+            winSound.currentTime = 0;
+            gameOverSound.pause();
+            gameOverSound.currentTime = 0;
+            collectSound.pause();
+            collectSound.currentTime = 0;
+            buttonSound.pause();
+            buttonSound.currentTime = 0;
+            
+            window.location.href = MENU_URL;
+        }
+    </script>
+</body>
+</html>

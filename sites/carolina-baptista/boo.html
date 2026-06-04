@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Ghost Hunter - Pixel Horror</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: #0d0221;
+            background-image: 
+                linear-gradient(rgba(138, 43, 226, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(138, 43, 226, 0.15) 1px, transparent 1px);
+            background-size: 40px 40px;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Press Start 2P', cursive;
+            overflow: hidden;
+            color: white;
+            touch-action: none;
+            cursor: crosshair;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            border: 4px solid #c084fc;
+            box-shadow: 
+                inset 4px 4px 0px rgba(255,255,255,0.1),
+                inset -4px -4px 0px rgba(0,0,0,0.5),
+                8px 8px 0px #000000;
+            background: linear-gradient(180deg, #0d0221 0%, #1a1a2e 50%, #0d0221 100%);
+            overflow: hidden;
+        }
+
+        #ui {
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 25px;
+            font-size: 0.7rem;
+            color: #d8b4fe;
+            text-shadow: 2px 2px 0 #000;
+            z-index: 100;
+        }
+
+        .ui-box {
+            background: rgba(46, 16, 101, 0.95);
+            padding: 12px 18px;
+            border: 3px solid #a78bfa;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 4px 4px 0 #000;
+        }
+
+        .ui-box.danger {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.3);
+            animation: pulse-red 0.5s infinite;
+        }
+
+        #timer.danger {
+            color: #ef4444;
+        }
+
+        #world {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 3000px;
+            transform: translateX(0);
+            transition: transform 0.1s linear;
+        }
+
+        .bg-decoration {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #c084fc, transparent),
+                radial-gradient(2px 2px at 40px 70px, #a78bfa, transparent),
+                radial-gradient(1px 1px at 90px 40px, #d8b4fe, transparent),
+                radial-gradient(2px 2px at 160px 80px, #c084fc, transparent),
+                radial-gradient(1px 1px at 230px 30px, #a78bfa, transparent);
+            background-repeat: repeat-x;
+            background-size: 300px 100px;
+            opacity: 0.3;
+        }
+
+        #ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background: linear-gradient(180deg, #2e1065 0%, #1a1a2e 100%);
+            border-top: 4px solid #7c3aed;
+            box-shadow: 0 -4px 0 #5b21b6;
+        }
+
+        #ground::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(124, 58, 237, 0.3) 20px, rgba(124, 58, 237, 0.3) 40px);
+        }
+
+        #player {
+            position: absolute;
+            bottom: 80px;
+            width: 48px;
+            height: 64px;
+            z-index: 10;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        .player-pixel {
+            position: absolute;
+            background: #7c3aed;
+            border: 2px solid #0d0221;
+        }
+
+        .player-head {
+            width: 32px;
+            height: 32px;
+            background: #a78bfa;
+            border: 3px solid #0d0221;
+            left: 8px;
+            top: 0;
+            box-shadow: inset 2px 2px 0 rgba(255,255,255,0.3);
+        }
+
+        .player-eye {
+            position: absolute;
+            width: 6px;
+            height: 8px;
+            background: #0d0221;
+            top: 12px;
+        }
+        .player-eye.left { left: 8px; }
+        .player-eye.right { right: 8px; }
+
+        .player-body {
+            width: 36px;
+            height: 24px;
+            background: linear-gradient(180deg, #8b5cf6 0%, #6d28d9 100%);
+            border: 3px solid #0d0221;
+            left: 6px;
+            top: 32px;
+            border-radius: 2px;
+        }
+
+        .player-leg {
+            position: absolute;
+            width: 12px;
+            height: 16px;
+            background: #5b21b6;
+            border: 2px solid #0d0221;
+            top: 56px;
+        }
+        .player-leg.left { left: 10px; }
+        .player-leg.right { right: 10px; }
+
+        #gun {
+            position: absolute;
+            right: -8px;
+            top: 38px;
+            width: 20px;
+            height: 10px;
+            background: linear-gradient(90deg, #5b21b6 0%, #2e1065 100%);
+            border: 2px solid #0d0221;
+            box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+            transition: transform 0.05s;
+        }
+
+        #gun.shooting {
+            transform: rotate(-15deg);
+        }
+
+        .ghost {
+            position: absolute;
+            width: 80px;
+            height: 90px;
+            z-index: 5;
+            image-rendering: pixelated;
+            cursor: crosshair;
+            transition: transform 0.1s;
+        }
+
+        .ghost:hover {
+            transform: scale(1.1);
+        }
+
+        .ghost.disappearing {
+            animation: ghostDisappear 0.2s forwards;
+            pointer-events: none;
+        }
+
+        @keyframes ghostDisappear {
+            0% { 
+                transform: scale(1); 
+                opacity: 1;
+                filter: brightness(2);
+            }
+            50% { 
+                transform: scale(1.3); 
+                opacity: 0.5;
+                filter: brightness(3) drop-shadow(0 0 20px #f0abfc);
+            }
+            100% { 
+                transform: scale(0); 
+                opacity: 0;
+                filter: brightness(4);
+            }
+        }
+
+        .ghost-body {
+            position: absolute;
+            width: 60px;
+            height: 75px;
+            background: #f0abfc;
+            border: 3px solid #0d0221;
+            left: 10px;
+            top: 0;
+            border-radius: 25px 25px 10px 10px;
+            box-shadow: 
+                inset 3px 3px 0 rgba(255,255,255,0.5),
+                3px 3px 0 rgba(0,0,0,0.3),
+                0 0 20px rgba(240, 171, 252, 0.6);
+        }
+
+        .ghost-eye {
+            position: absolute;
+            width: 14px;
+            height: 18px;
+            background: #0d0221;
+            top: 20px;
+            border: 2px solid #0d0221;
+        }
+        .ghost-eye.left { left: 12px; }
+        .ghost-eye.right { right: 12px; }
+
+        .ghost-mouth {
+            position: absolute;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            background: #0d0221;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .ghost-base {
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            right: 0;
+            height: 12px;
+            background: #f0abfc;
+            border: 3px solid #0d0221;
+            border-top: none;
+            clip-path: polygon(
+                0% 0%, 16% 100%, 33% 0%, 50% 100%, 
+                66% 0%, 83% 100%, 100% 0%
+            );
+        }
+
+        .ghost::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            pointer-events: none;
+        }
+
+        @keyframes ghostFloat {
+            from { transform: translateY(0); }
+            to { transform: translateY(-6px); }
+        }
+
+        @keyframes ghostWalk {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        .bullet {
+            position: absolute;
+            width: 18px;
+            height: 10px;
+            background: linear-gradient(90deg, #f0abfc 0%, #fff 50%, #d8b4fe 100%);
+            border: 2px solid #0d0221;
+            border-radius: 4px;
+            box-shadow: 0 0 10px #c084fc;
+            z-index: 8;
+        }
+
+        .explosion {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #f0abfc 0%, #c084fc 40%, transparent 70%);
+            border: 3px solid #0d0221;
+            border-radius: 50%;
+            animation: explode 0.3s forwards;
+            z-index: 9;
+        }
+
+        @keyframes explode {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 2, 33, 0.98);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+            z-index: 200;
+            cursor: default;
+        }
+
+        .screen.hidden { display: none; }
+
+        .screen h2 {
+            color: #d8b4fe;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            text-shadow: 4px 4px 0 #5b21b6;
+            animation: pulse 1.5s infinite;
+        }
+
+        .screen p {
+            color: #c084fc;
+            font-size: 0.6rem;
+            margin: 10px 0;
+            line-height: 2;
+        }
+
+        .screen .highlight {
+            color: #f0abfc;
+            font-size: 0.8rem;
+        }
+
+        .screen .danger-text {
+            color: #ef4444;
+            animation: pulse-red 1s infinite;
+        }
+
+        button {
+            margin-top: 25px;
+            padding: 15px 30px;
+            background: linear-gradient(180deg, #a78bfa 0%, #7c3aed 100%);
+            border: 4px solid #f0abfc;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            cursor: pointer;
+            box-shadow: 
+                inset 3px 3px 0 rgba(255,255,255,0.3),
+                inset -3px -3px 0 rgba(0,0,0,0.3),
+                6px 6px 0 #000;
+            transition: transform 0.1s;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translate(3px, 3px);
+            box-shadow: 
+                inset 3px 3px 0 rgba(255,255,255,0.3),
+                inset -3px -3px 0 rgba(0,0,0,0.3),
+                3px 3px 0 #000;
+        }
+
+        button:active:not(:disabled) {
+            transform: translate(6px, 6px);
+            box-shadow: none;
+        }
+
+        #jumpscareScreen {
+            background: #000;
+            display: none;
+        }
+
+        #jumpscareScreen.active {
+            display: flex;
+        }
+
+        .jumpscare-ghost {
+            position: absolute;
+            width: 100px;
+            height: 120px;
+            background: #f0abfc;
+            border: 4px solid #fff;
+            border-radius: 50px 50px 20px 20px;
+            box-shadow: 
+                0 0 30px #c084fc,
+                0 0 60px #a78bfa,
+                0 0 90px #7c3aed;
+            animation: jumpscareFloat 0.2s infinite alternate, shake 0.1s infinite;
+        }
+
+        .jumpscare-ghost .ghost-eye {
+            width: 24px;
+            height: 32px;
+            top: 30px;
+        }
+        .jumpscare-ghost .ghost-eye.left { left: 20px; }
+        .jumpscare-ghost .ghost-eye.right { right: 20px; }
+
+        .jumpscare-ghost .ghost-mouth {
+            bottom: 25px;
+            width: 35px;
+            height: 40px;
+        }
+
+        .jumpscare-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            color: #ef4444;
+            text-shadow: 
+                0 0 15px #ef4444,
+                0 0 30px #ef4444,
+                0 0 60px #ef4444;
+            animation: flash 0.1s infinite, shake 0.1s infinite;
+            z-index: 300;
+        }
+
+      
+        #postJumpscareCritique {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.9rem;
+            color: #a78bfa;
+            font-style: italic;
+            text-align: center;
+            z-index: 350;
+            text-shadow: 0 0 10px rgba(167, 139, 250, 0.7);
+            animation: fadeIn 0.5s ease-out;
+            max-width: 80%;
+            line-height: 1.6;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -40%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        @keyframes jumpscareFloat {
+            from { transform: translate(-15px, -15px) scale(1); }
+            to { transform: translate(15px, 15px) scale(1.15); }
+        }
+
+      
+        @keyframes shake {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(-8px, 8px); }
+            50% { transform: translate(8px, -8px); }
+            75% { transform: translate(-8px, -8px); }
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes pulse-red {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        #mobileControls {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            display: none;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 100;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .control-btn {
+            width: 65px;
+            height: 65px;
+            background: rgba(46, 16, 101, 0.9);
+            border: 4px solid #a78bfa;
+            border-radius: 50%;
+            color: #f0abfc;
+            font-size: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            box-shadow: 4px 4px 0 #000;
+        }
+
+        .control-btn:active {
+            background: rgba(124, 58, 237, 0.95);
+            transform: scale(0.95);
+            box-shadow: 2px 2px 0 #000;
+        }
+
+        @media (max-width: 600px) {
+            #mobileControls { display: flex; }
+            .screen h2 { font-size: 1rem; }
+            #ui { font-size: 0.6rem; padding: 0 15px; }
+            #postJumpscareCritique { font-size: 0.7rem; }
+        }
+        
+      
+        #go-critique {
+            font-style: italic;
+            color: #a78bfa;
+            margin-top: 15px;
+            transition: opacity 0.3s;
+        }
+        #go-critique:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+
+   
+    <audio id="bgMusic" loop>
+        <source src="ghostgame.mp3" type="audio/mpeg">
+        <source src="ghostgame.mp3" type="audio/ogg">
+        Seu navegador não suporta áudio HTML5.
+    </audio>
+
+   
+    <audio id="shootSound">
+        <source src="fantasma.mp3" type="audio/mpeg">
+        <source src="fantasma.mp3" type="audio/ogg">
+        Seu navegador não suporta áudio HTML5.
+    </audio>
+
+  
+    <audio id="jumpscareSound">
+        <source src="jumpscare.mp3" type="audio/mpeg">
+        <source src="jumpscare.mp3" type="audio/ogg">
+        Seu navegador não suporta áudio HTML5.
+    </audio>
+
+
+    <audio id="loseSound">
+        <source src="game-over.mp3" type="audio/mpeg">
+        <source src="game-over.mp3" type="audio/ogg">
+        Seu navegador não suporta áudio HTML5.
+    </audio>
+
+    <div id="gameContainer">
+        
+        <div id="ui">
+            <div class="ui-box">
+                <i class="fas fa-ghost"></i>
+                <span>Ghosts: <span id="ghostCount">0</span>/10</span>
+            </div>
+            <div class="ui-box">
+                <i class="fas fa-clock"></i>
+                <span id="timer">20</span>s
+            </div>
+        </div>
+
+        <div id="world">
+            <div class="bg-decoration"></div>
+            <div id="ground"></div>
+            
+            <div id="player">
+                <div class="player-head">
+                    <div class="player-eye left"></div>
+                    <div class="player-eye right"></div>
+                </div>
+                <div class="player-body"></div>
+                <div class="player-leg left"></div>
+                <div class="player-leg right"></div>
+                <div id="gun"></div>
+            </div>
+        </div>
+
+        <div id="mobileControls">
+            <div class="control-group">
+                <div class="control-btn" id="btnLeft"><i class="fas fa-arrow-left"></i></div>
+                <div class="control-btn" id="btnRight"><i class="fas fa-arrow-right"></i></div>
+            </div>
+            <p style="color:#c084fc; font-size:0.5rem; align-self:center;">Clique nos fantasmas!</p>
+        </div>
+
+        <div id="startScreen" class="screen">
+            <h2>👻 GHOST HUNTER</h2>
+            <p class="highlight">COLECT 10 GHOSTS</p>
+            <p class="danger-text">TIME LIMIT: 20 SECONDS</p>
+            <p style="color:#888; font-size:0.5rem; margin-top:20px;">
+                <i class="fas fa-keyboard"></i> WASD - Move<br>
+                <i class="fas fa-mouse"></i> CLICK on the ghosts<br>
+                <span style="color:#4ade80">✓ 1 SHOT = 1 GHOST!</span>
+            </p>
+            <button id="startBtn">START HUNT</button>
+        </div>
+
+      
+        <div id="gameOverScreen" class="screen hidden">
+            <h2 class="danger-text">💀 TIME'S UP!</h2>
+            <p>You colected <span id="finalGhosts" class="highlight">0</span>/10 ghosts</p>
+            <p id="go-critique">Better luck next time!</p>
+            <button id="retryBtn">TRY AGAIN</button>
+        </div>
+
+        
+        <div id="winScreen" class="screen hidden">
+            <h2 style="color:#4ade80;">🎯 ALL GHOSTS CAUGHT!</h2>
+            <p class="highlight">Preparing surprise...</p>
+        </div>
+
+       
+        <div id="jumpscareScreen" class="screen">
+            <div class="jumpscare-text">BOO!</div>
+            <div id="postJumpscareCritique"></div>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            playerSpeed: 8,
+            ghostSpeed: 0.8,
+            totalGhostsNeeded: 10,
+            timeLimit: 20,
+            worldWidth: 3000,
+            cameraFollow: true,
+            ghostPositions: [
+                350, 550, 800, 1050, 1300, 1600, 1900, 2200, 2500, 2800
+            ]
+        };
+
+        let game = {
+            running: false,
+            ghostsCollected: 0,
+            timeLeft: CONFIG.timeLimit,
+            playerX: 100,
+            cameraX: 0,
+            ghosts: [],
+            keys: { left: false, right: false }
+        };
+
+        const world = document.getElementById('world');
+        const player = document.getElementById('player');
+        const gameContainer = document.getElementById('gameContainer');
+        const ghostCountEl = document.getElementById('ghostCount');
+        const timerEl = document.getElementById('timer');
+        const startScreen = document.getElementById('startScreen');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const winScreen = document.getElementById('winScreen');
+        const jumpscareScreen = document.getElementById('jumpscareScreen');
+        const finalGhostsEl = document.getElementById('finalGhosts');
+        const gun = document.getElementById('gun');
+        const postJumpscareCritique = document.getElementById('postJumpscareCritique');
+        
+        
+        const bgMusic = document.getElementById('bgMusic');
+        const shootSound = document.getElementById('shootSound');
+        const jumpscareSound = document.getElementById('jumpscareSound');
+        const loseSound = document.getElementById('loseSound'); 
+
+        
+        const timeCritiques = {
+            win: [
+                "You caught them all. But what are you running from?",
+                "Victory! Now... what waits in your real world?",
+                "The screen goes dark. Life doesn't have a restart.",
+                "Well played. But time keeps moving forward."
+            ],
+            lose: [
+                "Time's up. Was this escape worth it?",
+                "The ghosts remain. So do your responsibilities.",
+                "20 seconds gone. What will you do with the next?",
+                "You hunted phantoms. What haunts you?",
+                "Game over. Reality still waits."
+            ]
+        };
+
+        let worldWidth, playerWidth, playerHeight, containerWidth;
+        let gameLoopId, timerInterval;
+
+        window.addEventListener('load', () => {
+            resizeGame();
+            window.addEventListener('resize', resizeGame);
+            setupControls();
+            updatePlayerPosition();
+        });
+
+        function resizeGame() {
+            containerWidth = gameContainer.clientWidth;
+            worldWidth = CONFIG.worldWidth;
+            playerWidth = player.offsetWidth;
+            playerHeight = player.offsetHeight;
+        }
+
+        function setupControls() {
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') game.keys.left = true;
+                if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') game.keys.right = true;
+            });
+            document.addEventListener('keyup', (e) => {
+                if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') game.keys.left = false;
+                if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') game.keys.right = false;
+            });
+
+            gameContainer.addEventListener('mousedown', (e) => {
+                if (!game.running) return;
+                const clickedGhost = e.target.closest('.ghost');
+                if (clickedGhost && !clickedGhost.classList.contains('disappearing')) {
+                    instantHit(clickedGhost);
+                }
+            });
+
+            gameContainer.addEventListener('mousemove', (e) => {
+                const rect = gameContainer.getBoundingClientRect();
+            });
+
+            const btnLeft = document.getElementById('btnLeft');
+            const btnRight = document.getElementById('btnRight');
+
+            const touchControl = (btn, key) => {
+                btn.addEventListener('touchstart', (e) => { e.preventDefault(); game.keys[key] = true; });
+                btn.addEventListener('touchend', (e) => { e.preventDefault(); game.keys[key] = false; });
+                btn.addEventListener('mousedown', () => game.keys[key] = true);
+                btn.addEventListener('mouseup', () => game.keys[key] = false);
+                btn.addEventListener('mouseleave', () => game.keys[key] = false);
+            };
+
+            touchControl(btnLeft, 'left');
+            touchControl(btnRight, 'right');
+
+            document.getElementById('startBtn').addEventListener('click', startGame);
+            document.getElementById('retryBtn').addEventListener('click', startGame);
+        }
+
+       
+        function startBackgroundMusic() {
+            bgMusic.volume = 0.4;
+            bgMusic.currentTime = 0;
+            bgMusic.play().catch(e => {
+                console.log("Autoplay bloqueado, mas o jogo continua:", e);
+            });
+        }
+
+       
+        function stopBackgroundMusic() {
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+        }
+
+        
+        function playShootSound() {
+            if (shootSound) {
+                shootSound.currentTime = 0;
+                shootSound.volume = 0.5;
+                shootSound.play().catch(e => {
+                    console.log("Shoot sound failed to play:", e);
+                });
+            }
+        }
+
+       
+        function playJumpscareSound() {
+            if (jumpscareSound) {
+                jumpscareSound.currentTime = 0;
+                jumpscareSound.volume = 0.8;
+                jumpscareSound.play().catch(e => {
+                    console.log("Jumpscare sound failed to play:", e);
+                });
+            }
+        }
+
+       
+        function playLoseSound() {
+            if (loseSound) {
+                loseSound.currentTime = 0;
+                loseSound.volume = 0.7; 
+                loseSound.play().catch(e => {
+                    console.log("Lose sound failed to play:", e);
+                });
+            }
+        }
+
+        function startGame() {
+            startBackgroundMusic();
+
+            game = {
+                running: true,
+                ghostsCollected: 0,
+                timeLeft: CONFIG.timeLimit,
+                playerX: 100,
+                cameraX: 0,
+                ghosts: [],
+                keys: { left: false, right: false }
+            };
+
+            document.querySelectorAll('.ghost, .bullet, .explosion').forEach(el => el.remove());
+            
+            ghostCountEl.textContent = '0';
+            timerEl.textContent = CONFIG.timeLimit;
+            timerEl.parentElement.classList.remove('danger');
+            
+            startScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            winScreen.classList.add('hidden');
+            jumpscareScreen.classList.remove('active');
+            postJumpscareCritique.textContent = '';
+            postJumpscareCritique.style.display = 'none';
+            
+            spawnAllGhosts();
+            
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                game.timeLeft--;
+                timerEl.textContent = game.timeLeft;
+                
+                if (game.timeLeft <= 10) {
+                    timerEl.parentElement.classList.add('danger');
+                }
+                
+                if (game.timeLeft <= 0) {
+                    endGame(false);
+                }
+            }, 1000);
+
+            gameLoopId = requestAnimationFrame(gameLoop);
+        }
+
+        function spawnAllGhosts() {
+            CONFIG.ghostPositions.forEach((posX, index) => {
+                setTimeout(() => {
+                    if (game.running) {
+                        createGhostAtPosition(posX, index);
+                    }
+                }, index * 200);
+            });
+        }
+
+        function createGhostAtPosition(x, index) {
+            const ghost = document.createElement('div');
+            ghost.className = 'ghost';
+            ghost.innerHTML = `
+                <div class="ghost-body">
+                    <div class="ghost-eye left"></div>
+                    <div class="ghost-eye right"></div>
+                    <div class="ghost-mouth"></div>
+                </div>
+                <div class="ghost-base"></div>
+            `;
+            
+            const groundY = 24;
+            
+            ghost.style.left = x + 'px';
+            ghost.style.top = groundY + 'px';
+            ghost.dataset.x = x;
+            ghost.dataset.y = groundY;
+            ghost.dataset.index = index;
+            ghost.dataset.direction = Math.random() > 0.5 ? 1 : -1;
+            ghost.style.animation = 'ghostWalk 0.6s infinite alternate';
+            
+            world.appendChild(ghost);
+            game.ghosts.push(ghost);
+        }
+
+        function gameLoop(timestamp) {
+            if (!game.running) return;
+
+            if (game.keys.left && game.playerX > 0) {
+                game.playerX -= CONFIG.playerSpeed;
+            }
+            if (game.keys.right && game.playerX < worldWidth - playerWidth - 20) {
+                game.playerX += CONFIG.playerSpeed;
+            }
+            updatePlayerPosition();
+
+            updateCamera();
+            updateGhosts();
+
+            gameLoopId = requestAnimationFrame(gameLoop);
+        }
+
+        function updatePlayerPosition() {
+            player.style.left = game.playerX + 'px';
+        }
+
+        function updateCamera() {
+            const targetCameraX = game.playerX - containerWidth / 3;
+            game.cameraX = Math.max(0, Math.min(targetCameraX, worldWidth - containerWidth));
+            world.style.transform = `translateX(-${game.cameraX}px)`;
+        }
+
+        function instantHit(ghost) {
+            gun.classList.remove('shooting');
+            void gun.offsetWidth;
+            gun.classList.add('shooting');
+            setTimeout(() => gun.classList.remove('shooting'), 50);
+
+           
+            playShootSound();
+
+            ghost.classList.add('disappearing');
+
+            createExplosion(parseFloat(ghost.dataset.x), parseFloat(ghost.dataset.y));
+
+            setTimeout(() => {
+                if (ghost.parentElement) {
+                    ghost.remove();
+                    const ghostIndex = game.ghosts.indexOf(ghost);
+                    if (ghostIndex > -1) {
+                        game.ghosts.splice(ghostIndex, 1);
+                    }
+                    
+                    game.ghostsCollected++;
+                    ghostCountEl.textContent = game.ghostsCollected;
+
+                    if (game.ghostsCollected >= CONFIG.totalGhostsNeeded) {
+                        endGame(true);
+                    }
+                }
+            }, 200);
+        }
+
+        function updateGhosts() {
+            for (let i = game.ghosts.length - 1; i >= 0; i--) {
+                const ghost = game.ghosts[i];
+                if (ghost.classList.contains('disappearing')) continue;
+                
+                let x = parseFloat(ghost.dataset.x);
+                let direction = parseFloat(ghost.dataset.direction);
+                
+                x += direction * CONFIG.ghostSpeed;
+                
+                const originalX = CONFIG.ghostPositions[parseInt(ghost.dataset.index)];
+                if (x < originalX - 80 || x > originalX + 80) {
+                    direction *= -1;
+                    ghost.dataset.direction = direction;
+                }
+                
+                ghost.dataset.x = x;
+                ghost.style.left = x + 'px';
+            }
+        }
+
+        function createExplosion(x, y) {
+            const explosion = document.createElement('div');
+            explosion.className = 'explosion';
+            explosion.style.left = (x + 10) + 'px';
+            explosion.style.top = (y + 10) + 'px';
+            world.appendChild(explosion);
+            setTimeout(() => explosion.remove(), 300);
+        }
+
+        
+        function endGame(won) {
+            game.running = false;
+            clearInterval(timerInterval);
+            cancelAnimationFrame(gameLoopId);
+
+            stopBackgroundMusic();
+
+            if (won) {
+                winScreen.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    triggerJumpscare();
+                }, 1500);
+            } else {
+                finalGhostsEl.textContent = game.ghostsCollected;
+                gameOverScreen.classList.remove('hidden');
+                
+                
+                playLoseSound();
+                
+                
+                const goCritique = document.getElementById('go-critique');
+                if (goCritique) {
+                    const randomPhrase = timeCritiques.lose[Math.floor(Math.random() * timeCritiques.lose.length)];
+                    goCritique.textContent = randomPhrase;
+                }
+            }
+        }
+
+      
+        function triggerJumpscare() {
+            winScreen.classList.add('hidden');
+            jumpscareScreen.classList.add('active');
+            postJumpscareCritique.style.display = 'none';
+            
+           
+            playJumpscareSound();
+            
+            
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    createJumpscareGhost();
+                }, i * 50);
+            }
+
+            
+            setTimeout(() => {
+                
+                const randomPhrase = timeCritiques.win[Math.floor(Math.random() * timeCritiques.win.length)];
+                postJumpscareCritique.textContent = randomPhrase;
+                postJumpscareCritique.style.display = 'block';
+                
+               
+                document.querySelectorAll('.jumpscare-ghost').forEach(g => g.remove());
+                const jumpscareText = document.querySelector('.jumpscare-text');
+                if (jumpscareText) jumpscareText.style.display = 'none';
+                
+                
+               setTimeout(() => {
+                 localStorage.setItem('gameLevel_1', 'completed');
+                 window.location.href = 'http://exp.pt/mm/cb'; 
+                }, 3000);
+                
+            }, 3000);
+        }
+
+        function createJumpscareGhost() {
+            const ghost = document.createElement('div');
+            ghost.className = 'jumpscare-ghost';
+            ghost.innerHTML = `
+                <div class="ghost-eye left"></div>
+                <div class="ghost-eye right"></div>
+                <div class="ghost-mouth"></div>
+            `;
+            
+            ghost.style.left = (Math.random() * 80 + 10) + '%';
+            ghost.style.top = (Math.random() * 80 + 10) + '%';
+            ghost.style.animationDelay = (Math.random() * 0.5) + 's';
+            
+            jumpscareScreen.appendChild(ghost);
+            
+            setTimeout(() => ghost.remove(), 3000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Mirror Me - Glitch Experience</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    font-family: 'Share Tech Mono', monospace;
+    color: #ff1a1a;
+}
+
+/* ===== Botão principal ===== */
+#upgradeBtn {
+    position: absolute;
+    z-index: 1000;
+    padding: clamp(14px, 3.8vw, 20px) clamp(20px, 6vw, 40px);
+    font-size: clamp(16px, 3.4vw, 20px);
+    cursor: pointer;
+    border: 2px solid #ff1a1a;
+    border-radius: 5px;
+    background: rgba(0,0,0,0.5);
+    color: #ff1a1a;
+    text-shadow: 0 0 5px #ff1a1a, 0 0 10px #ff4d4d;
+    transition: all 0.1s ease;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+}
+
+/* ===== Texto de progresso ===== */
+#progressText {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: clamp(18px, 4vw, 22px);
+    color: #ff4d4d;
+    text-shadow: 0 0 5px #ff1a1a;
+    z-index: 1001;
+}
+
+/* ===== Barra de progresso ===== */
+#progressBarContainer {
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(60%, 720px);
+    height: clamp(14px, 3.2vw, 20px);
+    background: rgba(255,26,26,0.2);
+    border: 2px solid #ff1a1a;
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+#progressBar {
+    width: 0%;
+    height: 100%;
+    background: #ff1a1a;
+    transition: width 0.2s ease;
+}
+
+/* ===== Blackout glitch ===== */
+#blackout {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.94);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 900;
+}
+
+#blackout::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(255, 26, 26, 0.08) 0px,
+            rgba(255, 26, 26, 0.08) 2px,
+            transparent 2px,
+            transparent 9px
+        ),
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(255, 26, 26, 0.06) 46%,
+            rgba(255, 26, 26, 0.12) 50%,
+            rgba(255, 26, 26, 0.06) 54%,
+            transparent 100%
+        );
+    opacity: 0;
+    mix-blend-mode: screen;
+    animation: blackoutGlitch 0.22s steps(2, end) infinite;
+}
+
+#blackout.glitching::before {
+    opacity: 1;
+}
+
+@keyframes blackoutGlitch {
+    0% { transform: translate(0, 0); }
+    20% { transform: translate(-8px, 0); }
+    40% { transform: translate(6px, -2px); }
+    60% { transform: translate(-4px, 2px); }
+    80% { transform: translate(3px, 0); }
+    100% { transform: translate(0, 0); }
+}
+
+/* ===== Canvas glitch background ===== */
+canvas#glitchBg {
+    position: fixed;
+    top:0;
+    left:0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+/* ===== DONE TEXT GLITCH ===== */
+#doneTextContainer {
+    display: none; /* começa oculto */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 1002;
+}
+
+#doneText {
+    font-size: clamp(64px, 18vw, 120px);
+    font-family: 'Share Tech Mono', monospace;
+    color: #ff1a1a;
+    text-shadow: 0 0 5px #ff1a1a, 0 0 10px #ff4d4d;
+    animation: glitchText 0.3s infinite;
+}
+
+#restartBtn {
+    margin-top: 20px;
+    padding: 10px 25px;
+    font-size: clamp(14px, 3vw, 18px);
+    cursor: pointer;
+    border: 2px solid #ff1a1a;
+    border-radius: 5px;
+    background: rgba(0,0,0,0.5);
+    color: #ff1a1a;
+    text-shadow: 0 0 5px #ff1a1a, 0 0 10px #ff4d4d;
+    transition: all 0.1s ease;
+}
+
+/* ===== Glitch animation ===== */
+@keyframes glitchText {
+    0% { transform: translate(0, 0); color: #ff1a1a; text-shadow: 0 0 5px #ff1a1a; }
+    20% { transform: translate(-5px, 3px); color: #ff4d4d; text-shadow: 0 0 10px #ff1a1a, 0 0 20px #ff4d4d; }
+    40% { transform: translate(4px, -2px); color: #ff1a1a; text-shadow: 0 0 5px #ff1a1a, 0 0 15px #ff4d4d; }
+    60% { transform: translate(-3px, 2px); color: #ff6666; text-shadow: 0 0 10px #ff1a1a, 0 0 20px #ff4d4d; }
+    80% { transform: translate(2px, -1px); color: #ff1a1a; text-shadow: 0 0 5px #ff1a1a, 0 0 10px #ff4d4d; }
+    100% { transform: translate(0, 0); color: #ff1a1a; text-shadow: 0 0 5px #ff1a1a; }
+}
+
+@media (max-width: 768px) {
+    #upgradeBtn {
+        width: min(90vw, 430px);
+    }
+
+    #progressBarContainer {
+        width: min(86vw, 560px);
+    }
+
+    #doneTextContainer {
+        width: min(92vw, 680px);
+    }
+}
+</style>
+</head>
+<body>
+
+<canvas id="glitchBg"></canvas>
+<div id="blackout"></div>
+<div id="progressText">0%</div>
+<div id="progressBarContainer">
+    <div id="progressBar"></div>
+</div>
+<button id="upgradeBtn">KEEP CLICKING TO ESCAPE</button>
+
+<!-- DONE TEXT -->
+<div id="doneTextContainer">
+    <div id="doneText">ERROR</div>
+    <button id="restartBtn">RESTART THE EXPERIENCE</button>
+</div>
+
+<script>
+// ===== Fundo glitch vermelho =====
+const canvas = document.getElementById('glitchBg');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+function drawGlitch(){
+    ctx.fillStyle = 'rgba(0,0,0,0.12)';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    for(let i=0;i<300;i++){
+        ctx.fillStyle = `hsl(${Math.random()*30},100%,50%)`;
+        const x = Math.random()*canvas.width;
+        const y = Math.random()*canvas.height;
+        const w = Math.random()*8;
+        const h = 2 + Math.random()*6;
+        ctx.fillRect(x,y,w,h);
+    }
+    requestAnimationFrame(drawGlitch);
+}
+drawGlitch();
+
+window.addEventListener('resize', ()=>{
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+
+// ===== Lógica de progresso e crash =====
+let clickStep = 0;
+const MERGE_CLICKS = 15;
+let systemFailure = false;
+let progressFontSize = 22;
+
+const upgradeBtn = document.getElementById('upgradeBtn');
+const blackout = document.getElementById('blackout');
+const progressText = document.getElementById('progressText');
+const progressBar = document.getElementById('progressBar');
+
+upgradeBtn.addEventListener('click', ()=>{
+    if(systemFailure) return;
+
+    clickStep++;
+
+    // efeito de tremor/glitch no botão
+    const shake = 5;
+    upgradeBtn.style.transform = `translate(calc(-50% + ${Math.random()*shake-shake/2}px), calc(-50% + ${Math.random()*shake-shake/2}px)) rotate(${Math.random()*4-2}deg)`;
+    setTimeout(()=>upgradeBtn.style.transform='translate(-50%, -50%)', 150);
+
+    // atualizar percentagem e barra
+    let percent = Math.floor((clickStep / MERGE_CLICKS) * 99);
+    progressText.textContent = percent + '%';
+    progressBar.style.width = percent + '%';
+    progressFontSize += 4;
+    progressText.style.fontSize = progressFontSize + 'px';
+
+    // crash final
+    if(clickStep >= MERGE_CLICKS){
+        systemFailure = true;
+        progressText.style.display = 'none';
+        progressBar.parentElement.style.display = 'none';
+        upgradeBtn.style.display = 'none';
+        blackout.classList.add('glitching');
+        blackout.style.transition = 'opacity 0.35s ease';
+        blackout.style.opacity = '1';
+        
+        const doneContainer = document.getElementById('doneTextContainer');
+        doneContainer.style.display = 'block';
+
+        const restartBtn = document.getElementById('restartBtn');
+        restartBtn.onclick = () => window.location.href = 'pagina01.html';
+    }
+});
+</script>
+
+</body>
+</html>

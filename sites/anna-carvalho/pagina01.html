@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Total Madness</title>
+<!-- Fonte estilo “Matrix/tech” -->
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+html, body {
+    margin: 0; padding: 0; overflow: hidden;
+    width: 100%; height: 100%;
+    background: #000; /* fundo preto profundo */
+    font-family: monospace;
+    color: #fff;
+}
+
+#startScreen {
+    position: absolute; top:0; left:0; width:100%; height:100%;
+    display:flex; flex-direction: column; align-items:center; justify-content:center;
+    background:#000; z-index:1000;
+}
+#startScreen button {
+    padding: 20px 50px;
+    font-size: clamp(18px, 3.6vw, 24px);
+    color: #fff;
+    background: #000;
+    border: 2px solid #fff;
+    cursor: pointer;
+}
+
+#overlayText {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    pointer-events: none;
+}
+
+#overlayText #mainText {
+    font-size: clamp(20px, 5vw, 32px);
+    font-weight: bold;
+    padding: clamp(10px, 2.8vw, 15px) clamp(14px, 4.5vw, 25px);
+    margin-bottom: 15px;
+    background: #000;
+    color: #fff;
+    text-align: center;
+}
+
+#overlayText #subText {
+    font-size: clamp(12px, 2.8vw, 14px);
+    padding: clamp(4px, 1.6vw, 5px) clamp(10px, 3vw, 15px);
+    cursor: pointer;
+    pointer-events: auto;
+    background: #000;
+    color: #fff;
+    text-align: center;
+    max-width: min(92vw, 620px);
+}
+
+@media (max-width: 768px) {
+    #startScreen button {
+        width: min(90vw, 420px);
+        padding: 16px 20px;
+    }
+}
+
+canvas {
+    position:absolute;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    outline: none;
+    mix-blend-mode: difference;
+}
+</style>
+</head>
+<body>
+
+<div id="startScreen">
+    <button id="startBtn">CLICK HERE TO BEGIN</button>
+</div>
+
+<div id="overlayText" style="display:none">
+    <div id="mainText">CLICK ON THE MONITORS</div>
+    <div id="subText" onclick="location.href='pagina02.html'">click here when you're done with this bullshit</div>
+</div>
+
+
+<script>
+        const effectsList = ['mirror','invert','grayscale','noise','pixelate','wave','swirl','glitch','colorShift','extreme'];
+        let monitors = [];
+        let upgradeStep = 0;
+        let nextTargetCursor = 0;
+
+        const video = document.createElement('video');
+        video.autoplay = true;
+        video.playsInline = true;
+        video.style.display = 'none';
+        document.body.appendChild(video);
+
+        const startBtn = document.getElementById('startBtn');
+        const startScreen = document.getElementById('startScreen');
+        const overlayText = document.getElementById('overlayText');
+
+        startBtn.addEventListener('click', async () => {
+            startScreen.style.display = 'none';
+            overlayText.style.display = 'flex';
+            await startCamera();
+            createMonitors();
+            requestAnimationFrame(draw);
+        });
+
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({video:true, audio:false});
+                video.srcObject = stream;
+                video.play();
+            } catch(err) {
+                alert("Erro ao acessar a câmera: " + err);
+            }
+        }
+
+        function createMonitors() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const monitorWidth = 150;
+            const monitorHeight = 120;
+            const cols = Math.ceil(width / monitorWidth);
+            const rows = Math.ceil(height / monitorHeight);
+
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    const canvas = document.createElement('canvas');
+                    const monitorIndex = monitors.length;
+                    canvas.width = monitorWidth;
+                    canvas.height = monitorHeight;
+                    canvas.style.left = x * monitorWidth + 'px';
+                    canvas.style.top = y * monitorHeight + 'px';
+                    canvas.style.zIndex = 100;
+                    document.body.appendChild(canvas);
+                    monitors.push({
+                        id: monitorIndex,
+                        canvas: canvas,
+                        ctx: canvas.getContext('2d'),
+                        x: parseFloat(canvas.style.left),
+                        y: parseFloat(canvas.style.top),
+                        row: y,
+                        col: x,
+                        effects: [effectsList[Math.floor(Math.random() * effectsList.length)]]
+                    });
+
+                    canvas.addEventListener('click', (event) => {
+                        event.stopPropagation();
+                        activateOtherMonitorEffect(monitorIndex);
+                    });
+                }
+            }
+        }
+
+        function activateOtherMonitorEffect(sourceIndex) {
+            if (monitors.length < 2) return;
+            const totalTargets = Math.min(5, monitors.length - 1);
+            let applied = 0;
+
+            while (applied < totalTargets) {
+                const targetIndex = nextTargetCursor % monitors.length;
+                nextTargetCursor = (nextTargetCursor + 1) % monitors.length;
+                if (targetIndex === sourceIndex) {
+                    continue;
+                }
+                monitors[targetIndex].effects.push(effectsList[upgradeStep]);
+                upgradeStep = (upgradeStep + 1) % effectsList.length;
+                applied++;
+            }
+        }
+
+        function draw() {
+            monitors.forEach(m => {
+                const ctx = m.ctx;
+                const canvas = m.canvas;
+
+                ctx.save();
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+
+                if (m.col % 2 === 0) {
+                    ctx.scale(-1, m.row % 2 === 0 ? 1 : -1); // coluna vertical
+                } else {
+                    ctx.scale(m.row % 2 === 0 ? 1 : -1, -1); // coluna horizontal
+                }
+
+                ctx.drawImage(video, -canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
+                ctx.restore();
+
+                m.effects.forEach(effect => {
+                    applyEffect(ctx, canvas, effect);
+                });
+            });
+            requestAnimationFrame(draw);
+        }
+
+        function applyEffect(ctx, canvas, effect) {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+
+            switch(effect) {
+                case 'mirror':
+                    ctx.save();
+                    ctx.translate(canvas.width,0);
+                    ctx.scale(-1,1);
+                    ctx.drawImage(canvas,0,0);
+                    ctx.restore();
+                    break;
+                case 'invert':
+                    for(let i=0;i<data.length;i+=4){
+                        data[i]=255-data[i]; data[i+1]=255-data[i+1]; data[i+2]=255-data[i+2];
+                    }
+                    ctx.putImageData(imageData,0,0);
+                    break;
+                case 'grayscale':
+                    for(let i=0;i<data.length;i+=4){
+                        const avg=(data[i]+data[i+1]+data[i+2])/3;
+                        data[i]=data[i+1]=data[i+2]=avg;
+                    }
+                    ctx.putImageData(imageData,0,0);
+                    break;
+                case 'noise':
+                    for(let i=0;i<data.length;i+=4){
+                        const rand=Math.random()*60-30;
+                        data[i]+=rand; data[i+1]+=rand; data[i+2]+=rand;
+                    }
+                    ctx.putImageData(imageData,0,0);
+                    break;
+                case 'pixelate':
+                    const size=10;
+                    for(let y=0;y<canvas.height;y+=size){
+                        for(let x=0;x<canvas.width;x+=size){
+                            const i=(y*canvas.width+x)*4;
+                            const r=data[i],g=data[i+1],b=data[i+2];
+                            for(let py=0;py<size;py++){
+                                for(let px=0;px<size;px++){
+                                    if(y+py<canvas.height && x+px<canvas.width){
+                                        const idx=((y+py)*canvas.width+(x+px))*4;
+                                        data[idx]=r; data[idx+1]=g; data[idx+2]=b;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    ctx.putImageData(imageData,0,0);
+                    break;
+                case 'wave':
+                    const amp=5; const freq=0.05;
+                    const temp=ctx.getImageData(0,0,canvas.width,canvas.height);
+                    for(let y=0;y<canvas.height;y++){
+                        const offset=Math.sin(y*freq)*amp;
+                        for(let x=0;x<canvas.width;x++){
+                            const i=(y*canvas.width+x)*4;
+                            const nx=Math.min(canvas.width-1, Math.max(0, x+offset));
+                            const ni=(y*canvas.width+Math.floor(nx))*4;
+                            data[i]=temp.data[ni]; data[i+1]=temp.data[ni+1]; data[i+2]=temp.data[ni+2];
+                        }
+                    }
+                    ctx.putImageData(imageData,0,0);
+                    break;
+                case 'swirl':
+                    const cx=canvas.width/2, cy=canvas.height/2, rad=Math.min(cx,cy);
+                    const temp2=ctx.getImageData(0,0,canvas.width,canvas.height);
+                    for(let y=0;y<canvas.height;y++){
+                        for(let x=0;x<canvas.width;x++){
+                            const dx=x-cx, dy=y-cy, r=Math.sqrt(dx*dx+dy*dy);
+                            const angle=Math.atan2(dy,dx)+(rad-r)/50;
+                            const sx=Math.floor(cx+r*Math.cos(angle)), sy=Math.floor(cy+r*Math.sin(angle));
+                            if(sx>=0 && sx<canvas.width && sy>=0 && sy<canvas.height){
+                                const i=(y*canvas.width+x)*4;
+                                const si=(sy*canvas.width+sx)*4;
+                                data[i]=temp2.data[si]; data[i+1]=temp2.data[si+1]; data[i+2]=temp2.data[si+2];
+                            }
+                        }
+                    }
+                    ctx.putImageData(imageData,0,0);
+                    break;
+                case 'glitch':
+                    for(let y=0;y<canvas.height;y+=5){
+                        const offset=Math.random()*20-10;
+                        for(let x=0;x<canvas.width;x++){
+                            const i=(y*canvas.width+x)*4;
+                            const nx=Math.min(canvas.width-1,Math.max(0,x+offset));
+                            const ni=(y*canvas.width+Math.floor(nx))*4;
+                            data[i]=data[ni]; data[i+1]=data[ni+1]; data[i+2]=data[ni+2];
+                        }
+                    }
+                    ctx.putImageData(imageData,0,0);
+                    break;
+                case 'colorShift':
+                    for(let i=0;i<data.length;i+=4){
+                        const r=data[i],g=data[i+1],b=data[i+2];
+                        data[i]=g; data[i+1]=b; data[i+2]=r;
+                    }
+                    ctx.putImageData(imageData,0,0);
+                    break;
+                case 'extreme':
+                    for(let i=0;i<data.length;i+=4){
+                        data[i]=Math.random()*255; data[i+1]=Math.random()*255; data[i+2]=Math.random()*255;
+                    }
+                    ctx.putImageData(imageData,0,0);
+                    break;
+            }
+        }
+    </script>
+</body>
+</html>

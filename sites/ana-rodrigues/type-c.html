@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>Type C</title>
+    <!-- Google Fonts: Press Start 2P e VT323 -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <!-- tiny favicon (musical note) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎵</text></svg>">
+    <style>
+        /* Reset e configurações base - IGUAL AO TYPE A */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            user-select: none;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            margin: 0;
+            background-color: #FAFF5F;
+            font-family: 'Press Start 2P', cursive;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Ajuste para telas maiores - IGUAL AO TYPE A */
+        @media (min-width: 768px) {
+            body {
+                padding: 40px 60px;
+            }
+        }
+
+        /* CLASSE PARA PARAR TODAS AS ANIMAÇÕES (DO TYPE C) */
+        body.animations-paused .type-title,
+        body.animations-paused .type-subtitle,
+        body.animations-paused .descriptive-text,
+        body.animations-paused .type-subtitle::after,
+        body.animations-paused .spectrum-title,
+        body.animations-paused .crazy-text,
+        body.animations-paused .learn-more-btn {
+            animation-play-state: paused !important;
+        }
+
+        audio {
+            opacity: 0;
+            position: fixed;
+            top: -100px;
+            pointer-events: none;
+        }
+
+        .content-wrapper {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .content-wrapper {
+                gap: 30px;
+            }
+        }
+
+        /* ==================== ESTILOS DO TYPE C (ANIMAÇÕes) ==================== */
+
+        /* TÍTULO (animação do Type C) */
+        .type-title {
+            color: #C54DC5;
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(24px, 6vw, 48px);
+            margin: 0 0 10px 0;
+            line-height: 1.3;
+            width: 100%;
+            text-shadow: 4px 4px 0 #FFB347, 2px 2px 0 #FFD966;
+            letter-spacing: 2px;
+            display: inline-block;
+            transform-origin: center;
+            animation: titleModerate 0.5s cubic-bezier(0.3, 1.1, 0.7, 1.1) infinite;
+            max-width: 100%;
+            overflow: visible;
+            word-break: break-word;
+        }
+
+        @keyframes titleModerate {
+            0%, 100% { transform: scale(1) translateY(0) rotate(0deg); }
+            12% { transform: scale(1.05) translateY(-6px) rotate(-1.5deg); }
+            25% { transform: scale(0.98) translateY(3px) rotate(2deg); }
+            37% { transform: scale(1.04) translateY(-9px) rotate(-2.5deg); }
+            50% { transform: scale(1.01) translateY(-1px) rotate(1deg); }
+            62% { transform: scale(1.07) translateY(-11px) rotate(-3deg); }
+            75% { transform: scale(0.99) translateY(4px) rotate(2deg); }
+            87% { transform: scale(1.06) translateY(-7px) rotate(-2deg); }
+        }
+
+        /* SUBTÍTULO (animação e notinha musical do Type C) - AGORA ALINHADO COM O TÍTULO */
+        .type-subtitle {
+            color: #ff9500;
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(12px, 3vw, 22px);
+            margin: 0 0 20px 0;
+            line-height: 1.6;
+            opacity: 0.9;
+            width: 100%;
+            display: inline-block;
+            transform-origin: center;
+            /* ALINHADO COM O TÍTULO - removidos os recuos excessivos */
+            padding-left: 0 !important;
+            position: relative;
+            left: 0 !important;
+            animation: subtitleModerate 0.4s cubic-bezier(0.2, 1.3, 0.8, 1.3) infinite;
+            max-width: 100%;
+            overflow: visible;
+            padding-top: 15px;
+            padding-bottom: 15px;
+            word-break: break-word;
+            z-index: 10;
+        }
+
+        @keyframes subtitleModerate {
+            0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+            8% { transform: translateY(-14px) scale(1.08) rotate(-3deg); }
+            16% { transform: translateY(6px) scale(0.96) rotate(3.5deg); }
+            24% { transform: translateY(-20px) scale(1.12) rotate(-5deg); }
+            32% { transform: translateY(-3px) scale(1.02) rotate(1.5deg); }
+            40% { transform: translateY(-16px) scale(1.1) rotate(4deg); }
+            48% { transform: translateY(8px) scale(0.94) rotate(-3deg); }
+            56% { transform: translateY(-24px) scale(1.14) rotate(-6deg); }
+            64% { transform: translateY(-5px) scale(1.04) rotate(2.5deg); }
+            72% { transform: translateY(-12px) scale(1.07) rotate(3deg); }
+            80% { transform: translateY(4px) scale(0.98) rotate(-2deg); }
+            88% { transform: translateY(-18px) scale(1.11) rotate(-4deg); }
+        }
+
+        /* Nota musical do subtítulo */
+        .type-subtitle::after {
+            content: '♪';
+            position: absolute;
+            font-size: 28px;
+            color: #ff9500;
+            opacity: 0;
+            margin-left: 10px;
+            animation: musicalNoteModerate 0.4s ease-in-out infinite;
+            text-shadow: 2px 2px 0 #C54DC5;
+        }
+
+        @keyframes musicalNoteModerate {
+            0%, 100% {
+                opacity: 0;
+                transform: translateX(0) translateY(0) rotate(0deg);
+            }
+            15% {
+                opacity: 0.9;
+                transform: translateX(15px) translateY(-20px) rotate(20deg) scale(1.2);
+            }
+            30% {
+                opacity: 0.6;
+                transform: translateX(30px) translateY(-40px) rotate(40deg) scale(1.3);
+            }
+            45% {
+                opacity: 0.3;
+                transform: translateX(45px) translateY(-60px) rotate(60deg) scale(1.4);
+            }
+            60% {
+                opacity: 0;
+                transform: translateX(60px) translateY(-80px) rotate(80deg) scale(1.5);
+            }
+        }
+
+        /* TEXTO DESCRITIVO (animação do Type C) */
+        .descriptive-text {
+            color:#666666;
+            font-family: 'VT323', monospace;
+            font-size: clamp(20px, 4vw, 28px);
+            line-height: 1.3;
+            letter-spacing: 0.3px;
+            text-align: justify;
+            background-color: rgba(250, 255, 95, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #C54DC5;
+            max-width: 100%;
+            word-wrap: break-word;
+            width: 100%;
+            margin: 0;
+            cursor: default;
+            position: relative;
+            display: inline-block;
+            transform-origin: center;
+            animation: textModerate 0.3s infinite;
+            filter: blur(0.2px);
+        }
+
+        @media (min-width: 768px) {
+            .descriptive-text {
+                padding: 20px;
+            }
+        }
+
+        @keyframes textModerate {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); letter-spacing: 0.3px; }
+            10% { transform: translate(-5px, -4px) scale(1.02) rotate(-1deg); letter-spacing: 1px; }
+            20% { transform: translate(6px, 3px) scale(0.98) rotate(1.5deg); letter-spacing: 0px; }
+            30% { transform: translate(-7px, 6px) scale(1.03) rotate(-2deg); letter-spacing: 1.5px; }
+            40% { transform: translate(8px, -4px) scale(0.97) rotate(2deg); letter-spacing: -0.5px; }
+            50% { transform: translate(-5px, -7px) scale(1.04) rotate(-2.5deg); letter-spacing: 2px; }
+            60% { transform: translate(4px, 8px) scale(0.96) rotate(2.5deg); letter-spacing: -0.8px; }
+            70% { transform: translate(-8px, -5px) scale(1.05) rotate(-3deg); letter-spacing: 2.5px; }
+            80% { transform: translate(7px, 4px) scale(0.97) rotate(2deg); letter-spacing: 0.5px; }
+            90% { transform: translate(-6px, -8px) scale(1.03) rotate(-2deg); letter-spacing: 2px; }
+            100% { transform: translate(0, 0) scale(1) rotate(0deg); letter-spacing: 0.3px; }
+        }
+
+        .descriptive-paragraph {
+            text-indent: 40px;
+        }
+        
+        /* ==================== ESTILOS DO SPECTRUM (baseados no TYPE A) ==================== */
+        
+        /* TÍTULO DO SPECTRUM (com animação do Type C para consistência) */
+        .spectrum-title {
+            font-family: 'Press Start 2P', cursive;
+            color: #C54DC5;
+            font-size: clamp(12px, 2.5vw, 18px);
+            margin-bottom: 15px;
+            text-align: left;
+            text-transform: lowercase;
+            text-shadow: 2px 2px 0 #FFB347;
+            letter-spacing: 1px;
+            width: 100%;
+            display: inline-block;
+            position: relative;
+            animation: titleModerate 0.6s cubic-bezier(0.3, 1.1, 0.7, 1.1) infinite;
+            transform-origin: center;
+            pointer-events: auto;
+            word-break: break-word;
+        }
+
+        @media (min-width: 768px) {
+            .spectrum-title {
+                margin-bottom: 20px;
+            }
+        }
+        
+        .personality-spectrum {
+            color: #333333;
+            font-family: 'VT323', monospace;
+            font-size: clamp(20px, 4vw, 28px);
+            line-height: 1.3;
+            background-color: rgba(250, 255, 95, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #C54DC5;
+            max-width: 100%;
+            word-wrap: break-word;
+            width: 100%;
+            margin: 0;
+            cursor: default;
+            position: relative;
+        }
+
+        @media (min-width: 768px) {
+            .personality-spectrum {
+                padding: 20px 25px;
+            }
+        }
+        
+        .spectrum-row {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            gap: 8px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .spectrum-row {
+                margin: 12px 0;
+                gap: 15px;
+                flex-wrap: nowrap;
+            }
+        }
+        
+        .type-label {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(10px, 2vw, 14px);
+            color: #C54DC5;
+            min-width: 70px;
+            text-shadow: 1px 1px 0 #FFB347;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        @media (min-width: 768px) {
+            .type-label {
+                width: 90px;
+                font-size: 14px;
+            }
+        }
+        
+        .dots-container {
+            display: flex;
+            gap: 3px;
+            flex: 0 1 auto;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        @media (min-width: 768px) {
+            .dots-container {
+                gap: 6px;
+                flex-wrap: nowrap;
+            }
+        }
+        
+        .dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            border: 2px solid #cccccc;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        @media (min-width: 768px) {
+            .dot {
+                width: 25px;
+                height: 25px;
+            }
+        }
+        
+        .dot.filled {
+            background-color: #ff9500;
+            border-color:#b3b2b2;
+            transform: scale(1.1);
+        }
+        
+        .percentage {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(10px, 2vw, 14px);
+            color: #ff9500;
+            text-align: left;
+            text-shadow: 1px 1px 0 #ff9500;
+            flex-shrink: 0;
+            white-space: nowrap;
+            margin-left: 5px;
+            min-width: 45px;
+        }
+
+        @media (min-width: 768px) {
+            .percentage {
+                font-size: 14px;
+                margin-left: 10px;
+                width: auto;
+            }
+        }
+        
+        /* TEXTO LOUCO (com animação do Type C para consistência) */
+        .crazy-text {
+            font-family: 'VT323', monospace;
+            font-size: clamp(18px, 3.5vw, 24px);
+            color: #C54DC5;
+            margin-left: 5px;
+            white-space: nowrap;
+            animation: textModerate 0.3s infinite;
+            display: inline-block;
+            flex-shrink: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .crazy-text {
+                font-size: 24px;
+                margin-left: 10px;
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .crazy-text {
+                white-space: normal;
+                width: 100%;
+                margin-left: 0;
+                margin-top: 5px;
+            }
+            
+            .spectrum-row {
+                position: relative;
+                padding-bottom: 5px;
+            }
+        }
+
+        /* ==================== BOTÃO LEARN MORE (estilo do quiz-button com efeito agitado) ==================== */
+        .learn-more-btn {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(0.9rem, 3vw, 1.5rem);
+            display: inline-block;
+            text-decoration: none;
+            padding: 0.8rem 2rem 0.8rem 2rem;
+            background-color: transparent;
+            color: #C54DC5;
+            border: 2px solid #C54DC5;
+            cursor: pointer;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 2;
+            text-transform: lowercase;
+            box-shadow: 3px 3px 0 #FFB347;
+            transition: all 0.2s ease;
+            align-self: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            animation: titleModerate 0.5s cubic-bezier(0.3, 1.1, 0.7, 1.1) infinite;
+            transform-origin: center;
+        }
+
+        .learn-more-btn:hover {
+            transform: translateY(-10px) scale(1.05);
+            background-color: #C54DC5;
+            color: #FAFF5F;
+            border-color: #C54DC5;
+            box-shadow: 3px 12px 0 #FFB347;
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .learn-more-btn:active {
+            transform: translateY(2px);
+            background-color: #FFB347;
+            color: #C54DC5;
+            border-color: #FFB347;
+            box-shadow: 3px 1px 0 #C54DC5;
+            transition: 0.05s;
+        }
+
+        @media (max-width: 480px) {
+            .learn-more-btn {
+                padding: 0.6rem 1.5rem;
+                font-size: 0.8rem;
+                box-shadow: 2px 2px 0 #FFB347;
+                margin-top: 15px;
+            }
+            .learn-more-btn:hover {
+                transform: translateY(-3px);
+                box-shadow: 2px 4px 0 #FFB347;
+            }
+        }
+
+        @media (min-width: 1201px) {
+            .learn-more-btn {
+                font-size: 1.5rem;
+                padding: 1rem 2.5rem;
+                box-shadow: 4px 4px 0 #FFB347;
+            }
+            .learn-more-btn:hover {
+                transform: translateY(-5px);
+                box-shadow: 4px 7px 0 #FFB347;
+            }
+        }
+
+        /* Ajustes para mobile no subtitle (agora alinhado) */
+        @media (max-width: 480px) {           
+            .type-subtitle {
+                font-size: 12px;
+                white-space: normal;
+                /* ALINHADO COM O TÍTULO TAMBÉM NO MOBILE */
+                padding-left: 0 !important;
+                left: 0 !important;
+                animation: subtitleModerate 0.4s cubic-bezier(0.2, 1.3, 0.8, 1.3) infinite !important;
+            }
+            
+            .descriptive-text {
+                font-size: 16px;
+            }
+            
+            .descriptive-paragraph {
+                text-indent: 30px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .type-title, .type-subtitle, .descriptive-text, 
+            .type-subtitle::after, .spectrum-title, .crazy-text,
+            .learn-more-btn {
+                animation: none !important;
+                transform: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- hidden audio player: final.mp3 (não autoplay, será controlado pelo clique) -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="music/final.mp3" type="audio/mpeg">
+        <!-- fallback caso o navegador não suporte mp3 -->
+        <source src="music/final.wav" type="audio/wav">
+        Your browser does not support the audio element.
+    </audio>
+
+    <div class="content-wrapper">
+        <!-- TÍTULO COM ANIMAÇÃO DO TYPE C -->
+        <h1 class="type-title">TYPE C</h1>
+        <!-- SUBTÍTULO COM ANIMAÇÃO DO TYPE C - AGORA ALINHADO COM O TÍTULO -->
+        <h2 class="type-subtitle">The crazy party girl</h2>
+        
+        <!-- Texto descritivo com animação do TYPE C -->
+        <p class="descriptive-text descriptive-paragraph">
+            You're the life of the party and you can make any environment fun with your easygoing personality. 
+            Those around you know they can count on you for a good laugh during tough times. 
+            Some might find you irresponsible because of your impulsive behavior, but you simply face life with the humor it deserves. 
+            You light up the world, but be careful with your impulsiveness. 
+            We love you and don't want to see you in prison, or worse... (stop doing drugs).
+        </p>
+        
+        <!-- Espectro de personalidade (IGUAL AO TYPE A, mas com animações do C) -->
+        <div class="personality-spectrum">
+            <h3 class="spectrum-title">PERSONALITY SPECTRUM</h3>
+            
+            <div class="spectrum-row">
+                <span class="type-label">TYPE A</span>
+                <div class="dots-container" id="typeA-dots"></div>
+                <span class="percentage" id="typeA-percent">0%</span>
+                <span class="crazy-text">The misunderstood rebellious artist</span>
+            </div>
+            
+            <div class="spectrum-row">
+                <span class="type-label">TYPE B</span>
+                <div class="dots-container" id="typeB-dots"></div>
+                <span class="percentage" id="typeB-percent">0%</span>
+                <span class="crazy-text">The cold-blooded american psycho</span>
+            </div>
+            
+            <div class="spectrum-row">
+                <span class="type-label">TYPE C</span>
+                <div class="dots-container" id="typeC-dots"></div>
+                <span class="percentage" id="typeC-percent">0%</span>
+                <span class="crazy-text">The crazy party girl</span>
+            </div>
+        </div>
+
+        <!-- BOTÃO LEARN MORE - AGORA FUNCIONA COM 1 CLIQUE SEM DELAY! -->
+        <a href="finalanswer.html" class="learn-more-btn" id="learnMoreBtn">learn more</a>
+    </div>
+
+    <script>
+    // ==================== FUNÇÕES DO TYPE C (som e pause) ====================
+    
+    // Criar AudioContext imediatamente quando a página carrega
+    let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    
+    // Função para tocar som INSTANTANEAMENTE
+    function playGirlyClick() {
+        try {
+            const now = audioContext.currentTime;
+            
+            // Nota 1 (mi) - toca imediatamente
+            const osc1 = audioContext.createOscillator();
+            const gain1 = audioContext.createGain();
+            osc1.type = 'sine';
+            osc1.frequency.value = 659.25;
+            osc1.connect(gain1);
+            gain1.connect(audioContext.destination);
+            gain1.gain.setValueAtTime(0.15, now);
+            gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            
+            // Nota 2 (sol) - toca imediatamente
+            const osc2 = audioContext.createOscillator();
+            const gain2 = audioContext.createGain();
+            osc2.type = 'sine';
+            osc2.frequency.value = 783.99;
+            osc2.connect(gain2);
+            gain2.connect(audioContext.destination);
+            gain2.gain.setValueAtTime(0.15, now + 0.03);
+            gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.13);
+            
+            osc1.start(now);
+            osc1.stop(now + 0.12);
+            osc2.start(now + 0.03);
+            osc2.stop(now + 0.15);
+        } catch (e) {
+            console.log("Erro no som:", e);
+        }
+    }
+
+    // Referência à música
+    const music = document.getElementById('bg-music');
+    if (music) {
+        music.volume = 0.05;           // volume baixo
+        // NÃO colocamos autoplay, nem tentamos tocar automaticamente.
+        // A música será iniciada pelo primeiro clique em qualquer lugar (exceto botão).
+    }
+
+    // FUNCIONALIDADE PRINCIPAL:
+    // - Ao clicar em qualquer lugar (que NÃO seja o botão "learn more")
+    //   → toca o som 'girly click' (beep)
+    //   → pausa animações
+    //   → INICIA a música final.mp3 (se ainda não estiver tocando)
+    //   → Quando soltar o clique (mouseup/touchend fora do botão):
+    //      → retoma animações
+    //      → pausa a música
+    //
+    // - Se clicar no botão "learn more": 
+    //   → toca o som (playGirlyClick) e navega imediatamente, sem afetar música/background.
+
+    let clickedButton = false;          // flag para ignorar se o clique foi no botão
+    let musicStarted = false;           // evita múltiplos play() desnecessários
+
+    // Função para iniciar a música de fundo (se não estiver tocando)
+    function startBackgroundMusic() {
+        if (music && !musicStarted) {
+            music.play().then(() => {
+                musicStarted = true;
+            }).catch(e => {
+                console.log("Erro ao tentar tocar música:", e);
+                // Se falhar (ex: interação não suficiente), pelo menos tenta de novo no próximo clique
+                musicStarted = false;
+            });
+        } else if (music && music.paused) {
+            // Caso a música esteja pausada mas já foi iniciada antes
+            music.play().catch(console.error);
+        }
+    }
+
+    // Função para pausar a música
+    function pauseBackgroundMusic() {
+        if (music && !music.paused) {
+            music.pause();
+        }
+        // Não alteramos musicStarted propositalmente: se já tocou uma vez, pode ser pausada e retomada
+    }
+
+    // ---- EVENTOS DE CLIQUE (mouse) ----
+    document.addEventListener('mousedown', function(e) {
+        // Se clicou no botão learn more, marca e não executa ações de background
+        if (e.target.closest('.learn-more-btn')) {
+            clickedButton = true;
+            // Som do botão será tocado no próprio evento de click do link (mais abaixo)
+            return;
+        }
+        
+        // CLIQUE FORA DO BOTÃO: 
+        playGirlyClick();                     // som de click
+        document.body.classList.add('animations-paused');  // trava animações
+        startBackgroundMusic();                // INICIA MÚSICA (se não estiver tocando)
+    });
+
+    document.addEventListener('mouseup', function(e) {
+        // Se o clique foi no botão, ignoramos o release (já tratado no click do link)
+        if (clickedButton) {
+            clickedButton = false;
+            return;
+        }
+        
+        // Soltou fora do botão: restaura animações e pausa a música
+        document.body.classList.remove('animations-paused');
+        pauseBackgroundMusic();
+    });
+
+    // ---- EVENTOS DE TOQUE (mobile) ----
+    document.addEventListener('touchstart', function(e) {
+        if (e.target.closest('.learn-more-btn')) {
+            clickedButton = true;
+            return;
+        }
+        
+        playGirlyClick();
+        document.body.classList.add('animations-paused');
+        startBackgroundMusic();
+    });
+
+    document.addEventListener('touchend', function(e) {
+        if (clickedButton) {
+            clickedButton = false;
+            return;
+        }
+        
+        document.body.classList.remove('animations-paused');
+        pauseBackgroundMusic();
+    });
+
+    // ---- BOTÃO LEARN MORE: 1 CLIQUE COM SOM E NAVEGAÇÃO IMEDIATA ----
+    const learnMoreBtn = document.getElementById('learnMoreBtn');
+    learnMoreBtn.addEventListener('click', function(e) {
+        // Toca o som instantaneamente
+        playGirlyClick();
+        
+        // NÃO bloqueamos o evento: o link abre normalmente.
+        // O som toca e a página muda — sem efeitos colaterais na música de fundo.
+        // Como o clique foi no botão, a flag clickedButton evitou que mousedown/touchstart
+        // disparassem a lógica de pausa/play. Portanto, o estado da música permanece 
+        // exatamente como estava antes do clique.
+    });
+
+    // Garantir que o AudioContext está ativo (para o som de clique)
+    if (audioContext.state === 'suspended') {
+        audioContext.resume().catch(console.error);
+    }
+
+    // ==================== DADOS DO QUIZ (mantidos iguais) ====================
+    let typeCounts = {1: 0, 2: 0, 3: 0};
+    let totalQuestions = 7;
+    let percentages = {typeA: 0, typeB: 0, typeC: 0};
+    
+    try {
+        const savedCounts = sessionStorage.getItem('spectro_type_counts');
+        const savedTotal = sessionStorage.getItem('spectro_total_questions');
+        const savedPercentages = sessionStorage.getItem('spectro_percentages');
+        
+        if (savedCounts) typeCounts = JSON.parse(savedCounts);
+        if (savedTotal) totalQuestions = parseInt(savedTotal);
+        if (savedPercentages) percentages = JSON.parse(savedPercentages);
+    } catch (e) {
+        console.log("Usando valores padrão para demonstração");
+        percentages = {typeA: 28, typeB: 29, typeC: 43};
+    }
+    
+    function percentToDots(percent) {
+        const validPercent = Math.min(100, Math.max(0, percent));
+        return Math.round((validPercent / 100) * totalQuestions);
+    }
+    
+    function fillDotsFromPercentage(containerId, percent) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        container.innerHTML = '';
+        const filledCount = percentToDots(percent);
+        
+        for (let i = 0; i < totalQuestions; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'dot' + (i < filledCount ? ' filled' : '');
+            container.appendChild(dot);
+        }
+    }
+    
+    fillDotsFromPercentage('typeA-dots', percentages.typeA || 0);
+    fillDotsFromPercentage('typeB-dots', percentages.typeB || 0);
+    fillDotsFromPercentage('typeC-dots', percentages.typeC || 0);
+    
+    document.getElementById('typeA-percent').textContent = (percentages.typeA || 0) + '%';
+    document.getElementById('typeB-percent').textContent = (percentages.typeB || 0) + '%';
+    document.getElementById('typeC-percent').textContent = (percentages.typeC || 0) + '%';
+
+    </script>
+        <audio src="music/final.mp3" autoplay loop></audio>
+</body>  
+</html>

@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Welcome to the Vibe</title>
+
+<style>
+
+:root{
+--bg-color:#050505;
+--text-color:#a8a8a8;
+--accent-red:#ff0000;
+--font-main:'Courier New', Courier, monospace;
+}
+
+body,html{
+margin:0;
+padding:0;
+height:100%;
+background-color:var(--bg-color);
+color:var(--text-color);
+font-family:var(--font-main);
+overflow-x:hidden;
+cursor:crosshair;
+}
+
+/* MATRIX BACKGROUND */
+
+#matrix {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0; /* atrás do conteúdo mas renderiza */
+  pointer-events: none;
+}
+
+.container {
+  position: relative;
+  z-index: 2; /* acima da Matrix */
+}
+
+/* CRT */
+
+.overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:linear-gradient(rgba(18,16,16,0)50%,rgba(0,0,0,0.25)50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06));
+background-size:100% 2px,3px 100%;
+pointer-events:none;
+z-index:999;
+}
+
+.container{
+max-width:800px;
+width:90%;
+margin:50px auto;
+padding:20px;
+border-left:1px solid #333;
+min-height:80vh;
+}
+
+.page{
+display:none;
+animation:fadeIn 2s ease;
+}
+
+.active{
+display:block;
+}
+
+h1{
+font-weight:normal;
+letter-spacing:5px;
+text-transform:uppercase;
+}
+
+p{
+line-height:1.6;
+font-size:1.1em;
+}
+
+.hidden-link{
+color:transparent;
+cursor:help;
+text-decoration:underline dotted #333;
+}
+
+.hidden-link:hover{
+color:var(--accent-red);
+text-shadow:0 0 5px var(--accent-red);
+}
+
+input[type="text"]{
+background:transparent;
+border:none;
+border-bottom:1px solid var(--text-color);
+color:white;
+font-family:var(--font-main);
+font-size:1.2em;
+width:200px;
+outline:none;
+}
+
+button{
+background:transparent;
+border:1px solid var(--accent-red);
+color:var(--accent-red);
+padding:10px 20px;
+font-family:var(--font-main);
+margin-top:20px;
+cursor:pointer;
+text-transform:uppercase;
+transition:0.3s;
+}
+
+button:hover{
+background:var(--accent-red);
+color:black;
+}
+
+#timer{
+position:fixed;
+bottom:20px;
+right:20px;
+font-size:1.5em;
+color:var(--accent-red);
+animation:pulse 1s infinite;
+}
+
+.static-noise{
+position:fixed;
+top:0;
+left:0;
+width:100vw;
+height:100vh;
+pointer-events:none;
+opacity:0;
+z-index:800;
+transition:opacity 0.1s;
+}
+
+.flash{
+opacity:0.4 !important;
+background:white;
+}
+
+/* PIXEL */
+
+#binary-art{
+display:grid;
+grid-template-columns:repeat(20,1fr);
+gap:2px;
+width:200px;
+margin:20px auto;
+}
+
+.pixel{
+width:10px;
+height:10px;
+background:#1a1a1a;
+}
+
+.pixel.active{
+background:var(--accent-red);
+box-shadow:0 0 5px var(--accent-red);
+}
+
+/* RESPONSIVE */
+
+@media(max-width:768px){
+
+.container{
+max-width:95%;
+margin:20px auto;
+padding:15px;
+}
+
+h1{
+font-size:1.5em;
+letter-spacing:2px;
+}
+
+p{
+font-size:1em;
+}
+
+#binary-art{
+transform:scale(0.8);
+}
+
+}
+
+@keyframes fadeIn{
+from{opacity:0}
+to{opacity:1}
+}
+
+@keyframes pulse{
+0%{opacity:1}
+50%{opacity:0.5}
+100%{opacity:1}
+}
+
+.error-msg{
+color:red;
+font-size:0.8em;
+margin-top:5px;
+display:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div class="overlay"></div>
+<div class="static-noise" id="noise"></div>
+<div id="timer">00:03:00</div>
+
+<div class="container">
+
+<div id="page1" class="page active">
+<h1>Introduction.</h1>
+<p>Do not look away. Do not blink.</p>
+<p>You have found the signal embedded in the void. It is loud here, isn't it?</p>
+<p>To continue, you must find what was <span class="hidden-link" onclick="nextPage('page2')">buried beneath the floorboards</span>.</p>
+<br>
+<button onclick="triggerStatic();playSound('digital_beep')">SHOW WHAT´S HIDDEN</button>
+</div>
+
+<div id="page2" class="page">
+<h1>The Gatekeeper.</h1>
+<p>A warning was left behind.</p>
+
+<pre style="background:#111;padding:15px;">
+Lffq Npwjoh
+</pre>
+
+<p>(Deciphering... Shift -1)</p>
+
+<p>Enter the command to proceed:</p>
+
+<input type="text" id="cipher-input">
+
+<p class="error-msg" id="cipher-error">Incorrect Sequence</p>
+
+<button onclick="checkCipher()">Unlock</button>
+</div>
+
+<div id="page3" class="page">
+
+<h1>Silent Frequencies.</h1>
+
+<p>The machines speak in pulses. Decode the distress signal.</p>
+
+<p style="font-size:2em;letter-spacing:5px;text-align:center;">
+-.- . -.--
+</p>
+
+<p>Type the decoded name below:</p>
+
+<input type="text" id="morse-input">
+
+<button onclick="checkMorse()">Transmit</button>
+
+</div>
+
+<div id="page4" class="page">
+
+    <h1>Data Visualization.</h1>
+    
+    <p>Binary signal detected.</p>
+    
+    <pre id="binary-message" style="
+   background:#111;
+  padding:20px;
+  color:#00ff41;
+  font-size:1.1em;
+  white-space: pre-wrap;   
+  word-break: break-word;  
+  overflow-x:hidden;
+    "></pre>
+    
+
+    
+    <hr>
+    
+    <p>Once revealed, the path opens through the 
+    <span class="hidden-link" onclick="nextPage('page5')">digital abyss</span>.
+    </p>
+    
+    </div>
+
+    <div id="page5" class="page">
+
+        <h1>Final Protocol</h1>
+        
+        <div style="background:#111;padding:20px;border:1px solid #333;margin-top:20px">
+        
+        <p>
+        Informamos que se proceder e aceitar os termos e condições estará sujeito à utilização dos seus dados conforme for necessário.
+        </p>
+        
+        <label style="display:block;margin-top:15px;">
+        <input type="checkbox" id="consentBox">
+         Li e aceito os termos e condições
+        </label>
+        
+        <button onclick="acceptTerms()">Confirm</button>
+        
+        </div>
+        
+        </div>
+
+<script>
+
+/* PAGE OPEN IN NEW TAB */
+
+function nextPage(pageId){
+window.open(window.location.pathname + "?page=" + pageId,"_blank");
+}
+
+window.onload=function(){
+
+const params=new URLSearchParams(window.location.search);
+const page=params.get("page");
+
+if(page){
+
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+document.getElementById(page).classList.add('active');
+
+}
+
+renderBinary();
+bindEnterSubmit('cipher-input',checkCipher);
+bindEnterSubmit('morse-input',checkMorse);
+
+}
+
+function bindEnterSubmit(inputId,handler){
+const input=document.getElementById(inputId);
+
+if(!input){
+return;
+}
+
+const button=input.closest('.page')?.querySelector('button');
+
+input.addEventListener('keyup',function(event){
+if(event.key==='Enter'){
+event.preventDefault();
+(button||{click:handler}).click();
+}
+});
+}
+
+/* TIMER */
+
+let timeInSeconds=180;
+const timerEl=document.getElementById('timer');
+
+setInterval(()=>{
+
+if(timeInSeconds<=0){
+document.body.innerHTML="<h1 style='color:red;text-align:center;padding-top:40vh;'>THE SIGNAL IS DEAD</h1>";
+return;
+}
+
+timeInSeconds--;
+
+let minutes=Math.floor(timeInSeconds/60);
+let seconds=timeInSeconds%60;
+
+timerEl.innerText=`00:${pad(minutes)}:${pad(seconds)}`;
+
+},1000);
+
+function pad(num){
+return num.toString().padStart(2,'0');
+}
+
+/* CIPHER */
+
+function checkCipher(){
+
+const input=document.getElementById('cipher-input').value.toLowerCase();
+
+if(input==="keep moving"){
+
+nextPage('page3');
+
+}else{
+
+const err=document.getElementById('cipher-error');
+
+err.style.display='block';
+
+triggerStatic();
+
+setTimeout(()=>err.style.display='none',2000);
+
+}
+
+}
+
+/* MORSE */
+
+function checkMorse(){
+
+const input=document.getElementById('morse-input').value.toLowerCase();
+
+if(input.includes("key")){
+
+nextPage('page4');
+
+}else{
+
+triggerStatic();
+alert("Incorrect Frequency");
+
+}
+
+}
+
+/* BINARY */
+
+function renderBinary(){
+  const text = "WELCOME TO THE VIBE";
+  const binary = text.split('').map(c=>c.charCodeAt(0).toString(2).padStart(8,'0')).join(' ');
+  document.getElementById('binary-message').textContent = binary;
+}
+
+/* GLITCH */
+
+function triggerStatic(){
+
+const noise=document.getElementById('noise');
+
+noise.classList.add('flash');
+
+setTimeout(()=>noise.classList.remove('flash'),200);
+
+document.body.style.transform="translateX(5px)";
+setTimeout(()=>document.body.style.transform="translateX(-5px)",50);
+setTimeout(()=>document.body.style.transform="translateX(0)",100);
+
+if(Math.random()>0.5){
+
+const el=document.createElement('div');
+
+el.innerText="SYSTEM ERROR";
+
+el.style.position='fixed';
+el.style.top='40%';
+el.style.left='50%';
+el.style.transform='translate(-50%,-50%)';
+el.style.color='red';
+el.style.fontSize='4rem';
+el.style.zIndex='9999';
+
+document.body.appendChild(el);
+
+setTimeout(()=>el.remove(),300);
+
+}
+
+}
+
+/* JUMPSCARE */
+
+function jumpscare(){
+
+triggerStatic();
+
+const overlay=document.createElement('div');
+
+overlay.innerHTML=`<img src="https://i.imgur.com/G8rC8qM.jpeg" style="width:100vw;height:100vh;object-fit:cover">`;
+
+overlay.style.position='fixed';
+overlay.style.top=0;
+overlay.style.left=0;
+overlay.style.zIndex=10000;
+
+document.body.appendChild(overlay);
+
+playSound('scream');
+
+setTimeout(()=>location.reload(),3000);
+
+}
+
+/* SOUND */
+
+const audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+
+function playSound(type){
+
+const osc=audioCtx.createOscillator();
+const gain=audioCtx.createGain();
+
+osc.connect(gain);
+gain.connect(audioCtx.destination);
+
+osc.type='square';
+osc.frequency.value=700;
+
+gain.gain.value=0.1;
+
+osc.start();
+osc.stop(audioCtx.currentTime+0.1);
+
+}
+
+
+/* MATRIX BACKGROUND */
+
+document.addEventListener("DOMContentLoaded", function(){
+  const canvas = document.getElementById("matrix");
+  const ctx = canvas.getContext("2d");
+
+  let fontSize = 16;
+  let columns;
+  let drops = [];
+  let speed = 8; // controla a velocidade da animação
+
+  function resizeMatrix(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    columns = Math.floor(canvas.width / fontSize);
+    drops = [];
+    for(let i=0;i<columns;i++){drops[i]=Math.random()*canvas.height;}
+  }
+
+  function drawMatrix(){
+    ctx.fillStyle = "rgba(0,0,0,0.08)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = "#00ff41";
+    ctx.font = fontSize + "px monospace";
+
+    for(let i=0;i<drops.length;i++){
+      const text = Math.random()>0.5?"1":"0";
+      ctx.fillText(text,i*fontSize,drops[i]);
+      drops[i]+=speed;
+      if(drops[i]>canvas.height && Math.random()>0.975){drops[i]=0;}
+    }
+
+    requestAnimationFrame(drawMatrix); // animação contínua
+  }
+
+  resizeMatrix();
+  drawMatrix();
+  window.addEventListener("resize",resizeMatrix);
+});
+function acceptTerms(){
+  const checked=document.getElementById('consentBox').checked;
+  if(!checked){alert("É necessário aceitar os termos."); return;}
+  document.body.innerHTML = "<div style='background:black;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;text-align:center'><h1 style='color:red;font-size:3em;'>YOU ARE NOW <span style='color:#00ff41;font-style:italic;'>UNWELCOME</span> TO THE VIBE</h1></div>";
+}
+
+
+
+</script>
+
+</body>
+</html>

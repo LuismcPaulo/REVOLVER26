@@ -1,0 +1,171 @@
+<!doctype html> 
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FINAL ANSWER?</title>
+    <!-- Google Fonts: Press Start 2P e VT323 -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <!-- tiny favicon (musical note) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎵</text></svg>">
+  </head>
+  <body>
+    <!-- hidden audio player: plays final.wav, loops, autoplay, preload -->
+    <audio id="bg-music" loop autoplay preload="auto">
+      <source src="final.wav" type="audio/wav">
+      Your browser does not support the audio element.
+    </audio>
+
+    <div class="content-wrapper">
+      <h1 class="type-title">FINAL ANSWER?</h1>
+      <h2 class="type-subtitle">THE REASON FOR THIS SITE</h2>
+      
+      <div class="paragraph-space">
+        <p class="descriptive-text descriptive-paragraph">
+         This project was developed based on references from magazines of the 2000s, which popularized personality tests. 
+         As a child, I remember taking them, paying close attention to the results, truly believing they defined me. 
+         Strangely, these results led me to try to replicate these archetypes, until I understood how exhausting it is to continuously act on them. 
+         In a way, this simplification of women caused me, for a long time while I was forming myself as a woman, to avoid stating details about myself that contradicted these formulas.
+        In this sense, this test aims to satirize this constant attempt to simplify women, which seeks to deconstruct them into numbers and codes, like machines.
+         Stay resilient, and complex, xoxo.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // Configurar música com volume baixo (5% como no quiz)
+      const music = document.getElementById('bg-music');
+      if (music) {
+        music.volume = 0.05; // 5% - suave
+        
+        // Tentar tocar automaticamente
+        let playPromise = music.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            // Se autoplay for bloqueado, esperar interação do usuário
+            console.log("autoplay blocked — waiting for first click");
+            const startAudio = () => {
+              music.play().catch(e => console.log("playback started via interaction"));
+              document.body.removeEventListener('click', startAudio);
+              document.body.removeEventListener('touchend', startAudio);
+            };
+            document.body.addEventListener('click', startAudio, { once: true });
+            document.body.addEventListener('touchend', startAudio, { once: true });
+          });
+        }
+      }
+    </script>
+
+    <style>
+      body {
+        margin: 0;
+        background-color: #0500A0; /* Inverso do #FAFF5F (amarelo -> azul escuro) */
+        padding: 40px 30px;
+        font-family: 'Press Start 2P', cursive;
+      }
+
+      /* Hide audio element visually */
+      audio {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        border: 0;
+      }
+
+      .content-wrapper {
+        width: 100%;
+      }
+
+      .type-title {
+        color: #3AB23A; /* Inverso do #C54DC5 (roxo -> verde) */
+        font-family: 'Press Start 2P', cursive;
+        font-size: clamp(32px, 5vw, 48px);
+        margin: 0 0 20px 0;
+        line-height: 1.3;
+        width: 100%;
+        /* ESTÉTICA INVERSA - laranja vira azul */
+        text-shadow: 4px 4px 0 #004CB8, 2px 2px 0 #002699; /* Inverso do laranja (#FFB347 -> azul, #FFD966 -> azul escuro) */
+        letter-spacing: 2px;
+        transition: transform 0.2s ease; /* transição suave */
+        /* SEM ANIMAÇÃO */
+      }
+
+      /* Título salta no hover */
+      .type-title:hover {
+        transform: translateY(-5px);
+      }
+
+      .type-subtitle {
+        color: #006AFF; /* Inverso do #ff9500 (laranja -> azul claro) */
+        font-family: 'Press Start 2P', cursive;
+        font-size: clamp(14px, 2.5vw, 22px); /* AUMENTADO */
+        margin: 0 0 30px 0;
+        line-height: 1.6;
+        opacity: 0.9;
+        width: 100%;
+        transition: transform 0.2s ease; /* transição suave */
+      }
+
+      /* Subtítulo salta no hover */
+      .type-subtitle:hover {
+        transform: translateY(-3px);
+      }
+
+      .paragraph-space {
+        width: 100%;
+      }
+
+      .descriptive-text {
+        color: #999999; /* Inverso do #666666 (cinza médio -> cinza mais claro) */
+        font-family: 'VT323', monospace;
+        font-size: clamp(18px, 3.5vw, 28px);
+        line-height: 1.3;
+        margin: 0;
+        letter-spacing: 0.3px;
+        width: 100%;
+        /* justificado — alinhamento nas duas margens */
+        text-align: justify;
+      }
+
+      .descriptive-paragraph {
+        text-indent: 40px;
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding: 30px 20px;
+        }
+        
+        .type-title {
+          font-size: 24px;
+          text-shadow: 3px 3px 0 #004CB8, 1.5px 1.5px 0 #002699; /* sombra menor no mobile */
+        }
+        
+        /* Hover também funciona no mobile mas com salto menor */
+        .type-title:hover {
+          transform: translateY(-3px);
+        }
+        
+        .type-subtitle {
+          font-size: 12px; /* AUMENTADO */
+        }
+        
+        .type-subtitle:hover {
+          transform: translateY(-2px);
+        }
+        
+        .descriptive-text {
+          font-size: 16px;
+        }
+        
+        .descriptive-paragraph {
+          text-indent: 30px;
+        }
+      }
+    </style>
+  </body> 
+</html>

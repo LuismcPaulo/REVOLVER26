@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spectro</title>
+  <!-- Google Font: Press Start 2P  -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎵</text></svg>">
+  <style>
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #FAFF5F;
+      font-family: 'Press Start 2P', cursive;
+      padding: 20px;
+      position: relative;
+    }
+
+    .gif-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('./images/gif.gif');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      opacity: 0.15;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .flex.centrar.in-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 3;
+      gap: clamp(1.5rem, 5vh, 3rem);
+    }
+
+    /* ---- TITLE — MOVE 20PX EM QUALQUER TELA ---- */
+    .title {
+      font-family: 'Press Start 2P', cursive;
+      font-size: clamp(1.2rem, 6vw, 3.5rem);
+      line-height: 1.5;
+      text-align: center;
+      color: #C54DC5;
+      max-width: 900px;
+      width: 100%;
+      word-break: break-word;
+      padding: 0 15px;
+      text-shadow: 
+        4px 4px 0 #FFB347,
+        2px 2px 0 #FFD966;
+      letter-spacing: 2px;
+      animation: floatTitle 3s ease-in-out infinite;
+    }
+
+    @keyframes floatTitle {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+      100% { transform: translateY(0); }
+    }
+
+    /* ---- BUTTON ---- */
+    .quiz-button {
+      font-family: 'Press Start 2P', cursive;
+      font-size: clamp(0.9rem, 3vw, 1.5rem);
+      display: inline-block;
+      text-decoration: none;
+      padding: 0.8rem 2rem 0.8rem 2rem;
+      background-color: transparent;
+      color: #C54DC5;
+      border: 2px solid #C54DC5;
+      cursor: pointer;
+      letter-spacing: 2px;
+      position: relative;
+      z-index: 2;
+      text-transform: lowercase;
+      box-shadow: 3px 3px 0 #FFB347;
+      transition: all 0.2s ease;
+    }
+
+    .quiz-button:hover {
+      transform: translateY(-10px) scale(1.05);
+      background-color: #C54DC5;
+      color: #FAFF5F;
+      border-color: #C54DC5;
+      box-shadow: 3px 12px 0 #FFB347;
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .quiz-button:active {
+      transform: translateY(2px);
+      background-color: #FFB347;
+      color: #C54DC5;
+      border-color: #FFB347;
+      box-shadow: 3px 1px 0 #C54DC5;
+      transition: 0.05s;
+    }
+
+    @media (max-width: 480px) {
+      .quiz-button {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.8rem;
+        box-shadow: 2px 2px 0 #FFB347;
+      }
+      .quiz-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 2px 4px 0 #FFB347;
+      }
+    }
+
+    /* Esconde o elemento de áudio */
+    audio {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      background-image: radial-gradient(#c54dc5 1px, transparent 1px);
+      background-size: 32px 32px;
+      opacity: 0.08;
+      z-index: 0;
+    }
+
+    @media (orientation: landscape) and (max-height: 600px) {
+      body { padding: 10px; }
+      .flex.centrar.in-column { gap: 0.8rem; }
+      .title { font-size: clamp(0.9rem, 4vh, 1.5rem); }
+      .quiz-button {
+        padding: 0.4rem 1.5rem;
+        font-size: 0.7rem;
+      }
+      .quiz-button:hover { transform: translateY(-2px); }
+    }
+
+    @media (min-width: 1201px) {
+      .title { font-size: 3rem; }
+      .quiz-button {
+        font-size: 1.5rem;
+        padding: 1rem 2.5rem;
+        box-shadow: 4px 4px 0 #FFB347;
+      }
+      .quiz-button:hover {
+        transform: translateY(-5px);
+        box-shadow: 4px 7px 0 #FFB347;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .title, .quiz-button {
+        animation: none;
+        transform: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- GIF Background -->
+  <div class="gif-background" aria-hidden="true"></div>
+
+  <!-- Áudio de fundo (365music.mp3) - sem autoplay para evitar bloqueios -->
+  <audio id="bg-music" loop preload="auto">
+    <source src="music/365music.mp3" type="audio/mpeg">
+
+  </audio>
+
+  <div class="flex centrar in-column w-full h-full">
+    <h1 class="title">What type of girl are you?</h1>
+    <a href="./quiz.html" class="quiz-button" id="quizBtn">begin quiz</a>
+  </div>
+
+  <script>
+    // ==================== INICIALIZAÇÃO DO ÁUDIO ====================
+    let audioContext = null;
+    let audioInitialized = false;
+    
+    // Referência à música de fundo
+    const music = document.getElementById('bg-music');
+    if (music) {
+      music.volume = 0.2; // Volume 20% para não abafar o som do clique
+    }
+
+    // Função para criar e guardar o AudioContext
+    function getAudioContext() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioContext;
+    }
+
+    // ==================== SOM GIRLY ====================
+    function playGirlyClick() {
+      try {
+        const ctx = getAudioContext();
+        
+        if (ctx.state === 'suspended') {
+          ctx.resume().then(() => {
+            actuallyPlaySound(ctx);
+          }).catch(e => console.log("Erro ao ativar áudio:", e));
+        } else {
+          actuallyPlaySound(ctx);
+        }
+      } catch (e) {
+        console.log("Erro no som:", e);
+      }
+    }
+
+    function actuallyPlaySound(ctx) {
+      const now = ctx.currentTime;
+      
+      // Nota 1 (mi)
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.value = 659.25;
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      gain1.gain.setValueAtTime(0.15, now);
+      gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+      
+      // Nota 2 (sol)
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.value = 783.99;
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      gain2.gain.setValueAtTime(0.15, now + 0.03);
+      gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.13);
+      
+      osc1.start(now);
+      osc1.stop(now + 0.12);
+      osc2.start(now + 0.03);
+      osc2.stop(now + 0.15);
+      
+      console.log("✨ Som girly tocado!");
+    }
+
+    // ==================== FUNÇÃO PARA INICIAR A MÚSICA DE FUNDO ====================
+    function startBackgroundMusic() {
+      if (music && music.paused) {
+        music.play()
+          .then(() => console.log("🎵 Música de fundo iniciada"))
+          .catch(e => console.log("Erro ao iniciar música:", e));
+      }
+    }
+
+    // ==================== INICIALIZAÇÃO NA PRIMEIRA INTERAÇÃO ====================
+    function handleFirstInteraction() {
+      if (audioInitialized) return;
+      
+      console.log("🎧 Primeira interação - inicializando áudio");
+      
+      // Inicializa o AudioContext
+      const ctx = getAudioContext();
+      if (ctx.state === 'suspended') {
+        ctx.resume().then(() => {
+          console.log("✅ AudioContext ativado");
+        }).catch(console.error);
+      }
+      
+      audioInitialized = true;
+    }
+
+    // ==================== EVENTOS PARA ATIVAR ÁUDIO NA PRIMEIRA INTERAÇÃO ====================
+    // Lista de eventos que ativam o áudio
+    const activationEvents = ['click', 'touchstart', 'keydown', 'mouseenter'];
+    
+    activationEvents.forEach(eventType => {
+      document.addEventListener(eventType, function firstInteractionHandler(e) {
+        // Se for mouseenter, só ativa se for no botão (para não ativar com mouse em qualquer lugar)
+        if (eventType === 'mouseenter' && !e.target.closest('.quiz-button')) {
+          return;
+        }
+        
+        handleFirstInteraction();
+        // Remove todos os listeners após a primeira interação
+        activationEvents.forEach(ev => {
+          document.removeEventListener(ev, firstInteractionHandler);
+        });
+      }, { once: true });
+    });
+
+    // ==================== BOTÃO PRINCIPAL ====================
+    document.getElementById('quizBtn').addEventListener('click', function(e) {
+      e.preventDefault(); // Previne navegação imediata
+      
+      console.log("🎯 Botão clicado!");
+      
+      // Garante que o áudio está ativado
+      handleFirstInteraction();
+      
+      // Toca o som de clique
+      playGirlyClick();
+      
+      // Inicia a música de fundo (opcional - comentar se não quiser música)
+      startBackgroundMusic();
+      
+      // Pequeno delay para o som ser ouvido antes de navegar
+      setTimeout(() => {
+        window.location.href = './quiz.html';
+      }, 250);
+    });
+
+    // Inicializa o AudioContext assim que possível (para reduzir latência)
+    window.addEventListener('load', () => {
+      getAudioContext(); // Cria o contexto mas não ativa
+      console.log("🎵 Página carregada, áudio pronto");
+    });
+
+  </script>
+</body>
+</html>

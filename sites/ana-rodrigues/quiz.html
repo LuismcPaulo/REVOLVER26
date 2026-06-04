@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPECTRO · quiz</title>
+  <!-- Google Font: VT323 -->
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎵</text></svg>">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #FAFF5F;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'VT323', monospace;
+      padding: clamp(12px, 3vw, 24px);
+      margin: 0;
+    }
+
+    .flex {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      width: 100%;
+      max-width: min(90%, 900px);
+      margin: 0 auto;
+      height: 100%;
+    }
+
+    #form {
+      background-color: transparent;
+      padding: clamp(20px, 5vw, 40px);
+      border-radius: 12px;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    #ans_title {
+      font-family: 'VT323', monospace;
+      font-size: clamp(28px, 6vw, 48px);
+      color: #C54DC5;
+      margin-bottom: clamp(20px, 4vh, 40px);
+      text-align: center;
+      line-height: 1.3;
+      font-weight: normal;
+      letter-spacing: 0.5px;
+      width: 100%;
+      word-wrap: break-word;
+      hyphens: auto;
+    }
+
+    .answers-container {
+      width: 100%;
+      margin-bottom: clamp(20px, 4vh, 40px);
+      flex: 0 1 auto;
+    }
+
+    .answer-option {
+      margin: clamp(10px, 2vh, 20px) 0;
+      display: flex;
+      align-items: flex-start;
+      gap: clamp(8px, 2vw, 16px);
+      width: 100%;
+      padding: 8px 5px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .answer-option.selected {
+      background-color: rgba(255, 149, 0, 0.25);
+    }
+
+    .answer-option input[type="radio"] {
+      margin-top: 5px;
+      width: clamp(16px, 3vw, 22px);
+      height: clamp(16px, 3vw, 22px);
+      cursor: pointer;
+      accent-color: #C54DC5;
+      flex-shrink: 0;
+    }
+
+    .answer-option label {
+      font-family: 'VT323', monospace;
+      font-size: clamp(18px, 3.5vw, 28px);
+      color: #666666;
+      line-height: 1.3;
+      cursor: pointer;
+      flex: 1;
+      letter-spacing: 0.3px;
+      word-wrap: break-word;
+      transition: color 0.2s ease;
+    }
+
+    @media (hover: hover) {
+      .answer-option:hover {
+        background-color: rgba(255, 149, 0, 0.12);
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      
+      .answer-option:hover label {
+        color: #ff9500;
+      }
+      
+      .answer-option.selected:hover label {
+        color: #ff9500;
+      }
+    }
+
+
+    .answer-option-image {
+      margin: 15px 0;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      width: 200px;
+      padding: 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.1s linear;
+    }
+
+    .answer-option-image input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .answer-image {
+      width: 180px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 3px solid transparent;
+      transition: border 0.1s linear;
+      margin-bottom: 8px;
+      display: block;
+      background-color: #f0f0f0;
+    }
+
+    .answer-option-image.selected .answer-image {
+      border-color: #ff9500;
+    }
+
+    .image-caption {
+      font-family: 'VT323', monospace;
+      font-size: 20px;
+      color: #666666;
+      text-align: center;
+      transition: color 0.1s linear;
+    }
+
+    .answer-option-image.selected .image-caption {
+      color: #ff9500;
+    }
+
+    @media (hover: hover) {
+      .answer-option-image:hover .answer-image {
+        border-color: #ff9500;
+      }
+      
+      .answer-option-image:hover .image-caption {
+        color: #ff9500;
+      }
+    }
+
+    .image-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      width: 100%;
+    }
+
+    .submit-btn {
+      font-family: 'VT323', monospace;
+      font-size: clamp(22px, 4vw, 32px);
+      color: #ff9500;
+      background: transparent;
+      border: 2px solid #ff9500;
+      padding: 8px 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 0px;
+      margin-bottom: 0px;
+      letter-spacing: 1px;
+      border-radius: 6px;
+      width: fit-content;
+      min-width: 200px;
+      max-width: 100%;
+      align-self: center;
+    }
+
+    @media (hover: hover) {
+      .submit-btn:hover:not(:disabled) {
+        background-color: #ff9500;
+        color: #FAFF5F;
+        transform: scale(1.02) translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+    }
+
+    .submit-btn:active:not(:disabled) {
+      background-color: #ff9500;
+      color: #FAFF5F;
+      transform: scale(0.98);
+    }
+
+    .message {
+      font-family: 'VT323', monospace;
+      font-size: clamp(16px, 3vw, 24px);
+      margin-top: 5px;
+      text-align: center;
+      min-height: 40px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      padding: 10px;
+      border-radius: 4px;
+    }
+
+    audio {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    @media (max-width: 768px) {
+      .answer-option-image {
+        width: 150px;
+      }
+      
+      .answer-image {
+        width: 130px;
+        height: 130px;
+      }
+      
+      .image-caption {
+        font-size: 18px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .answer-option-image {
+        width: 120px;
+      }
+      
+      .answer-image {
+        width: 100px;
+        height: 100px;
+      }
+      
+      .image-caption {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <form id="form" class="flex">
+    <h3 id="ans_title">Pergunta 1</h3>
+    <div id="ans_div" class="answers-container"></div>
+    <div id="message" class="message"></div>
+    <button type="submit" class="submit-btn" id="submitBtn">Submit</button>
+  </form>
+
+  <script>
+    // ==================== MUSIC HANDLER MELHORADO ====================
+    (function setupMusic() {
+      const music = document.getElementById('bg-music');
+      if (!music) return;
+      
+      music.volume = 0.05;
+      
+      // FLAG ESPECIAL: verificar se veio da página anterior com áudio ativo
+      const audioWasActive = sessionStorage.getItem('spectro_audio_active') === 'true';
+      
+      if (audioWasActive) {
+        console.log("🎵 Áudio já estava ativo na página anterior!");
+        // Tocar imediatamente
+        music.play().catch(e => console.log("erro no autoplay após página anterior", e));
+        
+        // Limpar a flag (não precisamos mais)
+        sessionStorage.removeItem('spectro_audio_active');
+      } else {
+        console.log("🎵 Aguardando primeira interação para ativar áudio");
+      }
+      
+      // Função para ativar TODOS os áudios
+      function activateAllAudio() {
+        // Tenta tocar a música de fundo
+        music.play().catch(e => console.log("erro ao ativar música", e));
+        
+        // Remove os listeners depois de ativar
+        document.body.removeEventListener('click', activateAllAudio);
+        document.body.removeEventListener('touchend', activateAllAudio);
+      }
+      
+    
+      if (!audioWasActive) {
+        document.body.addEventListener('click', activateAllAudio, { once: true });
+        document.body.addEventListener('touchend', activateAllAudio, { once: true });
+      }
+    })();
+
+    let audioContext = null;
+    
+    function getAudioContext() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioContext;
+    }
+    
+    function playGirlyClick() {
+      try {
+        const ctx = getAudioContext();
+        
+      
+        if (ctx.state === 'suspended') {
+          ctx.resume().then(() => {
+            actuallyPlaySound(ctx);
+          }).catch(e => console.log("Erro ao ativar áudio:", e));
+        } else {
+          actuallyPlaySound(ctx);
+        }
+      } catch (e) {
+        console.log("Erro no som:", e);
+      }
+    }
+
+    function actuallyPlaySound(ctx) {
+      const now = ctx.currentTime;
+      
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.value = 659.25;
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      gain1.gain.setValueAtTime(0.15, now);
+      gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+      
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.value = 783.99;
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      gain2.gain.setValueAtTime(0.15, now + 0.03);
+      gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.13);
+      
+      osc1.start(now);
+      osc1.stop(now + 0.12);
+      osc2.start(now + 0.03);
+      osc2.stop(now + 0.15);
+    }
+
+    // ==================== ESTATÍSTICAS ====================
+    const STATS_KEY = 'spectro_quiz_stats';
+
+    function initStats() {
+      let stats = localStorage.getItem(STATS_KEY);
+      if (!stats) {
+        stats = { typeA: 0, typeB: 0, typeC: 0, total: 0 };
+        localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+      } else {
+        stats = JSON.parse(stats);
+      }
+      return stats;
+    }
+
+    function updateStats(resultType) {
+      const stats = initStats();
+      
+      let typeKey = '';
+      switch(resultType) {
+        case 1: typeKey = 'typeA'; break;
+        case 2: typeKey = 'typeB'; break;
+        case 3: typeKey = 'typeC'; break;
+        default: return;
+      }
+      
+      stats[typeKey] = (stats[typeKey] || 0) + 1;
+      stats.total = (stats.total || 0) + 1;
+      
+      localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+      console.log(`📊 Estatísticas atualizadas:`, stats);
+      return stats;
+    }
+
+    // ==================== QUIZ LOGIC ====================
+    const form = document.getElementById("form");
+    let current_answer = null;
+    let answeredCount = 0;
+    const totalQuestions = 7;
+    let answerValues = [];
+
+    const answers = [
+      {
+        id: "A",
+        descricao: "You're having a ritualistic gathering with your best friends. After the blood pact, you feel the presence of a strange entity. What do you do?",
+        respondida: false,
+        respostas: [
+          { id: 1, descricao: "You use the situation to learn more about your ancestors and connect with the spiritual world." },
+          { id: 2, descricao: "You don't feel confortable talking to something you don't know. You become nonverbal (in a really chic way) and go home." },
+          { id: 3, descricao: "You freak out (but also, the entity is looking really cute today). You ask them to a date." }
+        ]
+      },
+      {
+        id: "B",
+        descricao: "After a long day of shopping, you decide to organize your purchases. What have you brought?",
+        respondida: false,
+        respostas: [
+          { id: 1, descricao: "A unique ring of vintage capybara hair." },
+          { id: 2, descricao: "10 identical air fryers that you found in a Flash Sale." },
+          { id: 3, descricao: "Nothing, you were kicked out of the mall because of your inappropriate behavior with the male mannequins." }
+        ]
+      },
+      {
+        id: "C",
+        descricao: "You're on a special date with your crush at a fancy restaurant, what do you order to eat?",
+        respondida: false,
+        respostas: [
+          { id: 2, descricao: "An almond." },
+          { id: 3, descricao: "Nothing on the menu compares to your excellent, homemade food. (You pull a Tupperware out of your bag and hand-feed your crush.)" },
+          { id: 1, descricao: "A big, fat, juicy burguer. You're simply #thatgirl, you don't care about others opinions." }
+        ]
+      },
+      {
+        id: "D",
+        descricao: "Your bedroom needs a makeover. Which decorating style do you choose?",
+        respondida: false,
+        respostas: [
+          { id: 2, descricao: "Minimalist and clean style. The absence of air is the ideal." },
+          { id: 1, descricao: "Maximist to the extreme. (Losers call it hoading disorder)." },
+          { id: 3, descricao: "I love mixing styles. I want nothing and everything." }
+        ]
+      },
+      {
+        id: "E",
+        descricao: "You're trapped on a deserted island for a year. What's in your backpack?",
+        respondida: false,
+        respostas: [
+          { id: 3, descricao: "A bikini and a volleyball." },
+          { id: 2, descricao: "Poison and a slingshot." },
+          { id: 1, descricao: "A dictionary of a fictional language." }
+        ]
+      },
+      {
+        id: "F",
+        descricao: "Your ex is being shady on social media. What do you do?",
+        respondida: false,
+        respostas: [
+          { id: 1, descricao: "You're more concerned about the Climate Crisis (and decide to replace the fuel in their gasoline-powered car with water)." },
+          { id: 2, descricao: " First, you hack all their accounts and replace the stored information with videos of explosive diarrhea. Then, you leave real poop hidden in their bed sheets. Finally, you replace their shampoo with depilatory cream." },
+          { id: 3, descricao: "You make your best friend dress up as Sexy Shrek, and post the two of you in your stories to make them jealous." }
+        ]
+      },
+      {
+        id: "G",
+        descricao: "Which image feels like you?",
+        respondida: false,
+        tipo: "imagem",
+        respostas: [
+          { id: 2, imagem: "images/typea.jpg", descricao: "Image 1" },
+          { id: 3, imagem: "images/peixe.jpg", descricao: "Image 2" },
+          { id: 1, imagem: "images/weirdbarbie.jpg", descricao: "Image 3" }
+        ]
+      }
+    ];
+
+    function initQuiz() {
+      answers.forEach(a => a.respondida = false);
+      answeredCount = 0;
+      answerValues = [];
+      getRandomAnswer();
+      if (current_answer) setForm();
+    }
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      
+    
+      playGirlyClick();
+      
+      const selected = document.querySelector('input[name="ans"]:checked');
+      if (!selected) {
+        showMessage("Please select an answer before submitting!", "#ff9500");
+        setTimeout(clearMessage, 2000);
+        return;
+      }
+
+      answerValues.push(parseInt(selected.value));
+      
+      if (current_answer) {
+        const idx = answers.findIndex(q => q.id === current_answer.id);
+        if (idx !== -1) answers[idx].respondida = true;
+      }
+      
+      answeredCount++;
+      
+      if (answeredCount >= totalQuestions) {
+        showMessage("Calculating your type...", "#ff9500");
+        setTimeout(calculateAndRedirect, 1000);
+        return;
+      }
+      
+      if (getRandomAnswer()) {
+        setForm();
+        clearMessage();
+      }
+    });
+
+    function calculateAndRedirect() {
+      const counts = {1:0, 2:0, 3:0};
+      answerValues.forEach(v => counts[v]++);
+      
+      let maxCount = 0, resultType = 1;
+      for (let v in counts) {
+        if (counts[v] > maxCount) {
+          maxCount = counts[v];
+          resultType = parseInt(v);
+        }
+      }
+      
+      const ties = [];
+      for (let v in counts) if (counts[v] === maxCount) ties.push(parseInt(v));
+      if (ties.length > 1) resultType = Math.max(...ties);
+      
+      // Guardar resultado nas estatísticas
+      updateStats(resultType);
+      
+      // Guardar dados no formato que a type-a.html espera
+      const total = answerValues.length;
+      
+      sessionStorage.setItem('spectro_type_counts', JSON.stringify(counts));
+      sessionStorage.setItem('spectro_total_questions', total.toString());
+      
+      // Calcular e guardar percentagens
+      let percentages = {
+        typeA: Math.round((counts[1] / total) * 100) || 0,
+        typeB: Math.round((counts[2] / total) * 100) || 0,
+        typeC: Math.round((counts[3] / total) * 100) || 0
+      };
+      
+      // Ajustar para garantir que soma 100%
+      const sum = percentages.typeA + percentages.typeB + percentages.typeC;
+      if (sum !== 100 && sum > 0) {
+        const diff = 100 - sum;
+        const maxType = Object.keys(percentages).reduce((a, b) => 
+          percentages[a] > percentages[b] ? a : b
+        );
+        percentages[maxType] += diff;
+      }
+      
+      sessionStorage.setItem('spectro_percentages', JSON.stringify(percentages));
+      sessionStorage.setItem('spectro_current_type', resultType);
+      
+      // FLAG ESPECIAL: dizer à próxima página que o áudio está ativo
+      sessionStorage.setItem('spectro_audio_active', 'true');
+      
+      console.log("📊 Dados guardados para a página de resultado:");
+      console.log("- Counts:", counts);
+      console.log("- Percentagens:", percentages);
+      console.log("- Tipo resultante:", resultType);
+      console.log("- Flag de áudio ativo: true");
+      
+      // Redirecionar para a página correta
+      const pages = ['type-a.html', 'type-b.html', 'type-c.html'];
+      window.location.href = './' + pages[resultType - 1];
+    }
+
+    function showMessage(text, color) {
+      const msg = document.getElementById('message');
+      msg.textContent = text;
+      msg.style.color = color;
+      msg.style.opacity = '1';
+    }
+
+    function clearMessage() {
+      document.getElementById('message').style.opacity = '0';
+    }
+
+    function getRandomAnswer() {
+      const unanswered = answers.filter(a => !a.respondida);
+      if (!unanswered.length) return false;
+      current_answer = unanswered[Math.floor(Math.random() * unanswered.length)];
+      return true;
+    }
+
+    function setForm() {
+      if (!current_answer) return;
+      
+      const container = document.getElementById("ans_div");
+      document.getElementById("ans_title").innerHTML = current_answer.descricao;
+      container.innerHTML = '';
+
+      if (current_answer.tipo === "imagem") {
+        const grid = document.createElement('div');
+        grid.className = 'image-grid';
+        
+        current_answer.respostas.forEach((e, i) => {
+          const div = document.createElement('div');
+          div.className = 'answer-option-image';
+          div.setAttribute('data-id', e.id);
+
+          const input = document.createElement('input');
+          input.type = 'radio';
+          input.name = 'ans';
+          input.value = e.id;
+          input.id = 'ans_' + i;
+
+          const img = document.createElement('img');
+          img.src = e.imagem;
+          img.alt = e.descricao || '';
+          img.className = 'answer-image';
+          
+          img.onerror = function() {
+            this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180"><rect width="180" height="180" fill="%23f0f0f0"/><text x="50%" y="50%" font-family="VT323" font-size="20" fill="%23999" text-anchor="middle" dy=".3em">Imagem não encontrada</text></svg>';
+          };
+          
+          const label = document.createElement('label');
+          label.htmlFor = input.id;
+          label.className = 'image-caption';
+          label.textContent = e.descricao || '';
+
+          div.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            playGirlyClick();
+            
+            document.querySelectorAll('.answer-option-image').forEach(el => {
+              el.classList.remove('selected');
+            });
+            
+            div.classList.add('selected');
+            input.checked = true;
+          };
+
+          div.appendChild(input);
+          div.appendChild(img);
+          div.appendChild(label);
+          grid.appendChild(div);
+        });
+        
+        container.appendChild(grid);
+      } else {
+        current_answer.respostas.forEach((e, i) => {
+          const div = document.createElement('div');
+          div.className = 'answer-option';
+
+          const input = document.createElement('input');
+          input.type = 'radio';
+          input.name = 'ans';
+          input.value = e.id;
+          input.id = 'ans_' + i;
+          
+          input.addEventListener('click', function() {
+            playGirlyClick();
+            document.querySelectorAll('.answer-option').forEach(opt => {
+              opt.classList.remove('selected');
+            });
+            div.classList.add('selected');
+          });
+
+          const label = document.createElement('label');
+          label.htmlFor = input.id;
+          label.textContent = e.descricao;
+
+          div.appendChild(input);
+          div.appendChild(label);
+          container.appendChild(div);
+        });
+      }
+    }
+
+    window.onload = function() {
+      initQuiz();
+      
+      // Pré-carregar imagens
+      answers.forEach(q => {
+        if (q.tipo === 'imagem') {
+          q.respostas.forEach(r => {
+            if (r.imagem) {
+              const img = new Image();
+              img.src = r.imagem;
+            }
+          });
+        }
+      });
+    };
+  </script>
+      <audio src="music/2part365.mp3" autoplay loop></audio>
+</body>
+</html>

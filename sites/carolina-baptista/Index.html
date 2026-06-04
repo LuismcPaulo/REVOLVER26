@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Reality</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: #0d0221;
+            background-image: 
+                linear-gradient(rgba(138, 43, 226, 0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(138, 43, 226, 0.3) 1px, transparent 1px);
+            background-size: 40px 40px;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Press Start 2P', cursive;
+            overflow: hidden;
+            color: white;
+        }
+
+        .container { text-align: center; z-index: 10; }
+
+        h1 {
+            color: #d8b4fe;
+            font-size: 1.5rem;
+            margin-bottom: 50px;
+            line-height: 1.5;
+            text-transform: uppercase;
+            text-shadow: 4px 4px 0px #5b21b6, 8px 8px 0px #000000;
+            animation: pulse 2s infinite;
+        }
+
+        .game-grid {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .game-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 180px;
+            height: 180px;
+            text-decoration: none;
+            background-color: #2e1065;
+            border: 4px solid #c084fc;
+            box-shadow: 
+                inset 4px 4px 0px rgba(255,255,255,0.2),
+                inset -4px -4px 0px rgba(0,0,0,0.5),
+                8px 8px 0px #000000;
+            transition: all 0.1s;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .pixel-icon {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px;
+            image-rendering: pixelated;
+        }
+
+        .basket-icon {
+            position: relative;
+            width: 50px;
+            height: 40px;
+        }
+        
+        .basket-body {
+            position: absolute;
+            bottom: 0;
+            left: 5px;
+            width: 40px;
+            height: 25px;
+            background: linear-gradient(180deg, #a78bfa 0%, #7c3aed 100%);
+            border: 3px solid #0d0221;
+            border-radius: 4px 4px 8px 8px;
+        }
+        
+        .basket-handle {
+            position: absolute;
+            top: -8px;
+            left: 15px;
+            width: 20px;
+            height: 12px;
+            border: 3px solid #7c3aed;
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .basket-ball {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #f0abfc;
+            border: 2px solid #0d0221;
+            border-radius: 50%;
+            bottom: 8px;
+        }
+        .basket-ball:nth-child(1) { left: 10px; }
+        .basket-ball:nth-child(2) { left: 20px; bottom: 12px; }
+        .basket-ball:nth-child(3) { left: 30px; }
+
+        .ghost-icon {
+            position: relative;
+            width: 50px;
+            height: 60px;
+            animation: ghostFloat 0.4s infinite alternate;
+        }
+        
+        .ghost-icon-body {
+            position: absolute;
+            width: 42px;
+            height: 50px;
+            background: #f0abfc;
+            border: 3px solid #0d0221;
+            left: 4px;
+            top: 0;
+            border-radius: 20px 20px 8px 8px;
+            box-shadow: 
+                inset 3px 3px 0 rgba(255,255,255,0.5),
+                3px 3px 0 rgba(0,0,0,0.3),
+                0 0 15px rgba(240, 171, 252, 0.5);
+        }
+        
+        .ghost-icon-eye {
+            position: absolute;
+            width: 10px;
+            height: 14px;
+            background: #0d0221;
+            top: 16px;
+            border: 2px solid #0d0221;
+        }
+        .ghost-icon-eye.left { left: 10px; }
+        .ghost-icon-eye.right { right: 10px; }
+        
+        .ghost-icon-mouth {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            background: #0d0221;
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .ghost-icon-base {
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: #f0abfc;
+            border: 3px solid #0d0221;
+            border-top: none;
+            clip-path: polygon(0% 0%, 16% 100%, 33% 0%, 50% 100%, 66% 0%, 83% 100%, 100% 0%);
+        }
+
+        @keyframes ghostFloat {
+            from { transform: translateY(0); }
+            to { transform: translateY(-4px); }
+        }
+
+        .eye-icon {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            animation: eyePulse 2s infinite;
+        }
+        
+        .eye-outline {
+            position: absolute;
+            width: 50px;
+            height: 35px;
+            background: #1a1a2e;
+            border: 4px solid #0d0221;
+            border-radius: 50%;
+            top: 12px;
+            left: 5px;
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
+        }
+        
+        .eye-white {
+            position: absolute;
+            width: 42px;
+            height: 27px;
+            background: #f0abfc;
+            border-radius: 50%;
+            top: 16px;
+            left: 9px;
+            border: 2px solid #0d0221;
+        }
+        
+        .eye-pupil {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #0d0221;
+            border-radius: 50%;
+            top: 20px;
+            left: 20px;
+            border: 2px solid #0d0221;
+            animation: pupilLook 3s infinite;
+        }
+        
+        .eye-pupil::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 50%;
+            top: 4px;
+            left: 4px;
+        }
+        
+        .eye-brow {
+            position: absolute;
+            width: 35px;
+            height: 6px;
+            background: #7c3aed;
+            border: 2px solid #0d0221;
+            top: 5px;
+            left: 12px;
+            transform: rotate(-5deg);
+            border-radius: 3px;
+        }
+
+        @keyframes eyePulse {
+            0%, 100% { filter: drop-shadow(0 0 10px #7c3aed); }
+            50% { filter: drop-shadow(0 0 25px #a78bfa); }
+        }
+
+        @keyframes pupilLook {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(2px); }
+            75% { transform: translateX(-2px); }
+        }
+
+        .game-card span {
+            font-size: 0.8rem;
+            color: #fff;
+            text-transform: uppercase;
+            z-index: 2;
+        }
+
+        .game-card.locked {
+            background-color: #1a1a1a;
+            border-color: #555;
+            box-shadow: 
+                inset 4px 4px 0px #333,
+                inset -4px -4px 0px #000,
+                8px 8px 0px #000000;
+            cursor: not-allowed;
+            filter: grayscale(100%);
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .game-card.locked .pixel-icon {
+            filter: grayscale(100%) brightness(0.5);
+        }
+
+        .lock-icon {
+            position: absolute;
+            font-size: 4rem;
+            color: #000;
+            text-shadow: 2px 2px 0px #fff;
+            z-index: 3;
+            display: none;
+        }
+        .game-card.locked .lock-icon { display: block; }
+
+        .game-card.completed {
+            border-color: #4ade80;
+            box-shadow: 
+                inset 4px 4px 0px rgba(255,255,255,0.2),
+                inset -4px -4px 0px rgba(0,0,0,0.5),
+                8px 8px 0px #000000;
+        }
+        
+        .game-card.completed .pixel-icon {
+            filter: drop-shadow(0 0 10px #4ade80);
+        }
+
+        .game-card:not(.locked):hover {
+            transform: translate(4px, 4px);
+            box-shadow: 
+                inset 4px 4px 0px rgba(255,255,255,0.2),
+                inset -4px -4px 0px rgba(0,0,0,0.5),
+                4px 4px 0px #000000;
+            background-color: #4c1d95;
+        }
+        
+        .game-card:not(.locked):active {
+            transform: translate(8px, 8px);
+            box-shadow: none;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        
+        .music-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: #7c3aed;
+            border: 3px solid #0d0221;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 
+                4px 4px 0px #000,
+                0 0 15px rgba(124, 58, 237, 0.7);
+            transition: all 0.1s;
+            z-index: 100;
+            font-size: 1.2rem;
+            color: white;
+        }
+        
+        .music-control:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #000;
+            background: #8b5cf6;
+        }
+        
+        .music-control:active {
+            transform: translate(4px, 4px);
+            box-shadow: none;
+        }
+        
+        .music-control.muted {
+            background: #555;
+            box-shadow: 4px 4px 0px #000;
+        }
+        
+        .music-control.muted:hover {
+            background: #666;
+        }
+
+        @media (max-width: 600px) {
+            .game-grid { flex-direction: column; gap: 30px; }
+            h1 { font-size: 1rem; }
+            .music-control {
+                bottom: 15px;
+                right: 15px;
+                width: 45px;
+                height: 45px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    
+    <audio id="bgMusic" loop>
+        <source src="index--1.mp3" type="audio/mpeg">
+        <source src="index--1.mp3" type="audio/ogg">
+        Seu navegador não suporta áudio HTML5.
+    </audio>
+
+    
+    <audio id="clickSound">
+        <source src="bolitas.mp3" type="audio/mpeg">
+        <source src="bolitas.mp3" type="audio/ogg">
+        Seu navegador não suporta áudio HTML5.
+    </audio>
+
+   
+    <div class="music-control" id="musicBtn" title="Mutar/Ativar música">
+        <i class="fas fa-volume-up" id="musicIcon"></i>
+    </div>
+
+    <div class="container">
+        <h1>Level Select <br> <span style="color: #f472b6; font-size: 0.5em;">Unlock All!</span></h1>
+
+        <div class="game-grid">
+            <!-- Level 1 -->
+            <div class="game-card" onclick="playClickSound(); playGame(1, 'pixelBasket.html')">
+                <div class="pixel-icon basket-icon">
+                    <div class="basket-handle"></div>
+                    <div class="basket-body"></div>
+                    <div class="basket-ball"></div>
+                    <div class="basket-ball"></div>
+                    <div class="basket-ball"></div>
+                </div>
+                <span>Level 1</span>
+                <i class="fa-solid fa-lock lock-icon"></i>
+            </div>
+
+            <!-- Level 2 -->
+            <div class="game-card locked" id="card-2" onclick="playClickSound(); playGame(2, 'boo.html')">
+                <div class="pixel-icon ghost-icon">
+                    <div class="ghost-icon-body">
+                        <div class="ghost-icon-eye left"></div>
+                        <div class="ghost-icon-eye right"></div>
+                        <div class="ghost-icon-mouth"></div>
+                    </div>
+                    <div class="ghost-icon-base"></div>
+                </div>
+                <span>Level 2</span>
+                <i class="fa-solid fa-lock lock-icon"></i>
+            </div>
+
+            <!-- Level 3 -->
+            <div class="game-card locked" id="card-3" onclick="playClickSound(); playGame(3, 'theroom.html')">
+                <div class="pixel-icon eye-icon">
+                    <div class="eye-brow"></div>
+                    <div class="eye-outline"></div>
+                    <div class="eye-white"></div>
+                    <div class="eye-pupil"></div>
+                </div>
+                <span>Level 3</span>
+                <i class="fa-solid fa-lock lock-icon"></i>
+            </div>
+        </div>
+        
+        <p style="margin-top: 40px; font-size: 0.6rem; color: #888;">
+            *Progress is saved on your computer*
+        </p>
+        <button onclick="playClickSound(); resetProgress()" style="margin-top: 10px; background: none; border: 1px solid #555; color: #555; font-family: 'Press Start 2P'; cursor: pointer; font-size: 0.5rem;">Reset Progress</button>
+    </div>
+
+    <script>
+       
+        const bgMusic = document.getElementById('bgMusic');
+        const clickSound = document.getElementById('clickSound');
+        const musicBtn = document.getElementById('musicBtn');
+        const musicIcon = document.getElementById('musicIcon');
+        
+        let isMuted = false;
+        let audioEnabled = false;
+
+        
+        function playClickSound() {
+            if (clickSound) {
+                clickSound.currentTime = 0;
+                clickSound.volume = 0.4;
+                clickSound.play().catch(e => {
+                    console.log("Click sound failed to play:", e);
+                });
+            }
+        }
+
+        
+        function enableAudio() {
+            if (!audioEnabled) {
+                bgMusic.volume = 0.5; 
+                bgMusic.play().then(() => {
+                    audioEnabled = true;
+                    updateMusicIcon();
+                }).catch(e => {
+                    console.log('Autoplay bloqueado, aguarde interação:', e);
+                });
+            }
+        }
+
+       
+        function toggleMute() {
+            playClickSound(); 
+            enableAudio(); 
+            isMuted = !isMuted;
+            bgMusic.muted = isMuted;
+            updateMusicIcon();
+        }
+
+       
+        function updateMusicIcon() {
+            if (!audioEnabled) {
+                musicIcon.className = 'fas fa-volume-mute';
+                musicBtn.classList.add('muted');
+            } else if (isMuted) {
+                musicIcon.className = 'fas fa-volume-mute';
+                musicBtn.classList.add('muted');
+            } else {
+                musicIcon.className = 'fas fa-volume-up';
+                musicBtn.classList.remove('muted');
+            }
+        }
+
+        
+        window.onload = function() {
+            checkUnlocks();
+            const savedMute = localStorage.getItem('pixelMusicMuted');
+            if (savedMute === 'true') {
+                isMuted = true;
+                bgMusic.muted = true;
+            }
+            updateMusicIcon();
+        };
+
+        
+        function playGame(level, url) {
+            enableAudio(); 
+            localStorage.setItem('gameLevel_' + level, 'completed');
+            const card = document.getElementById('card-' + level);
+            if (card) {
+                card.classList.remove('locked');
+                card.classList.add('completed');
+            }
+            checkUnlocks();
+            setTimeout(() => {
+                window.location.href = url;
+            }, 300);
+        }
+
+        
+        function checkUnlocks() {
+            const level1 = localStorage.getItem('gameLevel_1');
+            const card2 = document.getElementById('card-2');
+            if (level1 === 'completed' && card2) {
+                card2.classList.remove('locked');
+            }
+            const level2 = localStorage.getItem('gameLevel_2');
+            const card3 = document.getElementById('card-3');
+            if (level2 === 'completed' && card3) {
+                card3.classList.remove('locked');
+            }
+        }
+
+       
+        function resetProgress() {
+            localStorage.clear();
+            location.reload();
+        }
+
+        
+        musicBtn.addEventListener('click', toggleMute);
+        musicBtn.addEventListener('click', () => {
+            localStorage.setItem('pixelMusicMuted', isMuted);
+        });
+
+        
+        document.body.addEventListener('click', enableAudio, { once: true });
+
+        
+        window.addEventListener('beforeunload', () => {
+            if (clickSound) {
+                clickSound.pause();
+                clickSound.currentTime = 0;
+            }
+            if (bgMusic) {
+                bgMusic.pause();
+            }
+        });
+    </script>
+</body>
+</html>

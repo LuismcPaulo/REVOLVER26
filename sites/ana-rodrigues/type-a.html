@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>Type A</title>
+    <!-- Google Fonts: Press Start 2P e VT323 -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <!-- tiny favicon (musical note) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎵</text></svg>">
+    <style>
+        /* Reset e configurações base */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            user-select: none;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            margin: 0;
+            background-color: #FAFF5F;
+            font-family: 'Press Start 2P', cursive;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Ajuste para telas maiores */
+        @media (min-width: 768px) {
+            body {
+                padding: 40px 60px;
+            }
+        }
+
+        audio {
+            opacity: 0;
+            position: fixed;
+            top: -100px;
+            pointer-events: none;
+        }
+
+        .content-wrapper {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .content-wrapper {
+                gap: 30px;
+            }
+        }
+
+        /* TÍTULO COM MOVIMENTO CAÓTICO */
+        .type-title {
+            color: #C54DC5;
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(24px, 6vw, 48px);
+            margin: 0 0 10px 0;
+            line-height: 1.3;
+            width: 100%;
+            text-shadow: 4px 4px 0 #FFB347, 2px 2px 0 #FFD966;
+            letter-spacing: 2px;
+            display: inline-block;
+            position: relative;
+            animation: doubleChaos 8s ease-in-out infinite;
+            transform-origin: center;
+            pointer-events: auto;
+            z-index: 10;
+            word-break: break-word;
+        }
+
+        /* SUBTÍTULO COM MOVIMENTO CAÓTICO */
+        .type-subtitle {
+            color: #ff9500;
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(12px, 3vw, 22px);
+            margin: 0 0 20px 0;
+            line-height: 1.6;
+            opacity: 0.9;
+            width: 100%;
+            display: inline-block;
+            position: relative;
+            animation: doubleChaos 5s ease-in-out infinite;
+            transform-origin: center;
+            pointer-events: auto;
+            z-index: 10;
+            word-break: break-word;
+        }
+
+        /* TÍTULO DO SPECTRUM */
+        .spectrum-title {
+            font-family: 'Press Start 2P', cursive;
+            color: #C54DC5;
+            font-size: clamp(12px, 2.5vw, 18px);
+            margin-bottom: 15px;
+            text-align: left;
+            text-transform: lowercase;
+            text-shadow: 2px 2px 0 #FFB347;
+            letter-spacing: 1px;
+            width: 100%;
+            display: inline-block;
+            position: relative;
+            animation: doubleChaos 8.5s ease-in-out infinite;
+            transform-origin: center;
+            pointer-events: auto;
+            word-break: break-word;
+        }
+
+        @media (min-width: 768px) {
+            .spectrum-title {
+                margin-bottom: 20px;
+            }
+        }
+
+        /* ANIMAÇÃO DE CAOS */
+        @keyframes doubleChaos {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+                opacity: 1;
+            }
+            3% { transform: translate(15px, -10px) rotate(4deg) scale(1.05); }
+            6% { transform: translate(-18px, 12px) rotate(-6deg) scale(0.95); }
+            9% { transform: translate(20px, 15px) rotate(8deg) scale(1.08); }
+            12% { transform: translate(-12px, -18px) rotate(-5deg) scale(0.92); }
+            15% { transform: translate(0, 0) rotate(0deg) scale(1); }
+            18% { transform: translate(-22px, 12px) rotate(-9deg) scale(1.1); }
+            21% { transform: translate(18px, -20px) rotate(7deg) scale(0.9); }
+            24% { transform: translate(-15px, 22px) rotate(-10deg) scale(1.12); }
+            27% { transform: translate(12px, -15px) rotate(6deg) scale(0.88); }
+            30% { transform: translate(0, 0) rotate(0deg) scale(1); }
+        }
+
+        /* Reduzir a intensidade da animação em mobile */
+        @media (max-width: 767px) {
+            @keyframes doubleChaos {
+                0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+                3% { transform: translate(8px, -5px) rotate(2deg) scale(1.02); }
+                6% { transform: translate(-9px, 6px) rotate(-3deg) scale(0.98); }
+                9% { transform: translate(10px, 8px) rotate(4deg) scale(1.03); }
+                12% { transform: translate(-6px, -9px) rotate(-2.5deg) scale(0.97); }
+                15% { transform: translate(0, 0) rotate(0deg) scale(1); }
+            }
+        }
+
+        /* Pausar animações no hover/touch */
+        .type-title:hover, 
+        .type-subtitle:hover, 
+        .spectrum-title:hover {
+            animation-play-state: paused;
+            z-index: 100;
+        }
+
+        /* ELEMENTOS NORMAIS */
+        .descriptive-text {
+            color:#666666;
+            font-family: 'VT323', monospace;
+            font-size: clamp(20px, 4vw, 28px);
+            line-height: 1.3;
+            letter-spacing: 0.3px;
+            text-align: justify;
+            background-color: rgba(250, 255, 95, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #C54DC5;
+            max-width: 100%;
+            word-wrap: break-word;
+            width: 100%;
+            margin: 0;
+            cursor: default;
+            position: relative;
+        }
+
+        @media (min-width: 768px) {
+            .descriptive-text {
+                padding: 20px;
+            }
+        }
+
+        .descriptive-paragraph {
+            text-indent: 40px;
+        }
+        
+        /* ESPECTRO */
+        .personality-spectrum {
+            color: #333333;
+            font-family: 'VT323', monospace;
+            font-size: clamp(20px, 4vw, 28px);
+            line-height: 1.3;
+            background-color: rgba(250, 255, 95, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #C54DC5;
+            max-width: 100%;
+            word-wrap: break-word;
+            width: 100%;
+            margin: 0;
+            cursor: default;
+            position: relative;
+        }
+
+        @media (min-width: 768px) {
+            .personality-spectrum {
+                padding: 20px 25px;
+            }
+        }
+        
+        .spectrum-row {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            gap: 8px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .spectrum-row {
+                margin: 12px 0;
+                gap: 15px;
+                flex-wrap: nowrap;
+            }
+        }
+        
+        .type-label {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(10px, 2vw, 14px);
+            color: #C54DC5;
+            min-width: 70px;
+            text-shadow: 1px 1px 0 #FFB347;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        @media (min-width: 768px) {
+            .type-label {
+                width: 90px;
+                font-size: 14px;
+            }
+        }
+        
+        .dots-container {
+            display: flex;
+            gap: 3px;
+            flex: 0 1 auto;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        @media (min-width: 768px) {
+            .dots-container {
+                gap: 6px;
+                flex-wrap: nowrap;
+            }
+        }
+        
+        .dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            border: 2px solid #cccccc;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        @media (min-width: 768px) {
+            .dot {
+                width: 25px;
+                height: 25px;
+            }
+        }
+        
+        .dot.filled {
+            background-color: #ff9500;
+            border-color:#b3b2b2;
+            transform: scale(1.1);
+        }
+        
+        .percentage {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(10px, 2vw, 14px);
+            color: #ff9500;
+            text-align: left;
+            text-shadow: 1px 1px 0 #ff9500;
+            flex-shrink: 0;
+            white-space: nowrap;
+            margin-left: 5px;
+            min-width: 45px;
+        }
+
+        @media (min-width: 768px) {
+            .percentage {
+                font-size: 14px;
+                margin-left: 10px;
+                width: auto;
+            }
+        }
+        
+        /* TEXTO LOUCO */
+        .crazy-text {
+            font-family: 'VT323', monospace;
+            font-size: clamp(18px, 3.5vw, 24px);
+            color: #C54DC5;
+            margin-left: 5px;
+            white-space: nowrap;
+            animation: subtleGlitch 3s infinite;
+            display: inline-block;
+            flex-shrink: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .crazy-text {
+                font-size: 24px;
+                margin-left: 10px;
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .crazy-text {
+                white-space: normal;
+                width: 100%;
+                margin-left: 0;
+                margin-top: 5px;
+            }
+            
+            .spectrum-row {
+                position: relative;
+                padding-bottom: 5px;
+            }
+        }
+        
+        /* Pequena animação para o texto */
+        @keyframes subtleGlitch {
+            0%, 100% { transform: skew(0deg); opacity: 1; }
+            5% { transform: skew(3deg); color: #ff00ff; }
+            10% { transform: skew(-3deg); color: #FFB347; }
+            15% { transform: skew(0deg); color: #C54DC5; }
+        }
+
+        /* ==================== BOTÃO LEARN MORE ==================== */
+        .learn-more-btn {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(0.9rem, 3vw, 1.5rem);
+            display: inline-block;
+            text-decoration: none;
+            padding: 0.8rem 2rem 0.8rem 2rem;
+            background-color: transparent;
+            color: #C54DC5;
+            border: 2px solid #C54DC5;
+            cursor: pointer;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 2;
+            text-transform: lowercase;
+            box-shadow: 3px 3px 0 #FFB347;
+            transition: all 0.2s ease;
+            align-self: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            animation: doubleChaos 8s ease-in-out infinite;
+            transform-origin: center;
+        }
+
+        .learn-more-btn:hover {
+            transform: translateY(-10px) scale(1.05);
+            background-color: #C54DC5;
+            color: #FAFF5F;
+            border-color: #C54DC5;
+            box-shadow: 3px 12px 0 #FFB347;
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .learn-more-btn:active {
+            transform: translateY(2px);
+            background-color: #FFB347;
+            color: #C54DC5;
+            border-color: #FFB347;
+            box-shadow: 3px 1px 0 #C54DC5;
+            transition: 0.05s;
+        }
+
+        @media (max-width: 480px) {
+            .learn-more-btn {
+                padding: 0.6rem 1.5rem;
+                font-size: 0.8rem;
+                box-shadow: 2px 2px 0 #FFB347;
+                margin-top: 15px;
+            }
+            .learn-more-btn:hover {
+                transform: translateY(-3px);
+                box-shadow: 2px 4px 0 #FFB347;
+            }
+        }
+
+        @media (min-width: 1201px) {
+            .learn-more-btn {
+                font-size: 1.5rem;
+                padding: 1rem 2.5rem;
+                box-shadow: 4px 4px 0 #FFB347;
+            }
+            .learn-more-btn:hover {
+                transform: translateY(-5px);
+                box-shadow: 4px 7px 0 #FFB347;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- hidden audio player: plays final.mp3, loops, autoplay, preload -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="music/final.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <div class="content-wrapper">
+        <!-- TÍTULO COM MOVIMENTO CAÓTICO -->
+        <h1 class="type-title">TYPE A</h1>
+        <!-- SUBTÍTULO COM MOVIMENTO CAÓTICO -->
+        <h2 class="type-subtitle">The misunderstood rebellious artist</h2>
+        
+        <!-- Texto normal -->
+        <p class="descriptive-text descriptive-paragraph">
+            You are in touch with your true self, often being called irreverent. 
+            You are the one who starts new trends, without depending on external validation. 
+            At first, people don't understand you, but only because they don't grasp the depth of your thoughts.
+            Don't let that stop you from connecting with people; you might be surprised by what you can learn from others if you allow yourself to. 
+            And remember, authentic people like you make the world progress. 
+            Also, you can be annoying.
+        </p>
+        
+        <!-- Espectro de personalidade -->
+        <div class="personality-spectrum">
+            <h3 class="spectrum-title">PERSONALITY SPECTRUM</h3>
+            
+            <div class="spectrum-row">
+                <span class="type-label">TYPE A</span>
+                <div class="dots-container" id="typeA-dots"></div>
+                <span class="percentage" id="typeA-percent">0%</span>
+                <span class="crazy-text">The misunderstood rebellious artist</span>
+            </div>
+            
+            <div class="spectrum-row">
+                <span class="type-label">TYPE B</span>
+                <div class="dots-container" id="typeB-dots"></div>
+                <span class="percentage" id="typeB-percent">0%</span>
+                <span class="crazy-text">The cold-blooded american psycho</span>
+            </div>
+            
+            <div class="spectrum-row">
+                <span class="type-label">TYPE C</span>
+                <div class="dots-container" id="typeC-dots"></div>
+                <span class="percentage" id="typeC-percent">0%</span>
+                <span class="crazy-text">The crazy party girl</span>
+            </div>
+        </div>
+
+        <!-- BOTÃO LEARN MORE -->
+        <a href="finalanswer.html" class="learn-more-btn" id="learnMoreBtn">learn more</a>
+    </div>
+
+    <script>
+    // ==================== VARIÁVEIS GLOBAIS ====================
+    let audioContext = null;
+    let musicStarted = false;
+    const music = document.getElementById('bg-music');
+    
+    // Configura volume baixo para a música de fundo
+    if (music) {
+        music.volume = 0.05;
+    }
+
+    // ==================== INICIALIZAÇÃO DO AUDIO CONTEXT ====================
+    function getAudioContext() {
+        if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        return audioContext;
+    }
+
+    // ==================== SOM GIRLY ====================
+    function playGirlyClick() {
+        try {
+            const ctx = getAudioContext();
+            
+            if (ctx.state === 'suspended') {
+                ctx.resume().then(() => {
+                    actuallyPlaySound(ctx);
+                }).catch(e => console.log("Erro ao ativar áudio:", e));
+            } else {
+                actuallyPlaySound(ctx);
+            }
+        } catch (e) {
+            console.log("Erro no som:", e);
+        }
+    }
+
+    function actuallyPlaySound(ctx) {
+        const now = ctx.currentTime;
+        
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.value = 659.25;
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        gain1.gain.setValueAtTime(0.15, now);
+        gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.value = 783.99;
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        gain2.gain.setValueAtTime(0.15, now + 0.03);
+        gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.13);
+        
+        osc1.start(now);
+        osc1.stop(now + 0.12);
+        osc2.start(now + 0.03);
+        osc2.stop(now + 0.15);
+        
+        console.log("✨ Girly click (type a)");
+    }
+
+    // ==================== FUNÇÃO PARA INICIAR A MÚSICA ====================
+    function startBackgroundMusic() {
+        if (!music || musicStarted) return;
+        
+        console.log("🎵 Tentando iniciar final.mp3...");
+        
+        let playPromise = music.play();
+        
+        if (playPromise !== undefined) {
+            playPromise
+                .then(() => {
+                    musicStarted = true;
+                    console.log("🎵 final.mp3 iniciada com sucesso!");
+                })
+                .catch(error => {
+                    console.log("❌ Erro ao iniciar música:", error);
+                });
+        }
+    }
+
+    // ==================== ATIVAÇÃO NO PRIMEIRO CLIQUE ====================
+    function handleFirstInteraction() {
+        console.log("👆 Primeira interação detectada!");
+        
+        // Ativa o AudioContext
+        const ctx = getAudioContext();
+        
+        if (ctx.state === 'suspended') {
+            ctx.resume()
+                .then(() => {
+                    console.log("✅ AudioContext ativado!");
+                    // Toca a música imediatamente
+                    startBackgroundMusic();
+                })
+                .catch(e => console.log("Erro ao ativar AudioContext:", e));
+        } else {
+            startBackgroundMusic();
+        }
+    }
+
+    // Listeners para o primeiro clique/toque
+    document.addEventListener('click', function firstClick() {
+        handleFirstInteraction();
+        document.removeEventListener('click', firstClick);
+    });
+
+    document.addEventListener('touchstart', function firstTouch() {
+        handleFirstInteraction();
+        document.removeEventListener('touchstart', firstTouch);
+    });
+
+    document.addEventListener('keydown', function firstKey() {
+        handleFirstInteraction();
+        document.removeEventListener('keydown', firstKey);
+    });
+
+    // Também ativa no primeiro hover do botão (opcional)
+    document.getElementById('learnMoreBtn').addEventListener('mouseenter', function firstHover() {
+        handleFirstInteraction();
+        document.getElementById('learnMoreBtn').removeEventListener('mouseenter', firstHover);
+    }, { once: true });
+
+    // ==================== DADOS DO QUIZ ====================
+    let typeCounts = {1: 0, 2: 0, 3: 0};
+    let totalQuestions = 7;
+    let percentages = {typeA: 0, typeB: 0, typeC: 0};
+    
+    const savedCounts = sessionStorage.getItem('spectro_type_counts');
+    const savedTotal = sessionStorage.getItem('spectro_total_questions');
+    
+    if (savedCounts && savedTotal) {
+        try {
+            typeCounts = JSON.parse(savedCounts);
+            totalQuestions = parseInt(savedTotal);
+            
+            const total = typeCounts[1] + typeCounts[2] + typeCounts[3];
+            if (total > 0) {
+                percentages = {
+                    typeA: Math.round((typeCounts[1] / total) * 100),
+                    typeB: Math.round((typeCounts[2] / total) * 100),
+                    typeC: Math.round((typeCounts[3] / total) * 100)
+                };
+                
+                const sum = percentages.typeA + percentages.typeB + percentages.typeC;
+                if (sum !== 100 && sum > 0) {
+                    const diff = 100 - sum;
+                    const maxType = Object.keys(percentages).reduce((a, b) => 
+                        percentages[a] > percentages[b] ? a : b
+                    );
+                    percentages[maxType] += diff;
+                }
+            }
+        } catch (e) {
+            console.error("Erro ao processar dados do quiz:", e);
+        }
+    }
+    
+    function percentToDots(percent) {
+        const validPercent = Math.min(100, Math.max(0, percent));
+        return Math.round((validPercent / 100) * totalQuestions);
+    }
+    
+    function fillDotsFromPercentage(containerId, percent) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        container.innerHTML = '';
+        const filledCount = percentToDots(percent);
+        
+        for (let i = 0; i < totalQuestions; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'dot' + (i < filledCount ? ' filled' : '');
+            container.appendChild(dot);
+        }
+    }
+    
+    fillDotsFromPercentage('typeA-dots', percentages.typeA || 0);
+    fillDotsFromPercentage('typeB-dots', percentages.typeB || 0);
+    fillDotsFromPercentage('typeC-dots', percentages.typeC || 0);
+    
+    document.getElementById('typeA-percent').textContent = (percentages.typeA || 0) + '%';
+    document.getElementById('typeB-percent').textContent = (percentages.typeB || 0) + '%';
+    document.getElementById('typeC-percent').textContent = (percentages.typeC || 0) + '%';
+
+    // ==================== BOTÃO LEARN MORE ====================
+    document.getElementById('learnMoreBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Garante que a música está tocando (caso o clique não tenha ativado ainda)
+        startBackgroundMusic();
+        
+        // Toca o som de clique
+        setTimeout(() => {
+            playGirlyClick();
+        }, 50);
+
+        // Navega após o som
+        setTimeout(() => {
+            window.location.href = this.href;
+        }, 200);
+    });
+
+    // ==================== INICIALIZAÇÃO ====================
+    window.addEventListener('load', () => {
+        getAudioContext(); // Inicializa o AudioContext
+        console.log("🎵 Página Type A carregada! Aguardando interação...");
+    });
+
+    </script>
+        <audio src="music/final.mp3" autoplay loop></audio>
+</body>  
+</html>
