@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#050706">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link href="https://fonts.cdnfonts.com/css/silom" rel="stylesheet">
+<title>Escape</title>
+<style>
+  :root {
+    --bg-dark: #0a0f0d;
+    --bg-mid: #101917;
+    --bg-deep: #050706;
+    --panel-bg: rgba(14, 22, 18, 0.96);
+    --line: #9cff9c;
+    --accent: #00ff00;
+    --text: #ffffff;
+  }
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    font-family: "Silom", "Monaco", "Courier New", monospace;
+  }
+
+  html, body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+    background: #050706;
+    font-family: "Silom", "Monaco", "Courier New", monospace;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    overscroll-behavior: none;
+  }
+
+  body {
+    margin: 0;
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, #0a0f0d 0%, #101917 52%, #050706 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+    color: var(--text);
+    font-family: "Silom", "Monaco", "Courier New", monospace;
+    user-select: none;
+    position: relative;
+  }
+  body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0, 255, 0, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 255, 0, 0.06) 1px, transparent 1px);
+    background-size: 36px 36px;
+    opacity: 0.28;
+    pointer-events: none;
+  }
+  body::after {
+    content: "";
+    position: absolute;
+    width: 760px;
+    height: 760px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 255, 0, 0.11) 0%, rgba(0, 255, 0, 0.045) 34%, rgba(0, 255, 0, 0.015) 56%, transparent 72%);
+    filter: blur(18px);
+    pointer-events: none;
+  }
+  #menu {
+    position: fixed;
+    inset: 0;
+    padding: 24px;
+    background: linear-gradient(180deg, rgba(11, 18, 15, 0.82) 0%, rgba(11, 18, 15, 0.82) 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 10;
+    box-sizing: border-box;
+  }
+  .overlay-card {
+    width: min(100%, 460px);
+    padding: 24px 22px;
+    border: 2px solid var(--line);
+    background: var(--panel-bg);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.38);
+    transform: translateY(14px);
+  }
+  .overlay-card h1 {
+    margin: 0 0 14px;
+    font-size: 30px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .overlay-card p {
+    margin: 0 0 10px;
+    font-size: 14px;
+    line-height: 1.6;
+    letter-spacing: 0.04em;
+    color: #effff4;
+  }
+  .overlay-card strong {
+    color: var(--accent);
+  }
+  .overlay-card b {
+    color: var(--accent);
+  }
+  .controls-sheet {
+    margin: 12px 0 10px;
+    padding: 10px 12px;
+    border: 1px solid rgba(141, 255, 183, 0.35);
+    background: rgba(9, 14, 12, 0.65);
+    text-align: left;
+  }
+  .controls-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 10px;
+    align-items: center;
+  }
+  .controls-key {
+    min-width: 70px;
+    padding: 2px 6px;
+    border: 1px solid rgba(156, 255, 156, 0.45);
+    background: rgba(156, 255, 156, 0.1);
+    color: #ffffff;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: center;
+    box-sizing: border-box;
+  }
+  .controls-action {
+    color: #effff4;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    line-height: 1.3;
+  }
+  .controls-group[hidden] {
+    display: none;
+  }
+  .game-over-stack {
+    position: fixed;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transform: translateX(4px);
+    pointer-events: none;
+    z-index: 9;
+  }
+  .game-over-text {
+    font-size: 34px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #fff6a3;
+    transform: translateX(1px);
+    text-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
+    animation: gameOverColorShift 0.9s ease-in-out infinite alternate;
+  }
+  @keyframes gameOverColorShift {
+    from {
+      color: #fff6a3;
+      text-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
+    }
+    to {
+      color: #00ff00;
+      text-shadow: 0 3px 14px rgba(124, 252, 0, 0.85);
+    }
+  }
+  button {
+    margin-top: 14px;
+    padding: 12px 18px;
+    border: 2px solid #ffffff;
+    background: #111111;
+    color: #ffffff;
+    font: bold 16px "Silom", "Monaco", monospace;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.85);
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.65);
+    cursor: pointer;
+  }
+  button:hover { background: #1d1d1d; }
+  button:active {
+    transform: translateY(2px);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.65);
+  }
+  #score {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 6px 10px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    box-sizing: border-box;
+    font-size: 18px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.85);
+  }
+  #lives {
+    position: fixed;
+    top: 52px;
+    left: 12px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 6px 10px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    box-sizing: border-box;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    gap: 6px;
+  }
+  #lives img {
+    width: 30px;
+    height: 30px;
+    image-rendering: pixelated;
+    filter: drop-shadow(1px 1px 0 rgba(0, 0, 0, 0.75));
+  }
+  #restartBtn,
+  #arcadeBtn {
+    margin-top: 0;
+    pointer-events: auto;
+    margin-left: -3px;
+  }
+  #shootBtn {
+    position: fixed;
+    right: 16px;
+    bottom: 18px;
+    width: 88px;
+    height: 88px;
+    margin: 0;
+    padding: 0;
+    border: 2px solid #1e1e1e;
+    background: radial-gradient(circle at 30% 30%, #9a9a9a 0%, #474747 42%, #0f0f0f 100%);
+    color: #f2f2f2;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+    box-shadow: 0 4px 0 #0a0a0a, 0 12px 18px rgba(0, 0, 0, 0.45);
+    border-radius: 50%;
+    z-index: 8;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  #shootBtn:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #0a0a0a, 0 7px 10px rgba(0, 0, 0, 0.3);
+    background: radial-gradient(circle at 30% 30%, #8a8a8a 0%, #3b3b3b 42%, #0c0c0c 100%);
+  }
+  #movePad {
+    position: fixed;
+    left: 28px;
+    bottom: 34px;
+    z-index: 8;
+    display: none;
+    align-items: center;
+    gap: 20px;
+  }
+  .move-btn {
+    width: 64px;
+    height: 64px;
+    margin: 0;
+    padding: 0;
+    border: 2px solid #1e1e1e;
+    background: radial-gradient(circle at 30% 30%, #9a9a9a 0%, #474747 42%, #0f0f0f 100%);
+    color: #f2f2f2;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+    box-shadow: 0 4px 0 #0a0a0a, 0 12px 18px rgba(0, 0, 0, 0.45);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: 0;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .move-btn:active,
+  .move-btn.is-active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #0a0a0a, 0 7px 10px rgba(0, 0, 0, 0.3);
+    background: radial-gradient(circle at 30% 30%, #8a8a8a 0%, #3b3b3b 42%, #0c0c0c 100%);
+  }
+  #movePad.is-muted,
+  #shootBtn.is-muted {
+    opacity: 0.38;
+    filter: saturate(0.45) brightness(0.62);
+  }
+  .device-note {
+    position: fixed;
+    z-index: 8;
+    display: none;
+    font-size: 11px;
+    line-height: 1.4;
+    letter-spacing: 0.04em;
+    color: rgba(255, 255, 255, 0.72);
+    text-align: center;
+    pointer-events: none;
+    white-space: normal;
+  }
+  .device-note .note-key {
+    display: inline-block;
+    padding: 1px 6px;
+    margin: 0 1px;
+    border: 1px solid rgba(156, 255, 156, 0.62);
+    background: rgba(156, 255, 156, 0.16);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 3px;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.28);
+    vertical-align: baseline;
+  }
+  .device-note .note-sep {
+    opacity: 0.72;
+    margin: 0 4px;
+  }
+  canvas {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    box-sizing: border-box;
+    border: none;
+    box-shadow: none;
+    image-rendering: pixelated;
+  }
+  @media (max-width: 640px) {
+    .game-over-text {
+      font-size: 26px;
+    }
+    .overlay-card p {
+      font-size: 12px;
+    }
+    .controls-key {
+      min-width: 64px;
+      font-size: 10px;
+    }
+    .controls-action {
+      font-size: 11px;
+    }
+    .device-note {
+      font-size: 10px;
+    }
+    .device-note .note-key {
+      font-size: 9px;
+    }
+    .move-btn {
+      width: 54px;
+      height: 54px;
+      font-size: 20px;
+    }
+    #shootBtn {
+      width: 74px;
+      height: 74px;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+    }
+  }
+</style>
+</head>
+<body>
+
+
+
+<!-- Menu -->
+<div id="menu">
+  <div class="overlay-card">
+    <h1>Escape</h1>
+    <p>Collect <b>blue cubes</b> to grow and avoid <b>red cubes</b> to survive.</p>
+    <p id="controlsLine"></p>
+    <div class="controls-sheet" aria-label="Controls sheet">
+      <div id="keyboardControlsSheet" class="controls-group">
+        <div class="controls-grid">
+          <span class="controls-key">← / →</span><span class="controls-action">Move</span>
+          <span class="controls-key">Space</span><span class="controls-action">Shoot</span>
+        </div>
+      </div>
+      <div id="touchControlsSheet" class="controls-group" hidden>
+        <div class="controls-grid">
+          <span class="controls-key">◀ / ▶</span><span class="controls-action">Move</span>
+          <span class="controls-key">Shoot</span><span class="controls-action">Shoot / Hold to auto-fire</span>
+        </div>
+      </div>
+    </div>
+    <p><b>GOOD LUCK!</b></p>
+    <button id="startBtn">Start Game</button>
+  </div>
+</div>
+
+
+
+<div id="gameOverStack" class="game-over-stack">
+  <div class="game-over-text">GAME OVER</div>
+  <button id="restartBtn" type="button">Play Again</button>
+  <button id="arcadeBtn" type="button">Back to Arcade</button>
+</div>
+
+
+
+<div id="score" style="display:none;">Score: 0</div>
+<div id="lives" style="display:none;"></div>
+<canvas id="gameCanvas"></canvas>
+<div id="movePad" aria-label="Move controls">
+  <button id="moveLeftBtn" class="move-btn" type="button" aria-label="Move left">◀</button>
+  <button id="moveRightBtn" class="move-btn" type="button" aria-label="Move right">▶</button>
+</div>
+<button id="shootBtn" type="button" aria-label="Shoot">Shoot</button>
+<p id="deviceNote" class="device-note"></p>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+let gameRunning = false;
+let score = 0;
+let lives = 3;
+let balls = [];
+const PLAYER_BOTTOM_OFFSET = 70;
+const PLAYFIELD_WIDTH_RATIO = 0.88;
+const PLAYFIELD_HEIGHT_RATIO = 0.86;
+const TOUCH_CONTROL_RESERVED_BOTTOM = 112;
+const DESKTOP_PLAYFIELD_SHIFT_UP = 28;
+
+function getPlayArea() {
+  const usableHeight = isTouchDevice
+    ? Math.max(220, canvas.height - TOUCH_CONTROL_RESERVED_BOTTOM)
+    : canvas.height;
+  const width = Math.max(320, Math.floor(canvas.width * PLAYFIELD_WIDTH_RATIO));
+  const height = Math.max(220, Math.floor(usableHeight * PLAYFIELD_HEIGHT_RATIO));
+  const clampedWidth = Math.min(width, canvas.width - 16);
+  const clampedHeight = Math.min(height, usableHeight - 16);
+  const centeredY = Math.floor((usableHeight - clampedHeight) / 2);
+  const shiftedY = isTouchDevice
+    ? centeredY
+    : Math.max(8, Math.min(usableHeight - clampedHeight - 8, centeredY - DESKTOP_PLAYFIELD_SHIFT_UP));
+
+  return {
+    x: Math.floor((canvas.width - clampedWidth) / 2),
+    y: shiftedY,
+    width: clampedWidth,
+    height: clampedHeight
+  };
+}
+
+const scoreEl = document.getElementById('score');
+const livesEl = document.getElementById('lives');
+const restartBtn = document.getElementById('restartBtn');
+const arcadeBtn = document.getElementById('arcadeBtn');
+const movePad = document.getElementById('movePad');
+const moveLeftBtn = document.getElementById('moveLeftBtn');
+const moveRightBtn = document.getElementById('moveRightBtn');
+const shootBtn = document.getElementById('shootBtn');
+const controlsLine = document.getElementById('controlsLine');
+const keyboardControlsSheet = document.getElementById('keyboardControlsSheet');
+const touchControlsSheet = document.getElementById('touchControlsSheet');
+const deviceNoteEl = document.getElementById('deviceNote');
+const HEART_ICON_SRC = 'https://img.icons8.com/fluency/48/pixel-heart.png';
+const SHOOT_COOLDOWN_MS = 170;
+const isTouchDevice =
+  window.matchMedia('(hover: none) and (pointer: coarse)').matches ||
+  'ontouchstart' in window ||
+  navigator.maxTouchPoints > 0;
+let shootHeld = false;
+let moveLeftHeld = false;
+let moveRightHeld = false;
+let lastShotAt = 0;
+function resetTouchControlState() {
+  shootHeld = false;
+  moveLeftHeld = false;
+  moveRightHeld = false;
+  moveLeftBtn.classList.remove('is-active');
+  moveRightBtn.classList.remove('is-active');
+  moveLeftBtn.blur();
+  moveRightBtn.blur();
+  shootBtn.blur();
+}
+function setTouchControlInteractivity(enabled) {
+  if (!isTouchDevice) return;
+  const pointerValue = enabled ? 'auto' : 'none';
+  shootBtn.style.pointerEvents = pointerValue;
+  movePad.style.pointerEvents = pointerValue;
+  movePad.classList.toggle('is-muted', !enabled);
+  shootBtn.classList.toggle('is-muted', !enabled);
+  if (!enabled) {
+    resetTouchControlState();
+  }
+}
+function updateControlsSheet() {
+  if (!controlsLine || !keyboardControlsSheet || !touchControlsSheet) return;
+  if (isTouchDevice) {
+    controlsLine.innerHTML = '<strong>Controls Sheet:</strong> Touch mode';
+    keyboardControlsSheet.hidden = true;
+    touchControlsSheet.hidden = false;
+  } else {
+    controlsLine.innerHTML = '<strong>Controls Sheet:</strong> Keyboard';
+    keyboardControlsSheet.hidden = false;
+    touchControlsSheet.hidden = true;
+  }
+}
+updateControlsSheet();
+
+function updateDeviceNote() {
+  if (!deviceNoteEl) return;
+  if (isTouchDevice) {
+    deviceNoteEl.innerHTML = '<strong>Controls:</strong> <span class="note-key">◀/▶</span> move <span class="note-sep">|</span> <span class="note-key">Shoot</span> shoot';
+  } else {
+    deviceNoteEl.innerHTML = '<strong>Controls:</strong> <span class="note-key">←/→</span> move <span class="note-sep">|</span> <span class="note-key">Space</span> shoot';
+  }
+}
+
+function setDeviceNoteVisibility(visible) {
+  if (!deviceNoteEl) return;
+  deviceNoteEl.style.display = visible && !isTouchDevice ? 'block' : 'none';
+}
+
+function positionDeviceNote() {
+  if (!deviceNoteEl) return;
+  const area = getPlayArea();
+  const desktopOffset = isTouchDevice ? 10 : 24;
+  const top = Math.min(window.innerHeight - 30, area.y + area.height + desktopOffset);
+  deviceNoteEl.style.left = `${area.x + area.width / 2}px`;
+  deviceNoteEl.style.top = `${top}px`;
+  deviceNoteEl.style.transform = 'translateX(-50%)';
+  deviceNoteEl.style.width = `${Math.min(area.width, 920)}px`;
+}
+
+updateDeviceNote();
+setDeviceNoteVisibility(false);
+setShootButtonVisibility(true);
+setMoveButtonsVisibility(true);
+setTouchControlInteractivity(false);
+
+function updateHud() {
+  scoreEl.textContent = `Score: ${score}`;
+  livesEl.innerHTML = Array.from({ length: lives }, () =>
+    `<img src="${HEART_ICON_SRC}" alt="life">`
+  ).join('');
+}
+function setShootButtonVisibility(visible) {
+  const shouldShow = isTouchDevice && visible;
+  shootBtn.style.display = shouldShow ? 'flex' : 'none';
+  if (!shouldShow) {
+    resetTouchControlState();
+  }
+}
+function setMoveButtonsVisibility(visible) {
+  const shouldShow = isTouchDevice && visible;
+  movePad.style.display = shouldShow ? 'flex' : 'none';
+  if (!shouldShow) {
+    resetTouchControlState();
+  }
+}
+function positionHudAbovePlayArea() {
+  const area = getPlayArea();
+  const hudTop = Math.max(8, area.y - 18);
+  scoreEl.style.left = `${area.x + 2}px`;
+  scoreEl.style.top = `${hudTop}px`;
+  scoreEl.style.transform = 'none';
+
+  livesEl.style.left = `${area.x + area.width - 2}px`;
+  livesEl.style.top = `${hudTop}px`;
+  livesEl.style.transform = 'translateX(-100%)';
+}
+
+function rebuildBackgroundBalls() {
+  const area = getPlayArea();
+  const count = Math.max(90, Math.floor((area.width * area.height) / 18000));
+  balls = [];
+  for (let i = 0; i < count; i++) {
+    balls.push({
+      x: area.x + Math.random() * area.width,
+      y: area.y + Math.random() * area.height,
+      r: Math.random() * 3 + 1,
+      speed: Math.random() * 0.5 + 0.2
+    });
+  }
+}
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  positionHudAbovePlayArea();
+  positionDeviceNote();
+  rebuildBackgroundBalls();
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+
+
+// cubo verde
+  const green = { width: 50, height: 50, maxSize: 70, x:0, y:0, speed:6, color:'lime' };
+  function placeGreenAtStart() {
+    const area = getPlayArea();
+    const bottomGap = Math.min(PLAYER_BOTTOM_OFFSET, Math.max(12, area.height - green.height - 8));
+    green.x = area.x + area.width / 2 - green.width / 2;
+    green.y = area.y + area.height - green.height - bottomGap;
+  }
+  placeGreenAtStart();
+  // tiros
+  let bullets = [];
+  function fireBullet() {
+    if (!gameRunning) return;
+    const now = performance.now();
+    if (now - lastShotAt < SHOOT_COOLDOWN_MS) return;
+    lastShotAt = now;
+    bullets.push({
+      x: green.x + green.width / 2 - 5,
+      y: green.y,
+      width: 10,
+      height: 20,
+      color: 'yellow'
+    });
+  }
+  // movimento
+  const keys = {};
+  function isControlInput(e) {
+    const code = e.code || '';
+    const key = (e.key || '').toLowerCase();
+    const keyCode = e.keyCode || e.which || 0;
+    return (
+      ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space'].includes(code) ||
+      ['arrowleft', 'arrowright', 'arrowup', 'arrowdown', 'left', 'right', 'up', 'down', ' ', 'spacebar'].includes(key) ||
+      [32, 37, 38, 39, 40].includes(keyCode)
+    );
+  }
+  function setKeyState(e, pressed) {
+    const code = e.code || '';
+    const key = (e.key || '').toLowerCase();
+    const keyCode = e.keyCode || e.which || 0;
+    if (code) keys[code] = pressed;
+    if (key) keys[key] = pressed;
+    if (keyCode) keys[`kc${keyCode}`] = pressed;
+  }
+
+  window.addEventListener('keydown', e => {
+    if (isControlInput(e)) e.preventDefault();
+    setKeyState(e, true);
+
+    // atirar
+    const code = e.code || '';
+    const key = (e.key || '').toLowerCase();
+    const keyCode = e.keyCode || e.which || 0;
+    const isShoot = code === 'Space' || key === ' ' || key === 'spacebar' || keyCode === 32;
+    if (!gameRunning || e.repeat || !isShoot) return;
+    fireBullet();
+  });
+  window.addEventListener('keyup', e => {
+    if (isControlInput(e)) e.preventDefault();
+    setKeyState(e, false);
+  });
+  window.addEventListener('blur', () => {
+    Object.keys(keys).forEach(k => { keys[k] = false; });
+    resetTouchControlState();
+  });
+  function startTouchShoot(e) {
+    e.preventDefault();
+    shootHeld = true;
+    fireBullet();
+  }
+  function stopTouchShoot(e) {
+    if (e) e.preventDefault();
+    shootHeld = false;
+  }
+  if (window.PointerEvent) {
+    shootBtn.addEventListener('pointerdown', startTouchShoot);
+    shootBtn.addEventListener('pointerup', stopTouchShoot);
+    shootBtn.addEventListener('pointercancel', stopTouchShoot);
+    shootBtn.addEventListener('pointerleave', stopTouchShoot);
+  } else {
+    shootBtn.addEventListener('touchstart', startTouchShoot, { passive: false });
+    shootBtn.addEventListener('touchend', stopTouchShoot, { passive: false });
+    shootBtn.addEventListener('touchcancel', stopTouchShoot, { passive: false });
+  }
+
+  function setMoveHold(direction, held) {
+    if (direction === 'left') {
+      moveLeftHeld = held;
+      moveLeftBtn.classList.toggle('is-active', held);
+    } else {
+      moveRightHeld = held;
+      moveRightBtn.classList.toggle('is-active', held);
+    }
+  }
+
+  function bindMoveButton(button, direction) {
+    const start = (e) => {
+      e.preventDefault();
+      setMoveHold(direction, true);
+    };
+    const stop = (e) => {
+      if (e) e.preventDefault();
+      setMoveHold(direction, false);
+    };
+
+    if (window.PointerEvent) {
+      button.addEventListener('pointerdown', start);
+      button.addEventListener('pointerup', stop);
+      button.addEventListener('pointercancel', stop);
+      button.addEventListener('pointerleave', stop);
+    } else {
+      button.addEventListener('touchstart', start, { passive: false });
+      button.addEventListener('touchend', stop, { passive: false });
+      button.addEventListener('touchcancel', stop, { passive: false });
+    }
+  }
+
+  bindMoveButton(moveLeftBtn, 'left');
+  bindMoveButton(moveRightBtn, 'right');
+
+// cubos vermelhos
+  let red = [];
+  const redSpeed = 3;
+  const redspawnRate = 1000;
+  let redInterval;
+  // spawn
+  function spawnred() {
+    const area = getPlayArea();
+    const size = Math.random()*40+30;
+    red.push({
+      x: area.x + Math.random() * Math.max(1, area.width - size),
+      y: area.y - size,
+      width:size,
+      height:size,
+      color:'red'
+    });
+  }
+  // explosões
+  let explosions = [];
+  // criar explosão
+  function createExplosion(x,y,color){
+    for(let i=0;i<20;i++){
+      explosions.push({
+        x: x,
+        y: y,
+        vx: (Math.random()-0.5)*2,
+        vy: (Math.random()-0.5)*2,
+        r: Math.random()*4+2,
+        color: color,
+        life: 120,
+        maxLife: 120
+      });
+    }
+  }
+
+// cubos azuis
+  let blue = [];
+  const blueSpeed = 2;
+  const blueSpawnRate = 4000;
+  let blueInterval;
+  // spawn
+  function spawnblue() {
+    const area = getPlayArea();
+    const size = 20;
+    blue.push({
+     x: area.x + Math.random() * Math.max(1, area.width - size),
+     y: area.y - size,
+     width: size,
+     height: size,
+     color: 'cyan'
+   });
+  }
+
+// atualização dos gráficos
+function update(){
+  const area = getPlayArea();
+  // fundo
+    balls.forEach(b=>{
+     b.y += b.speed;
+      if(b.y > area.y + area.height){
+        b.y = area.y - b.r;
+        b.x = area.x + Math.random() * area.width;
+      }
+    });
+  if(!gameRunning) return;
+  if (shootHeld) fireBullet();
+
+  // cubo verde
+    green.x = Math.max(area.x, Math.min(green.x, area.x + area.width - green.width));
+    if((keys['ArrowLeft'] || keys['arrowleft'] || keys['left'] || keys['kc37'] || moveLeftHeld) && green.x > area.x) green.x -= green.speed;
+    if((keys['ArrowRight'] || keys['arrowright'] || keys['right'] || keys['kc39'] || moveRightHeld) && green.x + green.width < area.x + area.width) green.x += green.speed;
+
+  // tiros
+    bullets.forEach((b,i)=>{
+      b.y -= 10;
+      if(b.y+b.height < area.y) bullets.splice(i,1);
+    });
+
+  // cubos vermelhos
+    red.forEach((e,i)=>{
+      e.y += redSpeed;
+      // colisão com os tiros
+      bullets.forEach((b,j)=>{
+       if(b.x < e.x + e.width && b.x + b.width > e.x &&
+          b.y < e.y + e.height && b.y + b.height > e.y){
+         bullets.splice(j,1);
+         red.splice(i,1);
+         score += 10;
+         updateHud();
+         createExplosion(e.x+e.width/2, e.y+e.height/2, 'red');
+        }
+      });
+      explosions.forEach((ex, i) => {
+        ex.x += ex.vx;
+        ex.y += ex.vy;
+        ex.life--;
+        ex.r *= 0.995; // encolhe devagar
+        if (ex.life <= 0) {explosions.splice(i, 1);}
+      });
+      // colisão com o cubo vermelho
+      if(e.x < green.x + green.width && e.x + e.width > green.x &&
+         e.y < green.y + green.height && e.y + e.height > green.y){
+       lives--;
+       updateHud();
+       red.splice(i,1);
+       if(lives<=0) endGame();
+      }
+      // sai da tela
+        if(e.y > area.y + area.height) red.splice(i,1);
+    });
+
+  // cubos azuis
+      blue.forEach((b, i) => {
+      b.y += blueSpeed;
+      // colisão com o cubo verde
+      if (
+        b.x < green.x + green.width &&
+        b.x + b.width > green.x &&
+        b.y < green.y + green.height &&
+        b.y + b.height > green.y
+      ) {
+        // Aumento do cubo verde (com limite)
+        if (green.width < green.maxSize) {
+          green.width += 5;
+          green.height += 5;
+        }
+        blue.splice(i, 1);
+      }
+      // Sai da tela
+      if (b.y > area.y + area.height) {
+       blue.splice(i, 1);
+      }
+    });
+} 
+
+
+
+// desenhar
+function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const area = getPlayArea();
+
+  // glow behind the game box (similar visual family as the other pages)
+    const glowRadius = Math.max(area.width, area.height) * 0.62;
+    const centerX = area.x + area.width / 2;
+    const centerY = area.y + area.height / 2;
+    const glow = ctx.createRadialGradient(
+      centerX,
+      centerY,
+      Math.max(12, area.width * 0.08),
+      centerX,
+      centerY,
+      glowRadius
+    );
+    glow.addColorStop(0, 'rgba(0, 255, 0, 0.11)');
+    glow.addColorStop(0.46, 'rgba(0, 255, 0, 0.045)');
+    glow.addColorStop(1, 'rgba(0, 255, 0, 0)');
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, glowRadius, 0, Math.PI * 2);
+    ctx.fillStyle = glow;
+    ctx.fill();
+    ctx.restore();
+
+  // caixa de jogo com fundo preto
+    ctx.fillStyle = '#060807';
+    ctx.fillRect(area.x, area.y, area.width, area.height);
+
+  // recorta tudo para dentro da caixa
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(area.x, area.y, area.width, area.height);
+    ctx.clip();
+
+  // estrelas dentro da caixa
+    ctx.fillStyle = 'rgba(156, 255, 156, 0.95)';
+    balls.forEach(b=>{
+      ctx.beginPath();
+      ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+      ctx.fill();
+    });
+
+  // cubo verde
+    ctx.fillStyle = green.color;
+    ctx.fillRect(green.x, green.y, green.width, green.height);
+
+  // tiros
+    bullets.forEach(b=>{
+     ctx.fillStyle = b.color;
+     ctx.fillRect(b.x,b.y,b.width,b.height);
+    });
+
+  // explosões
+    explosions.forEach(ex=>{
+      const alpha = Math.sqrt(ex.life / ex.maxLife); 
+      ctx.fillStyle = `rgba(255,0,0,${alpha})`; // vermelho com fade
+      ctx.beginPath();
+      ctx.arc(ex.x, ex.y, ex.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+  // cubos vermelhos
+    red.forEach(e=>{
+     ctx.fillStyle = e.color;
+     ctx.fillRect(e.x,e.y,e.width,e.height);
+    });
+
+  // cubos azuis
+    blue.forEach(b => {
+      ctx.fillStyle = b.color;
+      ctx.fillRect(b.x, b.y, b.width, b.height);
+    });
+
+    ctx.restore();
+    ctx.strokeStyle = 'rgba(156, 255, 156, 0.22)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(area.x, area.y, area.width, area.height);
+}
+
+
+
+// loop
+function gameLoop(){
+  update();
+  draw();
+  if(gameRunning) requestAnimationFrame(gameLoop);
+}
+
+function previewLoop() {
+  if (gameRunning) return;
+  update();
+  draw();
+  requestAnimationFrame(previewLoop);
+}
+
+
+
+// começar
+document.getElementById('startBtn').addEventListener('click',(e)=>{
+  e.currentTarget.blur();
+  document.getElementById('menu').style.display='none';
+  document.getElementById('score').style.display='block';
+  document.getElementById('lives').style.display='flex';
+  setShootButtonVisibility(true);
+  setMoveButtonsVisibility(true);
+  setTouchControlInteractivity(true);
+  setDeviceNoteVisibility(true);
+  gameRunning=true;
+  score=0; lives=3;
+  resetTouchControlState();
+  lastShotAt = 0;
+  positionHudAbovePlayArea();
+  positionDeviceNote();
+  updateHud();
+  bullets=[]; red=[]; blue=[]; explosions=[];
+  green.width=50; green.height=50;
+  placeGreenAtStart();
+  redInterval = setInterval(spawnred, redspawnRate);
+  blueInterval = setInterval(spawnblue, blueSpawnRate);
+  gameLoop();
+});
+
+
+
+// fim de jogo
+function endGame(){
+  gameRunning=false;
+  setShootButtonVisibility(true);
+  setMoveButtonsVisibility(true);
+  setTouchControlInteractivity(false);
+  setDeviceNoteVisibility(false);
+  resetTouchControlState();
+  clearInterval(redInterval);
+  clearInterval(blueInterval);
+  document.getElementById('gameOverStack').style.display='flex';
+}
+
+
+
+// reiniciar
+restartBtn.addEventListener('click',(e)=>{
+  e.currentTarget.blur();
+  document.getElementById('gameOverStack').style.display='none';
+  document.getElementById('score').style.display='block';
+  document.getElementById('lives').style.display='flex';
+  setShootButtonVisibility(true);
+  setMoveButtonsVisibility(true);
+  setTouchControlInteractivity(true);
+  setDeviceNoteVisibility(true);
+  gameRunning=true;
+  score=0; lives=3;
+  resetTouchControlState();
+  lastShotAt = 0;
+  positionHudAbovePlayArea();
+  positionDeviceNote();
+  updateHud();
+  bullets=[]; red=[]; blue=[];explosions=[];
+  green.width=50; green.height=50;
+  placeGreenAtStart();
+  redInterval = setInterval(spawnred, redspawnRate);
+  blueInterval = setInterval(spawnblue, blueSpawnRate);
+  gameLoop();
+});
+
+arcadeBtn.addEventListener('click', () => {
+  window.location.href = './arcade.html';
+});
+
+draw();
+previewLoop();
+
+</script>
+
+
+
+</body>
+</html>

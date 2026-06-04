@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memes Archive</title>
+<meta name="theme-color" content="#050706">
+
+<link href="https://fonts.cdnfonts.com/css/silom" rel="stylesheet">
+
+<style>
+:root {
+  --bg-0: #050706;
+  --bg-1: #0a0f0d;
+  --bg-2: #101917;
+  --panel-soft: rgba(14, 22, 18, 0.94);
+  --frame: #9cff9c;
+  --ink: #effff4;
+  --muted: rgba(239, 255, 244, 0.72);
+  --button: #111111;
+  --button-border: #ffffff;
+  --shadow-raise: 4px 4px 0 rgba(0, 0, 0, 0.65);
+  --shadow-press: 2px 2px 0 rgba(0, 0, 0, 0.65);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--bg-0);
+  overscroll-behavior: none;
+}
+
+body {
+  margin: 0;
+  padding: 12px 0 8px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: relative;
+  color: var(--ink);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 52%, var(--bg-0) 100%);
+  font-family: "Silom", "Monaco", "Courier New", monospace;
+}
+
+/* CRT grid lines overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 255, 0, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 0, 0.06) 1px, transparent 1px);
+  background-size: 34px 34px;
+  opacity: 0.28;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  width: min(82vw, 820px);
+  aspect-ratio: 1 / 1;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 255, 0, 0.14) 0%, rgba(0, 255, 0, 0.05) 40%, rgba(0, 255, 0, 0.015) 62%, transparent 76%);
+  filter: blur(20px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+header,
+.tabs-wrapper,
+.gallery {
+  position: relative;
+  z-index: 1;
+  width: min(1400px, calc(100vw - 28px));
+  margin-inline: auto;
+}
+
+header {
+  margin-top: 0;
+  margin-bottom: 10px;
+  padding: 22px 20px 20px;
+  border: 2px solid var(--frame);
+  background: var(--panel-soft);
+  box-shadow: 0 0 0 2px rgba(90, 255, 170, 0.08), 0 18px 45px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: clamp(1.6rem, 5.2vw, 3rem);
+  line-height: 1.15;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.85);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border: 2px solid var(--button-border);
+  background: var(--button);
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 0.72rem;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.85);
+  box-shadow: var(--shadow-raise);
+  transition: transform 0.14s ease, box-shadow 0.14s ease, background 0.2s ease;
+}
+
+.subtitle {
+  margin: 10px 0 0;
+  font-size: clamp(0.7rem, 2.2vw, 0.95rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.subtitle-tail {
+  display: inline;
+}
+
+.tabs-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+  border: 2px solid var(--frame);
+  background: var(--panel-soft);
+  box-shadow: 0 0 0 2px rgba(90, 255, 170, 0.08), 0 14px 34px rgba(0, 0, 0, 0.38);
+}
+
+.tabs-scroll {
+  display: flex;
+  flex: 1;
+  gap: 10px;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tabs-scroll .tab-btn {
+  flex: 0 0 calc((100% - 90px) / 10);
+  max-width: calc((100% - 90px) / 10);
+  min-width: 0;
+  text-align: center;
+  padding: 10px 6px;
+  scroll-snap-align: start;
+}
+
+.tabs-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-btn,
+.scroll-btn,
+.download-btn,
+.home-btn {
+  font-family: "Silom", "Monaco", "Courier New", monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.scroll-btn,
+.tab-btn {
+  border: 2px solid var(--button-border);
+  background: var(--button);
+  color: #ffffff;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.85);
+  box-shadow: var(--shadow-raise);
+  cursor: pointer;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.scroll-btn {
+  min-width: 42px;
+  height: 42px;
+  padding: 0 12px;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tab-btn {
+  padding: 10px 16px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tab-btn.fixed {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  min-width: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
+.home-btn svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.scroll-btn:hover,
+.tab-btn:hover,
+.download-btn:hover,
+.back-link:hover {
+  background: #1d1d1d;
+}
+
+.scroll-btn:active,
+.tab-btn:active,
+.download-btn:active,
+.back-link:active {
+  transform: translateY(2px);
+  box-shadow: var(--shadow-press);
+}
+
+.tab-btn.active {
+  border-color: var(--frame);
+  color: #001408;
+  background: #8dfd8d;
+  text-shadow: none;
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  padding: 8px 2px;
+  flex: 1;
+  min-height: auto;
+  overflow-y: visible;
+  align-items: start;
+  align-content: start;
+  scrollbar-color: rgba(156, 255, 156, 0.45) rgba(8, 14, 11, 0.55);
+  scrollbar-width: thin;
+}
+
+.gallery.is-filtered {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 320px));
+  justify-content: center;
+  justify-items: stretch;
+  gap: 12px;
+}
+
+.gallery.is-filtered .img-container {
+  width: 100%;
+  max-width: 320px;
+  justify-self: stretch;
+  align-self: start;
+}
+
+.gallery.is-filtered .img-inner::before {
+  padding-top: 100%;
+}
+
+.gallery::-webkit-scrollbar {
+  width: 10px;
+}
+
+.gallery::-webkit-scrollbar-track {
+  background: rgba(8, 14, 11, 0.55);
+}
+
+.gallery::-webkit-scrollbar-thumb {
+  background: rgba(156, 255, 156, 0.45);
+  border: 2px solid rgba(8, 14, 11, 0.55);
+}
+
+.img-container {
+  width: 100%;
+  max-width: none;
+  justify-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  align-self: start;
+  cursor: pointer;
+  border: 2px solid var(--frame);
+  background: var(--panel-soft);
+  box-shadow: 0 0 0 2px rgba(90, 255, 170, 0.08), 0 14px 30px rgba(0, 0, 0, 0.45);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.img-container:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 0 2px rgba(90, 255, 170, 0.16), 0 20px 36px rgba(0, 0, 0, 0.52);
+}
+
+.img-inner {
+  width: 100%;
+  position: relative;
+  height: auto;
+  overflow: hidden;
+  background: #161a18;
+  border-bottom: 2px solid var(--frame);
+}
+
+.img-inner::before {
+  content: "";
+  display: block;
+  width: 100%;
+  padding-top: 100%;
+}
+
+.img-inner img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.img-container.img-wojak .img-inner {
+  background: #ffffff;
+}
+
+.info {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.4s ease;
+  width: 100%;
+  background: rgba(8, 14, 11, 0.95);
+  padding: 0 15px;
+  text-align: left;
+}
+
+.info.no-transition {
+  transition: none !important;
+}
+
+.info .header p {
+  margin: 5px 0;
+  font-size: 0.76rem;
+  letter-spacing: 0.05em;
+  line-height: 1.5;
+  color: var(--ink);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.85);
+}
+
+.info .header strong {
+  color: #fff6a3;
+  letter-spacing: 0.09em;
+}
+
+.info .description {
+  text-align: left;
+  margin: 12px 0 0;
+  color: var(--muted);
+}
+
+.info .description p {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.55;
+  letter-spacing: 0.03em;
+}
+
+.download-container {
+  margin: 14px 0 24px;
+}
+
+.download-btn {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid var(--button-border);
+  background: var(--button);
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 0.76rem;
+  text-align: center;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.85);
+  box-shadow: var(--shadow-raise);
+  transition: transform 0.14s ease, box-shadow 0.14s ease, background 0.2s ease;
+}
+
+footer {
+  position: static;
+  width: min(1400px, calc(100vw - 28px));
+  margin: 26px auto 0;
+  padding: 12px 16px;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 2px solid var(--frame);
+  background: var(--panel-soft);
+  box-shadow: 0 0 0 2px rgba(90, 255, 170, 0.08), 0 10px 26px rgba(0, 0, 0, 0.34);
+}
+
+.back-link-row {
+  width: min(1400px, calc(100vw - 28px));
+  margin: 26px auto 0;
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 900px) {
+  body {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  header,
+  .tabs-wrapper,
+  .gallery {
+    width: calc(100vw - 12px);
+  }
+
+  footer {
+    width: calc(100vw - 12px);
+  }
+
+  .back-link-row {
+    width: calc(100vw - 12px);
+  }
+
+  .tabs-wrapper {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .scroll-btn {
+    min-width: 38px;
+    height: 38px;
+  }
+
+  .tab-btn {
+    font-size: 0.72rem;
+    padding: 9px 12px;
+  }
+
+  .gallery {
+    gap: 12px;
+  }
+
+  .gallery.is-filtered {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 300px));
+    justify-content: center;
+  }
+
+  .gallery.is-filtered .img-container {
+    width: 100%;
+    max-width: 320px;
+    justify-self: stretch;
+  }
+
+  .img-container {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    padding-top: 8px;
+    padding-bottom: 10px;
+  }
+
+  body::before {
+    background-size: 24px 24px;
+  }
+
+  header,
+  .tabs-wrapper,
+  .gallery,
+  footer {
+    width: calc(100vw - 10px);
+  }
+
+  header {
+    margin-top: 0;
+    padding: 14px 12px;
+  }
+
+  header h1 {
+    font-size: clamp(1.25rem, 8vw, 1.9rem);
+    letter-spacing: 0.1em;
+  }
+
+  .subtitle {
+    margin-top: 8px;
+    font-size: 0.62rem;
+    line-height: 1.5;
+    letter-spacing: 0.05em;
+  }
+
+  .subtitle-tail {
+    display: block;
+    margin-top: 2px;
+    white-space: nowrap;
+  }
+
+  .tabs-wrapper {
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .tabs-scroll {
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-padding-inline: 0;
+    padding-bottom: 2px;
+  }
+
+  .tabs-scroll .tab-btn {
+    flex: 0 0 80px;
+    max-width: 80px;
+    min-width: 80px;
+    padding: 10px 3px;
+    font-size: 0.66rem;
+    scroll-snap-stop: always;
+  }
+
+  .scroll-btn {
+    min-width: 40px;
+    height: 40px;
+    padding: 0 10px;
+    flex: 0 0 40px;
+    font-size: 0.86rem;
+  }
+
+  .tab-btn.fixed {
+    min-width: 48px;
+    width: 48px;
+    flex: 0 0 48px;
+    padding: 8px;
+  }
+
+  .gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    overflow-y: visible;
+    padding: 6px 0 10px;
+  }
+
+  .gallery.is-filtered {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-content: stretch;
+    gap: 10px;
+  }
+
+  .gallery.is-filtered .img-container {
+    max-width: none;
+  }
+
+  .img-container {
+    min-width: 0;
+    box-shadow: 0 0 0 1px rgba(90, 255, 170, 0.12), 0 10px 18px rgba(0, 0, 0, 0.42);
+  }
+
+  .img-container:hover {
+    transform: none;
+  }
+
+  .img-container[data-open="true"] {
+    grid-column: auto;
+  }
+
+  .img-inner::before {
+    padding-top: 100%;
+  }
+
+  .gallery.is-filtered .img-inner::before {
+    padding-top: 100%;
+  }
+
+  .info {
+    padding: 0 12px;
+  }
+
+  .info .header p {
+    font-size: 0.7rem;
+    line-height: 1.45;
+  }
+
+  .info .description p {
+    font-size: 0.66rem;
+    line-height: 1.5;
+  }
+
+  .download-container {
+    margin: 12px 0 18px;
+  }
+
+  .download-btn {
+    padding: 11px 10px;
+    font-size: 0.7rem;
+  }
+
+  footer {
+    margin-top: 20px;
+    margin-bottom: 8px;
+    padding: 10px 12px;
+  }
+
+  .back-link-row {
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 420px) {
+  .tabs-scroll .tab-btn {
+    flex: 0 0 80px;
+    max-width: 80px;
+    min-width: 80px;
+  }
+
+  .gallery,
+  .gallery.is-filtered {
+    gap: 8px;
+  }
+
+  .subtitle {
+    font-size: 0.52rem;
+    letter-spacing: 0.035em;
+  }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <h1 class="main-title">Memes Archive</h1>
+  <p class="subtitle">A timeline of internet memes,<span class="subtitle-tail">their meanings and how they are used</span></p>
+</header>
+<div class="tabs-wrapper">
+  <!-- Botão Todos fixo -->
+  <button class="tab-btn fixed active home-btn" data-year="all" aria-label="All">
+  <svg xmlns="http://www.w3.org/2000/svg"
+       height="20"
+       viewBox="0 -960 960 960"
+       width="20"
+       fill="currentColor">
+    <path d="M240-200h120v-240h240v240h120v-360L480-740 240-560v360Zm-80 80v-480l320-240 320 240v480H520v-240h-80v240H160Zm320-350Z"/>
+  </svg>
+  </button>
+  <!-- Scroll horizontal para os anos -->
+  <button class="scroll-btn left">&lt;</button>
+  <div class="tabs-scroll">
+    <button class="tab-btn" data-year="2000">2000</button>
+    <button class="tab-btn" data-year="2001">2001</button>
+    <button class="tab-btn" data-year="2002">2002</button>
+    <button class="tab-btn" data-year="2003">2003</button>
+    <button class="tab-btn" data-year="2004">2004</button>
+    <button class="tab-btn" data-year="2005">2005</button>
+    <button class="tab-btn" data-year="2006">2006</button>
+    <button class="tab-btn" data-year="2007">2007</button>
+    <button class="tab-btn" data-year="2008">2008</button>
+    <button class="tab-btn" data-year="2009">2009</button>
+    <button class="tab-btn" data-year="2010">2010</button>
+    <button class="tab-btn" data-year="2011">2011</button>
+    <button class="tab-btn" data-year="2012">2012</button>
+    <button class="tab-btn" data-year="2013">2013</button>
+    <button class="tab-btn" data-year="2014">2014</button>
+    <button class="tab-btn" data-year="2015">2015</button>
+    <button class="tab-btn" data-year="2016">2016</button>
+    <button class="tab-btn" data-year="2017">2017</button>
+    <button class="tab-btn" data-year="2018">2018</button>
+    <button class="tab-btn" data-year="2019">2019</button>
+    <button class="tab-btn" data-year="2020">2020</button>
+    <button class="tab-btn" data-year="2021">2021</button>
+    <button class="tab-btn" data-year="2022">2022</button>
+    <button class="tab-btn" data-year="2023">2023</button>
+    <button class="tab-btn" data-year="2024">2024</button>
+    <button class="tab-btn" data-year="2025">2025</button>
+    <button class="tab-btn" data-year="2026">2026</button>
+  </div>
+  <button class="scroll-btn right">&gt;</button>
+</div>
+
+
+<div class="gallery">
+<!-- 2001 -->
+<!-- O RLY OWL -->
+<div class="img-container" data-year="2001">
+  <div class="img-inner"><img src="media/o_rly_owl.png"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>O RLY OWL</strong></p>
+      <p>Year: 2001</p>
+    </div>
+    <div class="description">
+      <p>A classic reaction meme for skeptical disbelief and dry sarcasm. Used when someone posts an obvious, exaggerated, or low-quality take.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/o_rly_owl.png" download="o_rly_owl.png">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2002 -->
+<!-- STAR WARS KID -->
+<div class="img-container" data-year="2002">
+  <div class="img-inner"><img src="media/STAR_WARS_KID.jpg"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>STAR WARS KID</strong></p>
+      <p>Year: 2002</p>
+    </div>
+    <div class="description">
+      <p>An early viral video icon of accidental fame. Used in discussions about cringe humor, internet pile-ons, and how quickly private moments can become public memes.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/STAR_WARS_KID.jpg" download="STAR_WARS_KID.jpg">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2003 -->
+<!-- BADGER BADGER BADGER -->
+<div class="img-container" data-year="2003">
+  <div class="img-inner"><img src="media/Badgers_Badgers.gif"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>BADGER BADGER BADGER</strong></p>
+      <p>Year: 2003</p>
+    </div>
+    <div class="description">
+      <p>A repetitive flash-loop meme built on catchy nonsense. Used for chaotic repetition jokes, earworm humor, and throwback "old internet" energy.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/Badgers_Badgers.gif" download="Badgers_Badgers.gif">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2004 -->
+<!-- NUMA NUMA -->
+<div class="img-container" data-year="2004">
+  <div class="img-inner"><img src="media/NUMA_NUMA.jpg"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>NUMA NUMA</strong></p>
+      <p>Year: 2004</p>
+    </div>
+    <div class="description">
+      <p>A landmark lip-sync meme centered on pure joy and performance charisma. Used for "vibe-only" posts, wholesome nostalgia, and expressive reaction edits.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/NUMA_NUMA.jpg" download="NUMA_NUMA.jpg">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2005 -->
+ <!-- DISASTER GIRL -->
+<div class="img-container" data-year="2005">
+  <div class="img-inner"><img src="media/DISASTER_GIRL.jpg"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>DISASTER GIRL</strong></p>
+      <p>Year: 2005</p>
+    </div>
+    <div class="description">
+      <p>Used for "I caused this" irony: someone calmly watching a mess they secretly benefit from. Common in villain-origin jokes, bad-decision posts, and controlled-chaos humor.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/DISASTER_GIRL.jpg" download="DISASTER_GIRL.jpg">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2007 -->
+<!-- RICKROLL -->
+<div class="img-container" data-year="2007">
+  <div class="img-inner"><img src="media/rickroll.png"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>RICKROLL</strong></p>
+      <p>Year: 2007</p>
+    </div>
+    <div class="description">
+      <p>The classic bait-and-switch prank: a promised link leads to Rick Astley instead. Used for harmless trolling, surprise reveals, and nostalgia callbacks.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/rickroll.png" download="rickroll.png">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2008 -->
+<!-- TROLLFACE -->
+<div class="img-container" data-year="2008">
+  <div class="img-inner"><img src="media/TROLLFACE.png"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>TROLLFACE</strong></p>
+      <p>Year: 2008</p>
+    </div>
+    <div class="description">
+      <p>Symbol of deliberate provocation for reaction. Used to signal "I posted this to trigger people" and to frame mischievous internet behavior.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/TROLLFACE.png" download="TROLLFACE.png">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2009 -->
+<!-- KEYBOARD CAT -->
+<div class="img-container" data-year="2009">
+  <div class="img-inner"><img src="media/KEYBOARD_CAT.jpg"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>KEYBOARD CAT</strong></p>
+      <p>Year: 2009</p>
+    </div>
+    <div class="description">
+      <p>Often used as a comedic "play them off" ending after someone fails publicly. A staple of reaction edits and slapstick internet compilations.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/KEYBOARD_CAT.jpg" download="KEYBOARD_CAT.jpg">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2010 -->
+<!-- WOJAK -->
+<div class="img-container img-wojak" data-year="2010">
+  <div class="img-inner"><img src="media/WOJAK.png"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>WOJAK</strong></p>
+      <p>Year: 2010</p>
+    </div>
+    <div class="description">
+      <p>A broad character family used to externalize moods, identities, and social archetypes. Common in self-deprecating humor, political/cultural commentary, and "types of people" memes.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/WOJAK.png" download="WOJAK.png">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2011 -->
+<!-- NYAN CAT -->
+<div class="img-container" data-year="2011">
+  <div class="img-inner"><img src="media/NYAN_CAT.gif"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>NYAN CAT</strong></p>
+      <p>Year: 2011</p>
+    </div>
+    <div class="description">
+      <p>An early viral loop meme built on repetition, catchy audio, and randomness. Used to signal nostalgic internet culture, playful spam, and deliberately absurd edits.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/NYAN_CAT.gif" download="NYAN_CAT.gif">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- HIDE THE PAIN HAROLD -->
+<div class="img-container" data-year="2011">
+  <div class="img-inner"><img src="media/HIDE_THE_PAIN_HAROLD.jpg"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>HIDE THE PAIN HAROLD</strong></p>
+      <p>Year: 2011</p>
+    </div>
+    <div class="description">
+      <p>Represents forced positivity: smiling in public while stressed, burned out, or uncomfortable. Frequently used for work-life frustration, awkward meetings, and "I'm fine" irony.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/HIDE_THE_PAIN_HAROLD.jpg" download="HIDE_THE_PAIN_HAROLD.jpg">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2012 -->
+<!-- GRUMPY CAT -->
+<div class="img-container" data-year="2012">
+  <div class="img-inner"><img src="media/GRUMPY_CAT.jpg"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>GRUMPY CAT</strong></p>
+      <p>Year: 2012</p>
+    </div>
+    <div class="description">
+      <p>Default visual for irritation, pessimism, and deadpan refusal. Used in caption memes to deliver blunt sarcasm and "no-energy" reactions.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/GRUMPY_CAT.jpg" download="GRUMPY_CAT.jpg">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2013 -->
+<!-- DOGE -->
+<div class="img-container" data-year="2013">
+  <div class="img-inner"><img src="media/DOGE.jpg"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>DOGE</strong></p>
+      <p>Year: 2013</p>
+    </div>
+    <div class="description">
+      <p>Pairs Shiba images with simple inner-monologue captions in broken syntax ("such... very..."). Used for wholesome irony, overhype reactions, and internet nostalgia.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/DOGE.jpg" download="DOGE.jpg">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- THIS IS FINE DOG -->
+<div class="img-container" data-year="2013">
+  <div class="img-inner"><img src="media/THIS_IS_FINE_DOG.png"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>THIS IS FINE DOG</strong></p>
+      <p>Year: 2013</p>
+    </div>
+    <div class="description">
+      <p>A coping meme for crisis normalization: everything is clearly bad, but the speaker pretends all is under control. Used for burnout, politics, deadlines, and systemic-failure jokes.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/THIS_IS_FINE_DOG.png" download="THIS_IS_FINE_DOG.png">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2014 -->
+<!-- PEPE THE FROG -->
+<div class="img-container" data-year="2014">
+  <div class="img-inner"><img src="media/PEPE_THE_FROG.png"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>PEPE THE FROG</strong></p>
+      <p>Year: 2014</p>
+    </div>
+    <div class="description">
+      <p>A highly flexible reaction character used for many emotional states, from smug to sad. Also important in meme history for how internet symbols can shift meaning across communities.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/PEPE_THE_FROG.png" download="PEPE_THE_FROG.png">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2015 -->
+<!-- DRAKE HOTLINE BLING -->
+<div class="img-container" data-year="2015">
+  <div class="img-inner"><img src="media/DRAKE_HOTLINE.jpg"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>DRAKE HOTLINE BLING</strong></p>
+      <p>Year: 2015</p>
+    </div>
+    <div class="description">
+      <p>Two-panel preference template: top rejects an option, bottom approves another. Used for quick comparisons, priorities, and product or lifestyle choices.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/DRAKE_HOTLINE.jpg" download="DRAKE_HOTLINE.jpg">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- NAZARÉ A PENSAR -->
+<div class="img-container" data-year="2015">
+  <div class="img-inner"><img src="media/NAZARÉ_A_PENSAR.jpeg"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>NAZARÉ THINKING</strong></p>
+      <p>Year: 2015</p>
+    </div>
+    <div class="description">
+      <p>Visual shorthand for overthinking and confusion, often with floating-math overlays. Used when someone applies complex logic to a simple problem.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/NAZARÉ_A_PENSAR.jpeg" download="NAZARÉ_A_PENSAR.jpg">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2016 -->
+<!-- THINK SMART --> 
+<div class="img-container" data-year="2016">
+  <div class="img-inner"><img src="media/THINK_SMART.gif"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>THINK SMART</strong></p>
+      <p>Year: 2016</p>
+    </div>
+    <div class="description">
+      <p>Represents flawed logic presented as genius advice. Usually captioned as a "life hack" that sounds clever but obviously backfires.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/THINK_SMART.gif" download="THINK_SMART.gif">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2017 -->
+<!-- DISTRACTED BOYFRIEND --> 
+<div class="img-container" data-year="2017">
+  <div class="img-inner"><img src="media/DISTRACTED_BOYFRIEND.jpg"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>DISTRACTED BOYFRIEND</strong></p>
+      <p>Year: 2017</p>
+    </div>
+    <div class="description">
+      <p>Object-labeling template about shifting attention from commitment to temptation. Used for loyalty conflicts, trend-chasing, and short-term vs long-term choices.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/DISTRACTED_BOYFRIEND.jpg" download="DISTRACTED_BOYFRIEND.jpg">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- GALAXY BRAIN -->
+<div class="img-container" data-year="2017">
+  <div class="img-inner"><img src="media/GALAXY_BRAIN.jpg"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>GALAXY BRAIN</strong></p>
+      <p>Year: 2017</p>
+    </div>
+    <div class="description">
+      <p>Escalating panel format ranking ideas from basic to "cosmic." Often used ironically to mock over-intellectual takes or absurd value hierarchies.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/GALAXY_BRAIN.jpg" download="GALAXY_BRAIN.jpg">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- STONKS -->
+<div class="img-container" data-year="2017">
+  <div class="img-inner"><img src="media/STONKS.png"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>STONKS</strong></p>
+      <p>Year: 2017</p>
+    </div>
+    <div class="description">
+      <p>Ironic finance meme where clearly bad decisions are framed as smart investing. Common in stock/crypto jokes, fake business logic, and risk-taking humor.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/STONKS.png" download="STONKS.jpg">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2018 -->
+<!-- SURPRISED PIKACHU --> 
+<div class="img-container" data-year="2018">
+  <div class="img-inner"><img src="media/SURPRISED_PIKACHU.jpeg"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>SURPRISED PIKACHU</strong></p>
+      <p>Year: 2018</p>
+    </div>
+    <div class="description">
+      <p>Reaction meme for fake surprise after an obvious consequence. Used in callout jokes: you made this choice, now you act shocked.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/SURPRISED_PIKACHU.jpeg" download="SURPRISED_PIKACHU.jpg">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2019 -->
+<!-- WOMAN YELLING AT CAT --> 
+<div class="img-container" data-year="2019">
+  <div class="img-inner"><img src="media/WOMAN_YELLING_AT_CAT.jpg"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>WOMAN YELLING AT CAT</strong></p>
+      <p>Year: 2019</p>
+    </div>
+    <div class="description">
+      <p>Split-reaction meme contrasting emotional outrage with blank indifference. Used for arguments, fandom fights, and mismatch-communication jokes.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/WOMAN_YELLING_AT_CAT.jpg" download="WOMAN_YELLING_AT_CAT.jpg">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- TUXEDO WINNIE THE POOH -->
+<div class="img-container" data-year="2019">
+  <div class="img-inner"><img src="media/TUXEDO_WINNIE_THE_POOH.jpg"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>TUXEDO WINNIE THE POOH</strong></p>
+      <p>Year: 2019</p>
+    </div>
+    <div class="description">
+      <p>"Basic vs refined" template where the same idea is reframed as elegant. Used to mock pretentious wording, rebranding, and faux sophistication.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/TUXEDO_WINNIE_THE_POOH.jpg" download="TUXEDO_WINNIE_THE_POOH.jpg">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2020 -->
+<!-- UNO DRAW 25 CARDS --> 
+<div class="img-container" data-year="2020">
+  <div class="img-inner"><img src="media/UNO_DRAW_25_CARDS.jpg"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>UNO DRAW 25 CARDS</strong></p>
+      <p>Year: 2020</p>
+    </div>
+    <div class="description">
+      <p>Represents extreme avoidance: doing anything except the requested task. Used for procrastination, social-anxiety jokes, and refusal humor.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/UNO_DRAW_25_CARDS.jpg" download="UNO_DRAW_25_CARDS.jpg">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2023 -->
+<!-- SKIBIDI TOILET -->
+<div class="img-container" data-year="2023">
+  <div class="img-inner"><img src="media/SKIBIDI_TOILET.png"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>SKIBIDI TOILET</strong></p>
+      <p>Year: 2023</p>
+    </div>
+    <div class="description">
+      <p>Chaotic short-form meme series built on absurd repetition, surreal characters, and escalating nonsense. Used for brainrot humor, overstimulation jokes, and references to hyper-online Gen Z and Gen Alpha meme culture.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/SKIBIDI_TOILET.png" download="SKIBIDI_TOILET.png">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2025 -->
+<!-- ITALIAN BRAINROT --> 
+<div class="img-container" data-year="2025">
+  <div class="img-inner"><img src="media/ITALIAN_BRAINROT.png"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>ITALIAN BRAINROT</strong></p>
+      <p>Year: 2025</p>
+    </div>
+    <div class="description">
+      <p>Short-form absurdist trend built from AI-generated characters, pseudo-Italian naming, and maximal nonsense lore. Used for chaotic edits, in-jokes, and escalating brainrot worldbuilding.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/ITALIAN_BRAINROT.png" download="ITALIAN_BRAINROT.png">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- AI BABY LAUGH -->
+<div class="img-container" data-year="2025">
+  <div class="img-inner"><img src="media/AI_BABY_LAUGH.gif"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>AI BABY LAUGH</strong></p>
+      <p>Year: 2025</p>
+    </div>
+    <div class="description">
+      <p>Uncanny AI reaction clip used as a punchline or jump-cut payoff. Often deployed as smug, eerie, or intentionally cursed laughter in remix edits.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/AI_BABY_LAUGH.gif" download="AI_BABY_LAUGH.gif">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 6-7 MEME -->
+<div class="img-container" data-year="2025">
+  <div class="img-inner"><img src="media/6-7_MEME.gif"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>6-7 MEME</strong></p>
+      <p>Year: 2025</p>
+    </div>
+    <div class="description">
+      <p>Viral catchphrase from 2025 short-form rap/sound culture, often repeated without a fixed literal meaning. Used as an in-group signal, hype tag, and absurd call-and-response.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/6-7_MEME.gif" download="6-7_MEME.gif">Download</a>
+    </div>
+  </div>
+</div>
+
+<!-- 2026 -->
+<!-- GALINHA NA ÁRVORE --> 
+<div class="img-container" data-year="2026">
+  <div class="img-inner"><img src="media/GALINHA_NA_ÁRVORE.gif"></div>
+  <div class="info">
+    <div class="header">
+      <p><strong>CHICKEN IN A TREE</strong></p>
+      <p>Year: 2026</p>
+    </div>
+    <div class="description">
+      <p>Absurd visual punchline for content that "makes no sense but is funny anyway." Used as a final chaos beat in short edits and brainrot-style compilations.</p>
+    </div>
+    <div class="download-container">
+      <a class="download-btn" href="media/GALINHA_NA_ÁRVORE.gif" download="GALINHA_NA_ÁRVORE.gif">Download</a>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="back-link-row">
+  <a class="back-link" href="./index.html">Back to Main Menu</a>
+</div>
+
+<footer>© 2026 | Luis Paulo</footer>
+
+<script src="download_map.js"></script>
+<script>
+const containers = document.querySelectorAll('.img-container');
+const tabs = document.querySelectorAll('.tab-btn');
+const gallery = document.querySelector('.gallery');
+
+function closeAllCards(immediate = false) {
+  containers.forEach(c => {
+    const cardInfo = c.querySelector('.info');
+
+    if (immediate) {
+      cardInfo.classList.add('no-transition');
+    }
+
+    cardInfo.style.maxHeight = "0px";
+    cardInfo.style.padding = "0 15px";
+    c.dataset.open = "false";
+
+    if (immediate) {
+      void cardInfo.offsetHeight;
+      cardInfo.classList.remove('no-transition');
+    }
+  });
+}
+
+containers.forEach(container => {
+  const info = container.querySelector('.info');
+  container.dataset.open = "false";
+
+  container.addEventListener('click', () => {
+    const wasOpen = container.dataset.open === "true";
+
+    // Keep only one card open at a time.
+    closeAllCards();
+
+    if (!wasOpen) {
+      info.style.maxHeight = info.scrollHeight + "px";
+      info.style.padding = "10px 15px";
+      container.dataset.open = "true";
+    }
+  });
+});
+
+document.querySelectorAll('.download-btn').forEach(btn => {
+  btn.addEventListener('click', async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const source = btn.getAttribute('href');
+    const fileName = btn.getAttribute('download') || source.split('/').pop();
+    const sourceKey = source.split('/').pop();
+    const embeddedSource = window.MEME_DOWNLOADS && window.MEME_DOWNLOADS[sourceKey];
+
+    const startDownload = (fileUrl) => {
+      const tempLink = document.createElement('a');
+      tempLink.href = fileUrl;
+      tempLink.download = fileName;
+      tempLink.rel = 'noopener';
+      tempLink.style.display = 'none';
+      document.body.appendChild(tempLink);
+      tempLink.click();
+      tempLink.remove();
+    };
+
+    try {
+      if (embeddedSource) {
+        const embeddedResponse = await fetch(embeddedSource);
+        if (!embeddedResponse.ok) throw new Error('Embedded download failed');
+
+        const embeddedBlob = await embeddedResponse.blob();
+        const embeddedBlobUrl = URL.createObjectURL(embeddedBlob);
+        startDownload(embeddedBlobUrl);
+        setTimeout(() => URL.revokeObjectURL(embeddedBlobUrl), 1000);
+        return;
+      }
+
+      const response = await fetch(source);
+      if (!response.ok) throw new Error('Download failed');
+
+      const fileBlob = await response.blob();
+      const blobUrl = URL.createObjectURL(fileBlob);
+      startDownload(blobUrl);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    } catch (error) {
+      startDownload(source);
+    }
+  });
+});
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelector('.tab-btn.active').classList.remove('active');
+    tab.classList.add('active');
+    
+    const year = tab.dataset.year;
+    const isHomeView = year === "all";
+
+    if (isHomeView) {
+      gallery.classList.remove('is-filtered');
+    } else {
+      gallery.classList.add('is-filtered');
+    }
+
+    closeAllCards(isHomeView);
+
+    containers.forEach(c => {
+      c.style.display = (isHomeView || c.dataset.year === year) ? "flex" : "none";
+    });
+
+    if (isHomeView) {
+      scrollTimelineToIndex(0, 'auto');
+      return;
+    }
+
+    if (tab.closest('.tabs-scroll')) {
+      tab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  });
+});
+
+// Scroll das abas com setas
+  const scrollLeftBtn = document.querySelector('.scroll-btn.left');
+  const scrollRightBtn = document.querySelector('.scroll-btn.right');
+  const tabsScroll = document.querySelector('.tabs-scroll');
+  const yearTabs = Array.from(tabsScroll.querySelectorAll('.tab-btn'));
+
+  function getClosestTabIndex() {
+    let closestIndex = 0;
+    let closestDistance = Infinity;
+
+    yearTabs.forEach((tab, index) => {
+      const distance = Math.abs(tab.offsetLeft - tabsScroll.scrollLeft);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestIndex = index;
+      }
+    });
+
+    return closestIndex;
+  }
+
+  function getArrowStep() {
+    return window.innerWidth <= 640 ? 2 : 6;
+  }
+
+  function scrollTimelineToIndex(index, behavior = 'smooth') {
+    const targetIndex = Math.max(0, Math.min(yearTabs.length - 1, index));
+    const targetLeft = targetIndex === 0 ? 0 : yearTabs[targetIndex].offsetLeft;
+    tabsScroll.scrollTo({ left: targetLeft, behavior });
+  }
+
+  function scrollToAdjacentTab(direction) {
+    const currentIndex = getClosestTabIndex();
+    scrollTimelineToIndex(currentIndex + (direction * getArrowStep()));
+  }
+
+  scrollLeftBtn.addEventListener('click', () => {
+    scrollToAdjacentTab(-1);
+  });
+
+  scrollRightBtn.addEventListener('click', () => {
+    scrollToAdjacentTab(1);
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#050706">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link href="https://fonts.cdnfonts.com/css/silom" rel="stylesheet">
+<title>Arcade</title>
+<style>
+  :root {
+    --bg-top: #0a0f0d;
+    --bg-mid: #101917;
+    --bg-bottom: #050706;
+    --accent: #00ff00;
+    --accent-soft: #9cff9c;
+    --text: #f3fff6;
+    --panel: rgba(11, 18, 15, 0.92);
+    --panel-soft: rgba(10, 15, 13, 0.78);
+    --muted: rgba(255, 255, 255, 0.72);
+    --font-main: "Silom", "Monaco", "Courier New", monospace;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    font-family: var(--font-main);
+  }
+
+  html, body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+    font-family: var(--font-main);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    background: #050706;
+    overscroll-behavior: none;
+  }
+
+  body {
+    display: grid;
+    place-items: center;
+    overflow: auto;
+    color: var(--text);
+    font-family: var(--font-main);
+    background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 52%, var(--bg-bottom) 100%);
+    position: relative;
+    padding: clamp(10px, 2.2vw, 28px);
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0, 255, 0, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 255, 0, 0.06) 1px, transparent 1px);
+    background-size: 34px 34px;
+    opacity: 0.28;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    width: min(96vw, 1180px);
+    height: min(96vw, 1180px);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 255, 0, 0.11) 0%, rgba(0, 255, 0, 0.045) 34%, rgba(0, 255, 0, 0.015) 56%, transparent 72%);
+    filter: blur(18px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page-shell {
+    width: min(1260px, 100%);
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .hub {
+    width: 100%;
+    min-height: clamp(460px, 78vh, 820px);
+    min-height: clamp(460px, 78dvh, 820px);
+    position: relative;
+    border: 2px solid var(--accent-soft);
+    background: var(--panel);
+    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.45);
+    padding: clamp(16px, 2.4vw, 30px);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .topbar {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+    align-items: end;
+  }
+
+  .back-link {
+    padding: 10px 14px;
+    border: 2px solid #ffffff;
+    background: #111111;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.85);
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.65);
+    transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+  }
+
+  .back-link-row {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .back-link:hover,
+  .back-link:focus-visible {
+    background: #1d1d1d;
+    outline: none;
+  }
+
+  .back-link:active {
+    transform: translateY(2px);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.65);
+  }
+
+  .eyebrow {
+    margin: 0 0 6px;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .title {
+    margin: 0;
+    font-size: clamp(28px, 5.4vw, 56px);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-shadow:
+      0 0 16px rgba(0, 255, 0, 0.42),
+      0 0 28px rgba(0, 255, 0, 0.16);
+    animation: sign-flicker 11s linear infinite;
+  }
+
+  @keyframes sign-flicker {
+    0%,
+    1.6%,
+    2.2%,
+    3.1%,
+    68%,
+    70%,
+    70.6%,
+    71.2%,
+    87%,
+    88%,
+    100% {
+      opacity: 1;
+      text-shadow:
+        0 0 16px rgba(0, 255, 0, 0.42),
+        0 0 28px rgba(0, 255, 0, 0.16);
+    }
+
+    0.7%,
+    2%,
+    2.7%,
+    68.8%,
+    70.3%,
+    87.4% {
+      opacity: 0.84;
+      text-shadow:
+        0 0 8px rgba(0, 255, 0, 0.2),
+        0 0 14px rgba(0, 255, 0, 0.08);
+    }
+
+    1.1%,
+    2.1%,
+    2.9%,
+    69.2%,
+    70.45%,
+    87.7% {
+      opacity: 0.66;
+      text-shadow:
+        0 0 3px rgba(0, 255, 0, 0.08);
+    }
+  }
+
+  .intro {
+    margin: 8px 0 0;
+    font-size: clamp(12px, 1.2vw, 15px);
+    letter-spacing: 0.05em;
+    color: #effff4;
+    max-width: 66ch;
+    line-height: 1.5;
+  }
+
+  .content {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(250px, 330px) minmax(0, 1fr);
+    gap: 14px;
+    min-height: 0;
+    align-items: stretch;
+  }
+
+  .panel {
+    border: 1px solid rgba(156, 255, 156, 0.45);
+    background: var(--panel-soft);
+    padding: clamp(12px, 1.4vw, 18px);
+    min-height: 0;
+  }
+
+  .overview,
+  .library {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .panel-title {
+    margin: 0 0 12px;
+    font-size: 16px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #ffffff;
+  }
+
+  .overview p,
+  .library-lead {
+    margin: 0 0 12px;
+    font-size: 12px;
+    line-height: 1.6;
+    letter-spacing: 0.04em;
+    color: #effff4;
+  }
+
+  .guide-block {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid rgba(156, 255, 156, 0.32);
+    background: rgba(8, 12, 10, 0.58);
+  }
+
+  .guide-block h3 {
+    margin: 0 0 6px;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .guide-block p {
+    margin: 0;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.55;
+  }
+
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(10px, 1.1vw, 16px);
+    align-content: start;
+  }
+
+  .game-card {
+    text-decoration: none;
+    color: inherit;
+    border: 2px solid rgba(156, 255, 156, 0.45);
+    background: rgba(8, 14, 11, 0.9);
+    padding: 14px;
+    min-height: clamp(210px, 31vh, 290px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+  }
+
+  .game-card::before {
+    content: "";
+    position: absolute;
+    inset: auto -18% -64%;
+    height: 120px;
+    background: radial-gradient(circle at 50% 0%, rgba(0, 255, 0, 0.18), rgba(0, 255, 0, 0));
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .game-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 255, 0, 0.14);
+    opacity: 0;
+    transition: opacity 140ms ease;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .game-card > * {
+    position: relative;
+    z-index: 2;
+  }
+
+  .game-card:hover,
+  .game-card:focus-visible {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(0, 255, 0, 0.12), 0 18px 30px rgba(0, 0, 0, 0.45);
+    outline: none;
+  }
+
+  .game-card:hover::after,
+  .game-card:focus-visible::after {
+    opacity: 1;
+  }
+
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .game-name {
+    margin: 0;
+    font-size: clamp(20px, 2.1vw, 30px);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #ffffff;
+  }
+
+  .game-tag {
+    margin: 0;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #102012;
+    background: rgba(156, 255, 156, 0.84);
+    padding: 4px 7px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  .card-text {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.6;
+    letter-spacing: 0.04em;
+    color: #effff4;
+  }
+
+  .spec {
+    margin: 0;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.4;
+  }
+
+  .open {
+    margin-top: auto;
+    font-size: 13px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  @media (max-width: 1220px) {
+    .games-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (min-width: 981px) {
+    .hub {
+      height: clamp(460px, 78dvh, 820px);
+      overflow: hidden;
+    }
+
+    .panel {
+      overflow: auto;
+    }
+  }
+
+  @media (max-width: 980px) {
+    .topbar {
+      gap: 12px;
+    }
+    .content {
+      grid-template-columns: 1fr;
+    }
+    .games-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 680px) {
+    body {
+      align-items: start;
+      padding:
+        max(12px, env(safe-area-inset-top))
+        max(12px, env(safe-area-inset-right))
+        max(12px, env(safe-area-inset-bottom))
+        max(12px, env(safe-area-inset-left));
+    }
+    body::before {
+      background-size: 26px 26px;
+      opacity: 0.24;
+    }
+    body::after {
+      width: 120vw;
+      height: 120vw;
+      max-width: 760px;
+      max-height: 760px;
+      filter: blur(16px);
+    }
+    .hub {
+      width: min(100%, 560px);
+      min-height: calc(100dvh - 72px);
+      padding: 14px;
+      gap: 12px;
+    }
+    .content {
+      gap: 10px;
+    }
+    .panel {
+      padding: 12px;
+    }
+    .panel-title {
+      font-size: 15px;
+    }
+    .games-grid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    .game-card {
+      min-height: 210px;
+      padding: 14px;
+    }
+    .game-name {
+      font-size: clamp(22px, 8vw, 28px);
+    }
+    .title {
+      font-size: clamp(30px, 10vw, 44px);
+      letter-spacing: 0.11em;
+    }
+    .open {
+      font-size: 12px;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .hub {
+      min-height: auto;
+    }
+    .game-card {
+      min-height: 188px;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="page-shell">
+    <main class="hub">
+      <header class="topbar">
+        <section>
+          <p class="eyebrow">Game Launcher</p>
+          <h1 class="title">Arcade Collection</h1>
+        </section>
+      </header>
+
+      <section class="content">
+        <aside class="panel overview">
+          <h2 class="panel-title">Quick Guide</h2>
+          <p>Choose any game card on the right to open that game instantly.</p>
+          <p>Start the game from its intro screen and follow the controls sheet inside the game.</p>
+          <p>You can play on <b>computer</b> or <b>smartphone</b>.</p>
+          <div class="guide-block">
+            <h3>Computer</h3>
+            <p>Use keyboard and mouse for precise movement, faster reactions, and better accuracy during longer sessions.</p>
+          </div>
+          <div class="guide-block">
+            <h3>Smartphone</h3>
+            <p>Use touch gestures and on-screen buttons. Hold your phone comfortably and play in short quick sessions.</p>
+          </div>
+        </aside>
+
+        <section class="panel library" aria-label="Game library">
+          <h2 class="panel-title">Game Library</h2>
+          <div class="games-grid">
+            <a class="game-card" href="./fetch.html">
+              <header class="card-head">
+                <h3 class="game-name">Fetch</h3>
+                <p class="game-tag">Reflex</p>
+              </header>
+              <p class="card-text">Chase targets under pressure and reach victory score with quick movement and timing.</p>
+              <span class="open">Open Game</span>
+            </a>
+
+            <a class="game-card" href="./bricks.html">
+              <header class="card-head">
+                <h3 class="game-name">Bricks</h3>
+                <p class="game-tag">Puzzle</p>
+              </header>
+              <p class="card-text">Stack pieces, clear lines, and manage speed progression while tracking score and elapsed time.</p>
+              <span class="open">Open Game</span>
+            </a>
+
+            <a class="game-card" href="./escape.html">
+              <header class="card-head">
+                <h3 class="game-name">Escape</h3>
+                <p class="game-tag">Action</p>
+              </header>
+              <p class="card-text">Dodge red threats, collect blue boosts, and fire to survive as long as possible.</p>
+              <span class="open">Open Game</span>
+            </a>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <div class="back-link-row">
+      <a class="back-link" href="./index.html">Back to Main Menu</a>
+    </div>
+  </div>
+</body>
+</html>

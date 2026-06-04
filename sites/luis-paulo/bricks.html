@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#050706">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link href="https://fonts.cdnfonts.com/css/silom" rel="stylesheet">
+<title>Bricks</title>
+<style>
+  :root {
+    --screen-bg: #161a18;
+    --screen-border: #9cff9c;
+    --hud-text: #ffffff;
+    --hud-label: rgba(255, 255, 255, 0.72);
+    --accent: #00ff00;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    font-family: "Silom", "Monaco", "Courier New", monospace;
+  }
+
+  html, body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+    background: #050706;
+    font-family: "Silom", "Monaco", "Courier New", monospace;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    overscroll-behavior: none;
+  }
+
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: linear-gradient(180deg, #0a0f0d 0%, #101917 52%, #050706 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+    color: white;
+    font-family: "Silom", "Monaco", "Courier New", monospace;
+    user-select: none;
+    position: relative;
+  }
+
+  body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0, 255, 0, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 255, 0, 0.06) 1px, transparent 1px);
+    background-size: 36px 36px;
+    opacity: 0.28;
+    pointer-events: none;
+  }
+
+  body::after {
+    content: "";
+    position: absolute;
+    width: 980px;
+    height: 980px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 255, 0, 0.11) 0%, rgba(0, 255, 0, 0.045) 34%, rgba(0, 255, 0, 0.015) 56%, transparent 72%);
+    filter: blur(20px);
+    pointer-events: none;
+  }
+
+  .game-shell {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 1;
+    width: min(94vw, 920px);
+  }
+
+  .screen-shell,
+  .screen-stage {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .play-area {
+    display: block;
+  }
+
+  .canvas-box {
+    position: relative;
+  }
+
+  .screen-sidebar {
+    order: -1;
+    display: flex;
+    align-items: flex-end;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+
+  .meta-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 86px;
+  }
+
+  .meta-panel-time {
+    margin-left: auto;
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .meta-label {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--hud-label);
+  }
+
+  .meta-value {
+    font-size: 16px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+    color: var(--hud-text);
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.85);
+  }
+
+  .screen-brand {
+    display: none;
+  }
+
+  #gameCanvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    background-color: var(--screen-bg);
+    border: 2px solid var(--screen-border);
+    cursor: pointer;
+    box-shadow: 0 0 0 2px rgba(90, 255, 170, 0.08), 0 18px 45px rgba(0, 0, 0, 0.45);
+    image-rendering: pixelated;
+    touch-action: none;
+  }
+
+  #message {
+    position: absolute;
+    top: 44px;
+    right: 10px;
+    font-size: 16px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.85);
+  }
+
+  .center-message {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 22px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #ffffff;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.85);
+    display: none;
+    padding: 6px 12px;
+    background: rgba(10, 14, 12, 0.55);
+    border: 2px solid rgba(156, 255, 156, 0.6);
+  }
+
+  .game-over-stack {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transform: translateX(4px);
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  .game-over-text {
+    font-size: 34px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #fff6a3;
+    transform: translateX(1px);
+    text-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
+  }
+
+  .game-over-stack.is-active .game-over-text {
+    animation: gameOverColorShift 0.9s ease-in-out infinite alternate;
+  }
+
+
+  .overlay-panel {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: linear-gradient(180deg, rgba(11, 18, 15, 0.82) 0%, rgba(11, 18, 15, 0.82) 100%);
+    z-index: 10;
+  }
+
+  .overlay-card {
+    width: min(100%, 420px);
+    padding: 24px 22px;
+    border: 2px solid var(--screen-border);
+    background: rgba(14, 22, 18, 0.96);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.38);
+    text-align: center;
+    box-sizing: border-box;
+    margin: auto;
+    transform: translateY(14px);
+  }
+
+  .overlay-card h1 {
+    margin: 0 0 14px;
+    font-size: 28px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .overlay-card p {
+    margin: 0 0 10px;
+    font-size: 14px;
+    line-height: 1.6;
+    letter-spacing: 0.04em;
+    color: #effff4;
+  }
+
+  .overlay-card strong {
+    color: #00ff00;
+  }
+
+  .controls-sheet {
+    margin: 12px 0 10px;
+    padding: 10px 12px;
+    border: 1px solid rgba(141, 255, 183, 0.35);
+    background: rgba(9, 14, 12, 0.65);
+    text-align: left;
+  }
+
+  .controls-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 10px;
+    align-items: center;
+  }
+
+  .controls-key {
+    min-width: 70px;
+    padding: 2px 6px;
+    border: 1px solid rgba(156, 255, 156, 0.45);
+    background: rgba(156, 255, 156, 0.1);
+    color: #ffffff;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: center;
+    box-sizing: border-box;
+  }
+
+  .controls-action {
+    color: #effff4;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    line-height: 1.3;
+  }
+
+  .controls-group[hidden] {
+    display: none;
+  }
+
+  .device-note {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    line-height: 1.4;
+    letter-spacing: 0.04em;
+    color: rgba(255, 255, 255, 0.72);
+    text-align: center;
+    z-index: 11;
+    pointer-events: none;
+    white-space: normal;
+    width: min(96vw, 920px);
+  }
+
+  .device-note .note-key {
+    display: inline-block;
+    padding: 1px 6px;
+    margin: 0 1px;
+    border: 1px solid rgba(156, 255, 156, 0.62);
+    background: rgba(156, 255, 156, 0.16);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 3px;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.28);
+    vertical-align: baseline;
+  }
+
+  .device-note .note-sep {
+    opacity: 0.72;
+    margin: 0 4px;
+  }
+
+  .menu-button {
+    margin-top: 14px;
+    padding: 12px 18px;
+    border: 2px solid #ffffff;
+    background: #111111;
+    color: #ffffff;
+    font: bold 16px "Silom", "Monaco", monospace;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.85);
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.65);
+    cursor: pointer;
+  }
+
+  .menu-button:hover {
+    background: #1d1d1d;
+  }
+
+  .menu-button:active {
+    transform: translateY(2px);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.65);
+  }
+
+  #restartButton,
+  #arcadeButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 18px;
+    border: 2px solid #ffffff;
+    background: #111111;
+    color: #ffffff;
+    font: bold 16px "Silom", "Monaco", monospace;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.85);
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.65);
+    cursor: pointer;
+  }
+
+  #restartButton:hover,
+  #arcadeButton:hover {
+    background: #1d1d1d;
+  }
+
+  #restartButton:active,
+  #arcadeButton:active {
+    transform: translateY(2px);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.65);
+  }
+
+  .game-over-stack #restartButton,
+  .game-over-stack #arcadeButton {
+    pointer-events: auto;
+    margin-left: -3px;
+  }
+
+  @keyframes gameOverColorShift {
+    from {
+      color: #fff6a3;
+      text-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
+    }
+    to {
+      color: #00ff00;
+      text-shadow: 0 3px 14px rgba(124, 252, 0, 0.85);
+    }
+  }
+
+  .touch-hud {
+    display: none;
+    grid-template-columns: auto auto;
+    justify-content: center;
+    align-items: end;
+    gap: 28px;
+    margin-top: 18px;
+  }
+
+  .touch-mode .touch-hud {
+    display: grid;
+  }
+
+  .touch-console {
+    display: none;
+  }
+
+  .start-open .touch-console,
+  .start-open .device-note {
+    display: none !important;
+  }
+
+  .touch-actions {
+    display: none;
+  }
+
+  .console-switches,
+  .console-brand-main,
+  .screen-brand {
+    display: none;
+  }
+
+  .touch-pad {
+    display: grid;
+    grid-template-columns: repeat(3, 56px);
+    grid-template-rows: repeat(3, 56px);
+    gap: 14px;
+  }
+
+  .touch-button {
+    border: 2px solid #4e4e4e;
+    background: linear-gradient(180deg, #3a3a3a 0%, #141414 100%);
+    color: #f0f0f0;
+    font: bold 20px "Silom", "Monaco", monospace;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.85);
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .touch-button:active,
+  .touch-button.is-active {
+    transform: translateY(2px);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.7);
+    background: linear-gradient(180deg, #4a4a4a 0%, #1f1f1f 100%);
+  }
+
+  .touch-button-up { grid-column: 2; grid-row: 1; }
+  .touch-button-left { grid-column: 1; grid-row: 2; }
+  .touch-button-right { grid-column: 3; grid-row: 2; }
+  .touch-button-down { grid-column: 2; grid-row: 3; }
+
+  .catch-button {
+    min-width: 104px;
+    height: 120px;
+    padding: 0 18px;
+    align-self: stretch;
+  }
+
+  body.touch-mode {
+    padding: 16px;
+    align-items: center;
+  }
+
+  body.touch-mode .game-shell {
+    width: min(92vw, 560px);
+    max-width: 560px;
+    padding: 0;
+    gap: 12px;
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  body.touch-mode.touch-portrait .game-shell {
+    width: min(94vw, 360px);
+    max-width: 360px;
+  }
+
+  body.touch-mode .screen-stage {
+    gap: 10px;
+  }
+
+  body.touch-mode .screen-sidebar {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+    align-items: end;
+  }
+
+  body.touch-mode .meta-panel {
+    min-width: 0;
+    align-items: center;
+    text-align: center;
+    gap: 2px;
+  }
+
+  body.touch-mode .meta-panel-time {
+    margin-left: 0;
+    align-items: center;
+    text-align: center;
+  }
+
+  body.touch-mode .meta-label {
+    font-size: 9px;
+    letter-spacing: 0.08em;
+  }
+
+  body.touch-mode .meta-value {
+    font-size: 12px;
+    letter-spacing: 0.06em;
+  }
+
+  body.touch-mode #gameCanvas {
+    cursor: default;
+  }
+
+  body.touch-mode.touch-portrait #gameCanvas {
+    aspect-ratio: 3 / 4;
+  }
+
+  body.touch-mode #message {
+    top: 44px;
+    right: 10px;
+    font-size: 16px;
+  }
+
+  body.touch-mode .touch-console {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    order: 2;
+  }
+
+  body.touch-mode .touch-hud {
+    order: 1;
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: center;
+    align-items: center;
+    gap: 64px;
+    margin-top: 0;
+    transform: none;
+  }
+
+  body.touch-mode.touch-portrait .touch-hud {
+    gap: 24px;
+    transform: none;
+  }
+
+  body.touch-mode .touch-pad {
+    grid-template-columns: repeat(3, 58px);
+    grid-template-rows: repeat(3, 58px);
+    gap: 18px;
+  }
+
+  body.touch-mode.touch-portrait .touch-pad {
+    grid-template-columns: repeat(3, 44px);
+    grid-template-rows: repeat(3, 44px);
+    gap: 10px;
+  }
+
+  body.touch-mode .touch-button {
+    width: 58px;
+    height: 58px;
+    padding: 0;
+    border: 2px solid #1e1e1e;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #9a9a9a 0%, #474747 42%, #0f0f0f 100%);
+    color: #f2f2f2;
+    font-size: 22px;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+    box-shadow: 0 4px 0 #0a0a0a, 0 12px 18px rgba(0, 0, 0, 0.45);
+  }
+
+  body.touch-mode .touch-button:active,
+  body.touch-mode .touch-button.is-active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #0a0a0a, 0 7px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  body.touch-mode .touch-action-button {
+    width: auto;
+    min-width: 92px;
+    height: 42px;
+    border-radius: 10px;
+    padding: 0 16px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+
+  body.touch-mode.touch-portrait .touch-button {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+  }
+
+  body.touch-mode.touch-portrait .touch-action-button {
+    min-width: 72px;
+    height: 34px;
+    font-size: 10px;
+    padding: 0 12px;
+  }
+
+  body.touch-mode .catch-button {
+    width: 88px;
+    min-width: 88px;
+    height: 88px;
+    align-self: center;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+  }
+
+  body.touch-mode.touch-portrait .catch-button {
+    width: 62px;
+    min-width: 62px;
+    height: 62px;
+    font-size: 10px;
+  }
+
+  body.touch-mode .touch-actions {
+    order: -1;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    width: 100%;
+    transform: none;
+  }
+
+  body.touch-mode .device-note {
+    position: static;
+    order: 1;
+    left: auto;
+    top: auto;
+    transform: none;
+    width: 100%;
+    max-width: 100%;
+    margin: 2px 0 4px;
+    font-size: 10px;
+  }
+
+  @media (max-width: 900px) {
+    body::after {
+      width: 92vw;
+      height: 92vw;
+      max-width: 820px;
+      max-height: 820px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    body {
+      padding: 14px;
+    }
+
+    body::before {
+      background-size: 24px 24px;
+    }
+
+    .game-shell {
+      width: min(94vw, 720px);
+      gap: 6px;
+    }
+
+    .meta-label {
+      font-size: 10px;
+    }
+
+    .meta-value {
+      font-size: 13px;
+      letter-spacing: 0.12em;
+    }
+
+    #message {
+      top: 36px;
+      right: 8px;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+    }
+
+    #restartButton,
+    #arcadeButton {
+      padding: 9px 14px;
+      font-size: 13px;
+    }
+
+    body.touch-mode {
+      padding: 10px;
+    }
+
+    body.touch-mode.touch-portrait .game-shell {
+      width: min(94vw, 340px);
+      max-width: 340px;
+    }
+
+    body.touch-mode .screen-sidebar {
+      gap: 6px;
+    }
+
+    body.touch-mode .meta-label {
+      font-size: 8px;
+      letter-spacing: 0.06em;
+    }
+
+    body.touch-mode .meta-value {
+      font-size: 11px;
+      letter-spacing: 0.04em;
+    }
+
+    body.touch-mode .touch-button {
+      width: 48px;
+      height: 48px;
+      font-size: 18px;
+    }
+
+    body.touch-mode .touch-action-button {
+      min-width: 74px;
+      height: 34px;
+      font-size: 10px;
+      padding: 0 10px;
+    }
+
+    body.touch-mode .catch-button {
+      width: 74px;
+      min-width: 74px;
+      height: 74px;
+      font-size: 11px;
+    }
+
+    body.touch-mode.touch-portrait .catch-button {
+      width: 66px;
+      min-width: 66px;
+      height: 66px;
+      font-size: 10px;
+    }
+
+    body.touch-mode #message {
+      top: 36px;
+      right: 8px;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+    }
+
+    .overlay-panel {
+      padding: 14px;
+    }
+
+    .overlay-card {
+      padding: 18px 16px;
+      transform: translateY(10px);
+    }
+
+    .overlay-card h1 {
+      font-size: 22px;
+    }
+
+    .overlay-card p {
+      font-size: 12px;
+    }
+
+    .controls-key {
+      min-width: 64px;
+      font-size: 10px;
+    }
+
+    .controls-action {
+      font-size: 11px;
+    }
+
+    .menu-button {
+      width: 100%;
+      font-size: 14px;
+    }
+
+    .device-note {
+      top: calc(100% + 8px);
+      font-size: 10px;
+      width: min(94vw, 320px);
+    }
+
+    .device-note .note-key {
+      font-size: 9px;
+      padding: 1px 5px;
+    }
+  }
+</style>
+</head>
+<body class="start-open">
+
+<div class="game-shell">
+  <div class="screen-shell">
+    <div class="screen-stage">
+      <div class="play-area">
+        <div class="canvas-box">
+          <div id="message"></div>
+          <div id="centerMessage" class="center-message"></div>
+          <div id="gameOverStack" class="game-over-stack">
+            <div class="game-over-text">GAME OVER</div>
+            <button id="restartButton" type="button">Restart</button>
+            <button id="arcadeButton" type="button">Back to Arcade</button>
+          </div>
+          <canvas id="gameCanvas" width="720" height="480"></canvas>
+        </div>
+      </div>
+      <div class="screen-sidebar">
+        <div class="meta-panel">
+          <span class="meta-label">Score</span>
+          <div id="score" class="meta-value">00000</div>
+        </div>
+        <div class="meta-panel">
+          <span class="meta-label">Lines</span>
+          <div id="lines" class="meta-value">00</div>
+        </div>
+        <div class="meta-panel">
+          <span class="meta-label">Level</span>
+          <div id="level" class="meta-value">1</div>
+        </div>
+        <div class="meta-panel meta-panel-time">
+          <span class="meta-label">Time</span>
+          <div id="elapsedTimer" class="meta-value">00:00</div>
+        </div>
+      </div>
+    </div>
+    <div class="screen-brand">Bricks</div>
+  </div>
+
+  <div class="touch-console">
+    <div class="console-switches" aria-hidden="true"></div>
+    <div id="touchHud" class="touch-hud" aria-label="Touch controls">
+      <div class="touch-pad">
+        <button class="touch-button touch-button-up" data-direction="up" type="button" aria-label="Rotate">▲</button>
+        <button class="touch-button touch-button-left" data-direction="left" type="button" aria-label="Move left">◀</button>
+        <button class="touch-button touch-button-right" data-direction="right" type="button" aria-label="Move right">▶</button>
+        <button class="touch-button touch-button-down" data-direction="down" type="button" aria-label="Soft drop">▼</button>
+      </div>
+      <button id="dropButton" class="touch-button catch-button" type="button">Drop</button>
+    </div>
+    <div class="touch-actions" aria-label="Touch actions">
+      <button id="pauseTouchButton" class="touch-button touch-action-button" type="button">Pause</button>
+      <button id="resetTouchButton" class="touch-button touch-action-button" type="button">Reset</button>
+    </div>
+    <div class="console-brand-main">Bricks</div>
+  </div>
+
+  <div id="startOverlay" class="overlay-panel">
+    <div class="overlay-card">
+      <h1>Bricks</h1>
+      <p>Stack the falling blocks and clear full lines to score.</p>
+      <p id="controlsLine"></p>
+      <div class="controls-sheet" aria-label="Controls sheet">
+        <div id="keyboardControlsSheet" class="controls-group">
+          <div class="controls-grid">
+            <span class="controls-key">← / →</span><span class="controls-action">Move</span>
+            <span class="controls-key">↑</span><span class="controls-action">Rotate</span>
+            <span class="controls-key">↓</span><span class="controls-action">Soft drop</span>
+            <span class="controls-key">Space</span><span class="controls-action">Hard drop</span>
+            <span class="controls-key">P</span><span class="controls-action">Pause / Resume</span>
+            <span class="controls-key">R</span><span class="controls-action">Restart</span>
+          </div>
+        </div>
+        <div id="touchControlsSheet" class="controls-group" hidden>
+          <div class="controls-grid">
+            <span class="controls-key">▲</span><span class="controls-action">Rotate</span>
+            <span class="controls-key">◀ / ▶</span><span class="controls-action">Move left / right</span>
+            <span class="controls-key">▼</span><span class="controls-action">Soft drop</span>
+            <span class="controls-key">Drop</span><span class="controls-action">Hard drop</span>
+            <span class="controls-key">Pause</span><span class="controls-action">Pause / Resume</span>
+            <span class="controls-key">Reset</span><span class="controls-action">Restart game</span>
+          </div>
+        </div>
+      </div>
+      <p><strong>Tip:</strong> Every 10 lines the speed increases.</p>
+      <button id="startButton" class="menu-button" type="button">Start Game</button>
+    </div>
+  </div>
+
+  <p id="deviceNote" class="device-note"></p>
+</div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const scoreEl = document.getElementById('score');
+const linesEl = document.getElementById('lines');
+const levelEl = document.getElementById('level');
+const timerEl = document.getElementById('elapsedTimer');
+const messageEl = document.getElementById('message');
+const centerMessage = document.getElementById('centerMessage');
+const gameOverStack = document.getElementById('gameOverStack');
+const startOverlay = document.getElementById('startOverlay');
+const startButton = document.getElementById('startButton');
+const restartButton = document.getElementById('restartButton');
+const arcadeButton = document.getElementById('arcadeButton');
+const dropButton = document.getElementById('dropButton');
+const pauseTouchButton = document.getElementById('pauseTouchButton');
+const resetTouchButton = document.getElementById('resetTouchButton');
+const directionButtons = Array.from(document.querySelectorAll('[data-direction]'));
+const controlsLine = document.getElementById('controlsLine');
+const keyboardControlsSheet = document.getElementById('keyboardControlsSheet');
+const touchControlsSheet = document.getElementById('touchControlsSheet');
+const deviceNote = document.getElementById('deviceNote');
+
+const COLS = 10;
+const ROWS = 20;
+
+const PALETTE = [
+  '#2f3d2b', '#3d4a2f', '#32453c', '#2f454b', '#3a3f4a', '#4b3f2f',
+  '#4a3428', '#4c2e2e', '#3f2f4a', '#2e3a4a', '#3f4a2e', '#4a4a2e'
+];
+
+const SHAPES = [
+  [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
+  [[1,1],[1,1]],
+  [[0,1,0],[1,1,1],[0,0,0]],
+  [[0,1,1],[1,1,0],[0,0,0]],
+  [[1,1,0],[0,1,1],[0,0,0]],
+  [[1,0,0],[1,1,1],[0,0,0]],
+  [[0,0,1],[1,1,1],[0,0,0]]
+];
+
+const touchMode = window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+const landscapeCanvasSize = { width: 720, height: 480 };
+const portraitCanvasSize = { width: 330, height: 440 };
+const touchIntervals = {};
+
+let board = [];
+let current = null;
+let score = 0;
+let lines = 0;
+let level = 1;
+let dropCounter = 0;
+let dropInterval = 800;
+let lastTime = 0;
+let running = false;
+let paused = false;
+let gameOver = false;
+
+let elapsedMs = 0;
+let timerStartMs = null;
+let lastRenderedSecond = -1;
+
+function initBoard() {
+  board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+}
+
+function randomPiece() {
+  const pick = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+  return {
+    matrix: pick.map(row => row.slice()),
+    color: Math.floor(Math.random() * PALETTE.length) + 1,
+    x: Math.floor(COLS / 2) - Math.ceil(pick[0].length / 2),
+    y: -1
+  };
+}
+
+function rotateMatrix(matrix) {
+  const size = matrix.length;
+  const rotated = Array.from({ length: size }, () => Array(size).fill(0));
+  for (let y = 0; y < size; y += 1) {
+    for (let x = 0; x < size; x += 1) {
+      rotated[x][size - 1 - y] = matrix[y][x];
+    }
+  }
+  return rotated;
+}
+
+function collide(piece, offsetX = 0, offsetY = 0) {
+  const { matrix, x, y } = piece;
+  for (let row = 0; row < matrix.length; row += 1) {
+    for (let col = 0; col < matrix[row].length; col += 1) {
+      if (!matrix[row][col]) continue;
+      const newX = x + col + offsetX;
+      const newY = y + row + offsetY;
+      if (newX < 0 || newX >= COLS || newY >= ROWS) return true;
+      if (newY >= 0 && board[newY][newX]) return true;
+    }
+  }
+  return false;
+}
+
+function merge(piece) {
+  const { matrix, x, y, color } = piece;
+  for (let row = 0; row < matrix.length; row += 1) {
+    for (let col = 0; col < matrix[row].length; col += 1) {
+      if (matrix[row][col] && y + row >= 0) {
+        board[y + row][x + col] = color;
+      }
+    }
+  }
+}
+
+function clearLines() {
+  let cleared = 0;
+  for (let row = ROWS - 1; row >= 0; row -= 1) {
+    if (board[row].every(cell => cell !== 0)) {
+      board.splice(row, 1);
+      board.unshift(Array(COLS).fill(0));
+      cleared += 1;
+      row += 1;
+    }
+  }
+
+  if (cleared > 0) {
+    const rewards = [0, 100, 300, 500, 800];
+    score += rewards[cleared] * level;
+    lines += cleared;
+    const newLevel = Math.floor(lines / 10) + 1;
+    if (newLevel !== level) {
+      level = newLevel;
+      dropInterval = Math.max(120, 800 - (level - 1) * 60);
+    }
+    updateHud();
+  }
+}
+
+function getElapsedMs() {
+  if (timerStartMs === null) return elapsedMs;
+  return elapsedMs + (performance.now() - timerStartMs);
+}
+
+function formatElapsed(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+function renderElapsedTimer() {
+  const elapsedSeconds = Math.floor(getElapsedMs() / 1000);
+  if (elapsedSeconds === lastRenderedSecond) return;
+  lastRenderedSecond = elapsedSeconds;
+  timerEl.textContent = formatElapsed(getElapsedMs());
+}
+
+function startElapsedTimer() {
+  if (timerStartMs !== null) return;
+  timerStartMs = performance.now();
+}
+
+function stopElapsedTimer() {
+  if (timerStartMs === null) return;
+  elapsedMs += performance.now() - timerStartMs;
+  timerStartMs = null;
+  renderElapsedTimer();
+}
+
+function updatePauseButtonLabel() {
+  pauseTouchButton.textContent = paused ? 'Resume' : 'Pause';
+}
+
+function spawn() {
+  current = randomPiece();
+  if (collide(current)) {
+    gameOver = true;
+    running = false;
+    paused = false;
+    stopElapsedTimer();
+    updatePauseButtonLabel();
+    messageEl.textContent = '';
+    centerMessage.textContent = '';
+    centerMessage.style.display = 'none';
+    gameOverStack.style.display = 'flex';
+    gameOverStack.classList.add('is-active');
+    restartButton.textContent = 'Play Again';
+  }
+}
+
+function updateHud() {
+  scoreEl.textContent = String(score).padStart(5, '0');
+  linesEl.textContent = String(lines).padStart(2, '0');
+  levelEl.textContent = String(level);
+}
+
+function resetGame() {
+  initBoard();
+  score = 0;
+  lines = 0;
+  level = 1;
+  dropInterval = 800;
+  dropCounter = 0;
+  lastTime = 0;
+  running = true;
+  paused = false;
+  gameOver = false;
+
+  elapsedMs = 0;
+  timerStartMs = performance.now();
+  lastRenderedSecond = -1;
+  renderElapsedTimer();
+  updatePauseButtonLabel();
+
+  updateHud();
+  messageEl.textContent = '';
+  centerMessage.textContent = '';
+  centerMessage.style.display = 'none';
+  gameOverStack.style.display = 'none';
+  gameOverStack.classList.remove('is-active');
+  restartButton.textContent = 'Restart';
+  spawn();
+}
+
+function togglePause() {
+  if (!running || gameOver) return;
+  paused = !paused;
+  if (paused) {
+    stopElapsedTimer();
+  } else {
+    startElapsedTimer();
+  }
+  updatePauseButtonLabel();
+  gameOverStack.style.display = 'none';
+  gameOverStack.classList.remove('is-active');
+  centerMessage.textContent = paused ? 'PAUSED' : '';
+  centerMessage.style.display = paused ? 'block' : 'none';
+}
+
+function move(dx) {
+  if (!running || paused || gameOver) return;
+  if (!collide(current, dx, 0)) current.x += dx;
+}
+
+function rotate() {
+  if (!running || paused || gameOver) return;
+  const rotated = rotateMatrix(current.matrix);
+  const original = current.matrix;
+  current.matrix = rotated;
+
+  if (collide(current)) {
+    if (!collide(current, -1, 0)) {
+      current.x -= 1;
+    } else if (!collide(current, 1, 0)) {
+      current.x += 1;
+    } else {
+      current.matrix = original;
+    }
+  }
+}
+
+function softDrop() {
+  if (!running || paused || gameOver) return;
+  if (!collide(current, 0, 1)) {
+    current.y += 1;
+    score += 1;
+    updateHud();
+  } else {
+    lockPiece();
+  }
+}
+
+function hardDrop() {
+  if (!running || paused || gameOver) return;
+  let drops = 0;
+  while (!collide(current, 0, 1)) {
+    current.y += 1;
+    drops += 1;
+  }
+  score += drops * 2;
+  updateHud();
+  lockPiece();
+}
+
+function lockPiece() {
+  merge(current);
+  clearLines();
+  spawn();
+}
+
+function drop() {
+  if (!collide(current, 0, 1)) {
+    current.y += 1;
+  } else {
+    lockPiece();
+  }
+  dropCounter = 0;
+}
+
+function getBoardMetrics() {
+  const margin = 20;
+  const cellSize = Math.floor(Math.min((canvas.width - margin * 2) / COLS, (canvas.height - margin * 2) / ROWS));
+  const boardWidth = cellSize * COLS;
+  const boardHeight = cellSize * ROWS;
+  const offsetX = Math.floor((canvas.width - boardWidth) / 2);
+  const offsetY = Math.floor((canvas.height - boardHeight) / 2);
+  return { cellSize, boardWidth, boardHeight, offsetX, offsetY };
+}
+
+function drawCell(x, y, color, metrics) {
+  const { cellSize, offsetX, offsetY } = metrics;
+  const palette = PALETTE[(color - 1) % PALETTE.length];
+  const px = offsetX + x * cellSize;
+  const py = offsetY + y * cellSize;
+  const size = cellSize;
+
+  ctx.fillStyle = palette;
+  ctx.fillRect(px + 1, py + 1, size - 2, size - 2);
+}
+
+function drawBoard() {
+  const metrics = getBoardMetrics();
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#161a18';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = '#0e1411';
+  ctx.fillRect(metrics.offsetX - 6, metrics.offsetY - 6, metrics.boardWidth + 12, metrics.boardHeight + 12);
+
+  ctx.strokeStyle = 'rgba(156, 255, 156, 0.2)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(metrics.offsetX - 6, metrics.offsetY - 6, metrics.boardWidth + 12, metrics.boardHeight + 12);
+
+  for (let row = 0; row < ROWS; row += 1) {
+    for (let col = 0; col < COLS; col += 1) {
+      if (board[row][col]) drawCell(col, row, board[row][col], metrics);
+    }
+  }
+
+  if (current) {
+    const { matrix, x, y, color } = current;
+    for (let row = 0; row < matrix.length; row += 1) {
+      for (let col = 0; col < matrix[row].length; col += 1) {
+        if (matrix[row][col] && y + row >= 0) {
+          drawCell(x + col, y + row, color, metrics);
+        }
+      }
+    }
+  }
+
+  ctx.strokeStyle = 'rgba(80, 90, 70, 0.28)';
+  ctx.lineWidth = 1;
+
+  for (let row = 0; row <= ROWS; row += 1) {
+    ctx.beginPath();
+    ctx.moveTo(metrics.offsetX, metrics.offsetY + row * metrics.cellSize);
+    ctx.lineTo(metrics.offsetX + metrics.boardWidth, metrics.offsetY + row * metrics.cellSize);
+    ctx.stroke();
+  }
+
+  for (let col = 0; col <= COLS; col += 1) {
+    ctx.beginPath();
+    ctx.moveTo(metrics.offsetX + col * metrics.cellSize, metrics.offsetY);
+    ctx.lineTo(metrics.offsetX + col * metrics.cellSize, metrics.offsetY + metrics.boardHeight);
+    ctx.stroke();
+  }
+}
+
+function update(time = 0) {
+  const delta = time - lastTime;
+  lastTime = time;
+
+  if (running && !paused && !gameOver) {
+    dropCounter += delta;
+    if (dropCounter > dropInterval) drop();
+  }
+
+  renderElapsedTimer();
+  drawBoard();
+  requestAnimationFrame(update);
+}
+
+function startGame() {
+  document.body.classList.remove('start-open');
+  startOverlay.style.display = 'none';
+  resetGame();
+}
+
+function applyTouchLayout() {
+  const shouldUsePortraitLayout = touchMode && window.innerHeight > window.innerWidth;
+  document.body.classList.toggle('touch-mode', touchMode);
+  document.body.classList.toggle('touch-portrait', shouldUsePortraitLayout);
+
+  const nextSize = shouldUsePortraitLayout ? portraitCanvasSize : landscapeCanvasSize;
+  canvas.width = nextSize.width;
+  canvas.height = nextSize.height;
+}
+
+function updateDeviceText() {
+  if (touchMode) {
+    controlsLine.innerHTML = '<strong>Controls Sheet:</strong> Touch mode';
+    keyboardControlsSheet.hidden = true;
+    touchControlsSheet.hidden = false;
+    deviceNote.innerHTML = '<strong>Controls:</strong> <span class="note-key">▲</span> rotate <span class="note-sep">|</span> <span class="note-key">◀/▶</span> move <span class="note-sep">|</span> <span class="note-key">▼</span> soft drop';
+  } else {
+    controlsLine.innerHTML = '<strong>Controls Sheet:</strong> Keyboard';
+    keyboardControlsSheet.hidden = false;
+    touchControlsSheet.hidden = true;
+    deviceNote.innerHTML = '<strong>Controls:</strong> <span class="note-key">←/→</span> move <span class="note-sep">|</span> <span class="note-key">↑</span> rotate <span class="note-sep">|</span> <span class="note-key">↓</span> soft drop <span class="note-sep">|</span> <span class="note-key">Space</span> hard drop <span class="note-sep">|</span> <span class="note-key">P</span> pause <span class="note-sep">|</span> <span class="note-key">R</span> reset';
+  }
+}
+
+function clearTouchIntervals() {
+  Object.values(touchIntervals).forEach(intervalId => clearInterval(intervalId));
+  Object.keys(touchIntervals).forEach(key => delete touchIntervals[key]);
+}
+
+function startTouchRepeat(direction) {
+  if (touchIntervals[direction]) return;
+
+  const action = () => {
+    if (!running || paused || gameOver) return;
+    if (direction === 'left') move(-1);
+    if (direction === 'right') move(1);
+    if (direction === 'down') softDrop();
+  };
+
+  action();
+  const interval = direction === 'down' ? 70 : 100;
+  touchIntervals[direction] = setInterval(action, interval);
+}
+
+function stopTouchRepeat(direction) {
+  if (touchIntervals[direction]) {
+    clearInterval(touchIntervals[direction]);
+    delete touchIntervals[direction];
+  }
+}
+
+window.addEventListener('keydown', event => {
+  if (!running && event.key !== 'Enter') return;
+
+  if (['ArrowLeft', 'ArrowRight', 'ArrowDown', ' '].includes(event.key)) {
+    event.preventDefault();
+  }
+
+  switch (event.key) {
+    case 'ArrowLeft':
+      move(-1);
+      break;
+    case 'ArrowRight':
+      move(1);
+      break;
+    case 'ArrowDown':
+      softDrop();
+      break;
+    case 'ArrowUp':
+      rotate();
+      break;
+    case ' ':
+      hardDrop();
+      break;
+    case 'p':
+    case 'P':
+      togglePause();
+      break;
+    case 'r':
+    case 'R':
+      resetGame();
+      break;
+    case 'Enter':
+      if (!running) startGame();
+      break;
+    default:
+      break;
+  }
+});
+
+canvas.addEventListener('pointerdown', event => {
+  if (touchMode && event.pointerType === 'touch') return;
+  hardDrop();
+});
+
+startButton.addEventListener('click', startGame);
+restartButton.addEventListener('click', resetGame);
+arcadeButton.addEventListener('click', () => {
+  window.location.href = './arcade.html';
+});
+
+dropButton.addEventListener('pointerdown', event => {
+  event.preventDefault();
+  hardDrop();
+});
+
+pauseTouchButton.addEventListener('pointerdown', event => {
+  event.preventDefault();
+  togglePause();
+});
+
+resetTouchButton.addEventListener('pointerdown', event => {
+  event.preventDefault();
+  resetGame();
+});
+
+for (const button of directionButtons) {
+  button.addEventListener('pointerdown', event => {
+    event.preventDefault();
+    if (!touchMode) return;
+
+    const direction = event.currentTarget.dataset.direction;
+    if (direction === 'up') {
+      rotate();
+      return;
+    }
+
+    event.currentTarget.classList.add('is-active');
+    startTouchRepeat(direction);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  });
+
+  button.addEventListener('pointerup', event => {
+    const direction = event.currentTarget.dataset.direction;
+    event.currentTarget.classList.remove('is-active');
+    stopTouchRepeat(direction);
+  });
+
+  button.addEventListener('pointercancel', event => {
+    const direction = event.currentTarget.dataset.direction;
+    event.currentTarget.classList.remove('is-active');
+    stopTouchRepeat(direction);
+  });
+}
+
+window.addEventListener('resize', () => {
+  applyTouchLayout();
+  updateDeviceText();
+  drawBoard();
+});
+
+applyTouchLayout();
+updateDeviceText();
+updatePauseButtonLabel();
+renderElapsedTimer();
+initBoard();
+updateHud();
+messageEl.textContent = '';
+update();
+</script>
+
+</body>
+</html>
