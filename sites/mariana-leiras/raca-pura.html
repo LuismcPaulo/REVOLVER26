@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>RAÇA PURA</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+margin:0;
+background:#000;
+color:#fff;
+font-family:Helvetica, Arial, sans-serif;
+height:200vh;
+overflow-x:hidden;
+}
+
+/* HERO */
+
+.hero{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100vh;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+text-align:center;
+}
+
+h1{
+font-size:120px;
+letter-spacing:3px;
+margin:0;
+}
+
+/* DESLIZA */
+
+.desliza{
+margin-top:40px;
+font-size:18px;
+letter-spacing:6px;
+color:red;
+}
+
+.desliza span{
+display:inline-block;
+animation:salto 3.5s ease-in-out infinite;
+}
+
+.desliza span:nth-child(1){animation-delay:0s}
+.desliza span:nth-child(2){animation-delay:0.25s}
+.desliza span:nth-child(3){animation-delay:0.5s}
+.desliza span:nth-child(4){animation-delay:0.75s}
+.desliza span:nth-child(5){animation-delay:1s}
+.desliza span:nth-child(6){animation-delay:1.25s}
+.desliza span:nth-child(7){animation-delay:1.5s}
+
+@keyframes salto{
+0%,100%{transform:translateY(0);}
+50%{transform:translateY(-8px);}
+}
+
+/* OVERLAY */
+
+.overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100vh;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+transform:translateY(100%);
+z-index:5;
+}
+
+/* RETÂNGULO */
+
+.box{
+background:white;
+width:50%;
+padding:50px;
+border-radius:20px;
+font-family:'Courier Prime', monospace;
+line-height:1.35;
+}
+
+/* TEXTO */
+
+.intro{
+font-size:22px;
+color:#000;
+margin-bottom:18px;
+}
+
+.manifesto{
+font-size:18px;
+color:#777;
+}
+
+.final{
+font-size:22px;
+color:#000;
+margin-top:22px;
+}
+
+/* INFO */
+
+.info{
+width:50%;
+margin-top:45px;
+font-size:14px;
+color:#999;
+text-align:center;
+line-height:1.6;
+}
+
+.disclaimer{
+color:#fff;
+}
+
+/* SOCIAL */
+
+.social{
+margin:15px 0;
+}
+
+.social a{
+font-weight:bold;
+color:#fff;
+text-decoration:none;
+margin:0 15px;
+}
+
+.social a:hover{
+opacity:0.6;
+}
+
+/* VOLTAR */
+
+.voltar{
+margin-top:20px;
+}
+
+.voltar a{
+color:red;
+text-decoration:none;
+font-weight:bold;
+}
+
+.voltar a:hover{
+opacity:0.7;
+}
+
+/* CURSOR */
+
+.cursor{
+position:fixed;
+top:0;
+left:0;
+width:20px;
+height:20px;
+background:red;
+border-radius:50%;
+pointer-events:none;
+transform:translate(-50%,-50%);
+transition:background-color 0.2s, transform 0.1s;
+z-index:9999;
+}
+
+/* MOBILE */
+
+@media (max-width:768px){
+
+h1{
+font-size:52px;
+line-height:1.1;
+padding:0 20px;
+}
+
+.desliza{
+font-size:16px;
+letter-spacing:5px;
+}
+
+.box{
+width:96%;
+padding:45px;
+}
+
+.intro{
+font-size:26px;
+}
+
+.manifesto{
+font-size:22px;
+line-height:1.6;
+}
+
+.final{
+font-size:26px;
+}
+
+.info{
+width:92%;
+font-size:15px;
+line-height:1.7;
+padding-bottom:40px;
+}
+
+.social a{
+display:inline-block;
+margin:8px 12px;
+}
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="hero">
+
+<h1>Raça (Pura)</h1>
+
+<div class="desliza">
+<span>D</span>
+<span>E</span>
+<span>S</span>
+<span>L</span>
+<span>I</span>
+<span>Z</span>
+<span>A</span>
+</div>
+
+</div>
+
+
+<div class="overlay" id="overlay">
+
+<div class="box">
+
+<p class="intro">
+BREETHE surge da junção dos termos em inglês BREED, raça e BREATHE, respirar.
+</p>
+
+<p class="manifesto">
+Queremos bestialidades puras e belas. A humanidade e os cães.<br>
+Pureza em intenção e visual.<br>
+Criamos e procriamos animais braquicefálicos.<br>
+Procuramos raça mais do que uma vida.<br>
+Matamos o fôlego à pureza dos animais.<br>
+Obstruímos vias pela estética, enquanto condenamos a "impureza" ao abandono.<br>
+Queremos limpar e parecer limpos, renunciando os animais à chuva.<br>
+Expiramos a nossa raça, sem nunca saber o que é ser "puro".
+</p>
+
+<p class="final">
+Breathe Breed<br>
+Repetimos
+</p>
+
+</div>
+
+
+<div class="info">
+
+<p class="disclaimer">Site não oficial.</p>
+
+Projeto realizado no âmbito de Multimédia FBAUP 2026.
+<br>
+Para adoção de animais visite os meios oficiais.
+
+<div class="social">
+<a href="https://www.facebook.com/vetmunicipalvalongo/?locale=pt_PT" target="_blank">FACEBOOK</a>
+<a href="https://www.instagram.com/centrovetmunvalongo" target="_blank">INSTAGRAM</a>
+<a href="https://petify.pt/profiles/view/cvm-valongo-centro-de-recolha-oficial" target="_blank">PETIFY</a>
+</div>
+
++351 22 422 3039<br>
+GMVM@cm-valongo.pt<br>
+Rua de S. Domingos, Valongo, Portugal
+
+<div class="voltar">
+<a href="index.html">(Voltar à página inicial)</a>
+</div>
+
+</div>
+
+</div>
+
+<div class="cursor" id="customCursor"></div>
+
+<script>
+
+const overlay = document.getElementById('overlay');
+const isMobile = window.innerWidth <= 768;
+
+if(!isMobile){
+
+const cursor = document.getElementById('customCursor');
+
+document.body.style.cursor="none";
+
+document.addEventListener('mousemove', e=>{
+cursor.style.left = e.clientX + 'px';
+cursor.style.top = e.clientY + 'px';
+});
+
+document.addEventListener('mousedown', ()=>{
+cursor.style.backgroundColor='white';
+cursor.style.transform='translate(-50%,-50%) scale(0.8)';
+});
+
+document.addEventListener('mouseup', ()=>{
+cursor.style.backgroundColor='red';
+cursor.style.transform='translate(-50%,-50%) scale(1)';
+});
+
+}else{
+
+const cursor = document.getElementById('customCursor');
+if(cursor){
+cursor.remove();
+}
+
+}
+
+window.addEventListener("scroll", ()=>{
+
+const scroll = window.scrollY;
+const maxScroll = 500;
+
+let progress = scroll / maxScroll;
+
+if(progress > 1){
+progress = 1;
+}
+
+overlay.style.transform = "translateY(" + (100 - progress*100) + "%)";
+
+});
+
+</script>
+
+</body>
+</html>

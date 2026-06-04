@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>BREETHE</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+cursor:none;
+}
+
+body{
+background:#000;
+font-family:'Inter',Helvetica,Arial,sans-serif;
+color:#fff;
+height:100vh;
+overflow:hidden;
+position:relative;
+}
+
+:root{
+--col:calc(100vw / 14);
+--row:calc(100vh / 9);
+}
+
+.cursor{
+position:fixed;
+top:0;
+left:0;
+width:20px;
+height:20px;
+background:white;
+border-radius:50%;
+pointer-events:none;
+transform:translate(-50%,-50%);
+transition:background-color .2s,transform .1s;
+z-index:9999;
+}
+
+.video-wrapper{
+position:fixed;
+bottom:0;
+left:50%;
+transform:translateX(-50%);
+width:80%;
+max-width:800px;
+z-index:0;
+overflow:hidden;
+}
+
+.video-wrapper video{
+width:100%;
+object-fit:contain;
+display:block;
+filter:contrast(150%) brightness(110%) saturate(130%);
+}
+
+.container{
+position:relative;
+height:100vh;
+z-index:2;
+}
+
+.top-left{
+position:absolute;
+top:40px;
+left:60px;
+font-size:22px;
+font-weight:800;
+}
+
+.top-right{
+position:absolute;
+top:40px;
+right:60px;
+font-size:12px;
+font-weight:700;
+text-align:right;
+}
+
+.valongo{
+color:red;
+letter-spacing:5px;
+margin-right:20px;
+}
+
+.social-links{
+position:absolute;
+top:70px;
+right:60px;
+text-align:right;
+font-size:11px;
+font-weight:600;
+line-height:18px;
+}
+
+.social-links a{
+display:block;
+color:#777;
+text-decoration:none;
+}
+.social-links a:hover{
+color:#ff0000;
+}
+
+.menu-item{
+position:absolute;
+font-size:18px;
+color:#777;
+text-decoration:none;
+transition:color .2s;
+}
+
+.menu-item:hover{
+color:#fff;
+}
+
+#caes{
+top:calc(var(--row) * 1);
+left:calc(var(--col) * 1);
+}
+
+#gatos{
+top:calc(var(--row) * 5);
+left:calc(var(--col) * 3);
+transform:translateY(-100%);
+}
+
+#raca-pura{
+top:calc(var(--row) * 7);
+left:calc(var(--col) * 12);
+transform:translateY(-100%);
+}
+
+.big-name{
+position:absolute;
+bottom:60px;
+left:50%;
+transform:translateX(-50%);
+font-size:clamp(50px,10vw,120px);
+font-weight:900;
+white-space:nowrap;
+width:90vw;
+text-align:center;
+color:red;
+}
+
+.grid-overlay{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+display:flex;
+z-index:5;
+pointer-events:none;
+opacity:0;
+transition:opacity .5s;
+}
+
+.grid-overlay.show{
+opacity:1;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(14,1fr);
+grid-template-rows:repeat(9,1fr);
+width:100%;
+height:100%;
+}
+
+.grid-square{
+border:.3px solid #606060;
+position:relative;
+overflow:hidden;
+}
+
+.grid-square img{
+position:absolute;
+width:100%;
+height:100%;
+object-fit:cover;
+filter:grayscale(100%) contrast(120%);
+opacity:0;
+transition:opacity .4s;
+}
+
+/* ================= */
+/* MOBILE */
+/* ================= */
+
+@media (max-width:768px){
+
+*{
+cursor:auto;
+}
+
+#caes,
+#gatos,
+#raca-pura{
+position:static;
+transform:none;
+}
+
+.cursor{
+display:none;
+}
+
+.grid-overlay,
+.grid{
+display:none !important;
+}
+
+body{
+overflow:hidden;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.container{
+display:flex;
+flex-direction:column;
+align-items:flex-start;
+justify-content:flex-start;
+gap:10px;
+width:100%;
+height:100%;
+padding-top:60px;
+padding-left:20px;
+}
+
+.top-left{
+top:20px;
+left:20px;
+font-size:14px;
+}
+
+.top-right{
+top:20px;
+right:20px;
+font-size:10px;
+}
+
+.valongo{
+letter-spacing:3px;
+margin-right:10px;
+}
+
+.social-links{
+top:60px;
+right:20px;
+font-size:10px;
+line-height:16px;
+}
+
+.menu-item{
+position:static;
+font-size:14px;   /* mais pequeno */
+color:#aaa;
+text-align:left;
+margin-top:4px;
+}
+
+.big-name{
+position:absolute;
+bottom:40px;
+left:50%;
+transform:translateX(-50%);
+width:92vw;
+font-size:15vw;
+line-height:1;
+letter-spacing:2px !important;
+}
+
+.video-wrapper{
+width:100%;
+max-width:none;
+bottom:0;
+}
+
+.video-wrapper video{
+width:100%;
+height:auto;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="top-left">ANIMAIS PARA ADOÇÃO</div>
+
+<div class="top-right">
+<span class="valongo">V A L O N G O</span>
+<span>BREETHE</span>
+</div>
+
+<div class="social-links">
+<a href="https://www.facebook.com/vetmunicipalvalongo/?locale=pt_PT" target="_blank">FACEBOOK</a>
+<a href="https://www.instagram.com/centrovetmunvalongo" target="_blank">INSTAGRAM</a>
+<a href="https://petify.pt/profiles/view/cvm-valongo-centro-de-recolha-oficial" target="_blank">PETIFY</a>
+</div>
+
+<a id="caes" class="menu-item grid-link" href="caes.html">(Cães)</a>
+<a id="gatos" class="menu-item grid-link" href="gatos.html">(Gatos)</a>
+<a id="raca-pura" class="menu-item grid-link" href="raca-pura.html">(Raça Pura)</a>
+
+<div class="big-name" id="animatedText">BREATHE</div>
+
+</div>
+
+<div class="video-wrapper">
+<video autoplay muted loop playsinline>
+<source src="imagens/pug.mp4" type="video/mp4">
+</video>
+</div>
+
+<div class="cursor" id="customCursor"></div>
+
+<div class="grid-overlay" id="gridOverlay">
+<div class="grid" id="grid"></div>
+</div>
+
+<script>
+
+/* CURSOR */
+
+const cursor=document.getElementById('customCursor');
+
+document.addEventListener('mousemove',e=>{
+cursor.style.left=e.clientX+'px';
+cursor.style.top=e.clientY+'px';
+});
+
+document.addEventListener('mousedown',()=>{
+cursor.style.backgroundColor='red';
+cursor.style.transform='translate(-50%,-50%) scale(.8)';
+});
+
+document.addEventListener('mouseup',()=>{
+cursor.style.backgroundColor='white';
+cursor.style.transform='translate(-50%,-50%) scale(1)';
+});
+
+/* GRID */
+
+const grid=document.getElementById('grid');
+
+for(let i=0;i<126;i++){
+let sq=document.createElement('div');
+sq.classList.add('grid-square');
+grid.appendChild(sq);
+}
+
+let squares=document.querySelectorAll('.grid-square');
+
+const imagensCao = [
+'cao1.png','cao2.png','cao3.png','cao4.png','cao5.png','cao6.png',
+'cao7.png','cao8.png','cao9.png','cao10.png','cao11.png','cao12.png',
+'cao13.png','cao14.png','cao15.png','cao16.png','cao17.png','cao18.png',
+'cao19.png','cao20.png','cao21.png','cao22.png','cao23.png','cao24.png',
+'cao25.png','cao26.png','cao27.png','cao28.png','cao29.png','cao30.png',
+'cao31.png','cao32.png','cao33.png','cao34.png','cao35.png','cao36.png',
+'cao37.png','cao38.png','cao39.png','cao40.png','cao41.png','cao42.png',
+'cao43.png','cao44.png','cao45.png','cao46.png','cao47.png','cao48.png',
+'cao49.png','cao50.png','cao51.png','cao52.png','cao53.png','cao54.png',
+'cao55.png','cao56.png','cao57.png','cao58.png','cao59.png','cao60.png',
+'cao61.png','cao62.png','cao63.png','cao64.png','cao65.png','cao66.png',
+'cao67.png','cao68.png','cao69.png','cao70.png','cao71.png','cao72.png',
+'cao73.png','cao74.png','cao75.png','cao76.png','cao77.png','cao78.png',
+'cao79.png','cao80.png','cao81.png','cao82.png','cao83.png','cao84.png',
+'cao85.png','cao86.png','cao87.png','cao88.png','cao89.png','cao90.png',
+'cao91.png','cao92.png','cao93.png','cao94.png','cao95.png','cao96.png'
+];
+const imagensGato=['gato11.jpeg','gato21.jpeg','gato31.jpeg','gato41.jpeg','gato51.jpeg','gato61.jpeg','gato71.jpeg','gato81.jpeg','gato91.jpeg','gato101.jpeg','gato111.jpeg'];
+
+const imagensRaca=imagensCao.concat(imagensGato);
+
+function gerarImagensAleatorias(lista){
+
+squares.forEach(s=>s.innerHTML='');
+
+let usados=[];
+
+for(let i=0;i<10;i++){
+
+let index;
+
+do{
+index=Math.floor(Math.random()*squares.length);
+}
+while(usados.includes(index));
+
+usados.push(index);
+
+let img=lista[Math.floor(Math.random()*lista.length)];
+let pasta=img.startsWith('cao')?'caes':'gatos';
+
+let imgEl=document.createElement('img');
+imgEl.src=`imagens/${pasta}/${img}`;
+
+squares[index].appendChild(imgEl);
+
+setTimeout(()=>imgEl.style.opacity=1,100);
+
+}
+
+}
+
+function removerImagens(){
+
+squares.forEach(sq=>{
+sq.querySelectorAll('img').forEach(img=>img.style.opacity=0);
+});
+
+setTimeout(()=>{
+squares.forEach(s=>s.innerHTML='');
+},400);
+
+}
+
+document.getElementById('caes').addEventListener('mouseenter',()=>gerarImagensAleatorias(imagensCao));
+document.getElementById('gatos').addEventListener('mouseenter',()=>gerarImagensAleatorias(imagensGato));
+document.getElementById('raca-pura').addEventListener('mouseenter',()=>gerarImagensAleatorias(imagensRaca));
+
+document.getElementById('caes').addEventListener('mouseleave',removerImagens);
+document.getElementById('gatos').addEventListener('mouseleave',removerImagens);
+document.getElementById('raca-pura').addEventListener('mouseleave',removerImagens);
+
+const gridOverlay=document.getElementById('gridOverlay');
+const gridLinks=document.querySelectorAll('.grid-link');
+
+gridLinks.forEach(link=>{
+link.addEventListener('mouseenter',()=>gridOverlay.classList.add('show'));
+link.addEventListener('mouseleave',()=>gridOverlay.classList.remove('show'));
+});
+
+/* ANIMAÇÃO */
+
+const animatedText=document.getElementById('animatedText');
+
+const sequence=[
+{text:"BREATHE",delay:3000},
+{text:"#REATHE",delay:100},
+{text:"?#EATHE",delay:100},
+{text:"$%!ATHE",delay:100},
+{text:"D!€%THE",delay:100},
+{text:"ED/&@HE",delay:100},
+{text:"EED?#€E",delay:100},
+{text:"REED€?&",delay:100},
+{text:"BREED$%",delay:100},
+{text:"BREED#",delay:100},
+{text:"BREED",delay:3000},
+{text:"$BREE",delay:100},
+{text:"@/REED",delay:100},
+{text:"/&$EED",delay:100},
+{text:"#?!ED",delay:100},
+{text:"E!&%D",delay:100},
+{text:"HE(?!€",delay:100},
+{text:"THE=$#",delay:100},
+{text:"ATHE&%",delay:100},
+{text:"EATHE#",delay:100},
+{text:"REATHE?",delay:100}
+];
+
+let index=0;
+
+function runSequence(){
+
+const current=sequence[index];
+
+animatedText.textContent=current.text;
+
+adjustLetterSpacing(current.text);
+
+setTimeout(()=>{
+index=(index+1)%sequence.length;
+runSequence();
+},current.delay);
+
+}
+
+function adjustLetterSpacing(text){
+
+const containerWidth=window.innerWidth*0.9;
+
+const tempSpan=document.createElement('span');
+
+tempSpan.style.visibility='hidden';
+tempSpan.style.fontWeight='900';
+tempSpan.style.fontSize=getComputedStyle(animatedText).fontSize;
+tempSpan.style.fontFamily=getComputedStyle(animatedText).fontFamily;
+
+tempSpan.textContent=text;
+
+document.body.appendChild(tempSpan);
+
+const textWidth=tempSpan.offsetWidth;
+
+document.body.removeChild(tempSpan);
+
+const letters=text.length;
+
+animatedText.style.letterSpacing =
+letters>1 ? ((containerWidth-textWidth)/(letters-1))+'px':'0px';
+
+}
+
+window.addEventListener('resize',()=>{
+adjustLetterSpacing(animatedText.textContent);
+});
+
+runSequence();
+
+</script>
+
+</body>
+</html>

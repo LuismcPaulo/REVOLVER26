@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CÃES | BREETHE</title>
+
+<style>
+.contacts-title{
+color:red;
+font-weight:700;
+letter-spacing:3px;
+font-size:16px;
+margin-bottom:10px;
+}
+
+.bottom-info{
+position:absolute;
+bottom:20px;
+left:0;
+width:100%;
+text-align:center;
+font-size:14px;
+color:#aaa;
+display:flex;
+flex-direction:column;
+gap:8px;
+}
+
+.bottom-info .social-links{
+display:flex;
+justify-content:center;
+gap:20px;
+}
+
+.bottom-info .social-links a{
+color:#fff;
+text-decoration:none;
+font-weight:bold;
+transition:.3s;
+}
+
+.bottom-info .social-links a:hover{
+color:red;
+}
+
+.bottom-info .contact-details div{
+margin:2px 0;
+} 
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html,body,*{cursor:none !important;}
+
+body{
+background:#000;
+font-family:'Inter',Helvetica,Arial,sans-serif;
+color:#fff;
+min-height:100vh;
+position:relative;
+overflow-x:hidden;
+}
+
+/* CURSOR */
+
+.cursor{
+position:fixed;
+top:0;
+left:0;
+width:20px;
+height:20px;
+background:white;
+border-radius:50%;
+pointer-events:none;
+transform:translate(-50%,-50%);
+transition:background-color .2s,transform .1s,clip-path .1s;
+z-index:99999;
+}
+
+.cursor.pointer{
+width:40px;
+height:40px;
+border-radius:0;
+clip-path:polygon(
+0% 50%,
+65% 50%,
+65% 35%,
+100% 50%,
+65% 65%,
+65% 50%,
+0% 50%
+);
+}
+
+/* TOPO */
+
+.top-right{
+position:absolute;
+top:40px;
+right:60px;
+font-size:12px;
+font-weight:700;
+text-align:right;
+z-index:10;
+}
+
+.valongo{
+color:red;
+letter-spacing:5px;
+margin-right:20px;
+font-weight:700;
+}
+
+.page-title{
+position:absolute;
+top:40px;
+left:60px;
+font-size:22px;
+font-weight:800;
+}
+
+/* SUB MENU */
+
+.sub-categories{
+position:absolute;
+top:75px;
+left:60px;
+display:flex;
+flex-direction:column;
+gap:8px;
+font-size:16px;
+}
+
+.sub-categories a{
+color:#777;
+text-decoration:none;
+transition:.3s;
+}
+
+.sub-categories a:hover{
+color:#fff;
+}
+
+/* GRID */
+
+.container{
+padding:140px 60px 220px 60px;
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:25px;
+}
+
+.dog-card{
+aspect-ratio:3/2;
+background:#111;
+border:1px solid #222;
+display:flex;
+align-items:flex-end;
+font-size:18px;
+color:#777;
+transition:.3s;
+position:relative;
+overflow:hidden;
+border-radius:8px;
+}
+
+.dog-card:hover{
+background:#1a1a1a;
+color:#fff;
+}
+
+.dog-card span{
+position:absolute;
+bottom:10px;
+left:10px;
+color:#fff;
+z-index:2;
+}
+
+.dog-card img{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+object-fit:cover;
+filter:brightness(40%);
+transition:.3s;
+border-radius:8px;
+}
+
+.dog-card:hover img{
+filter:brightness(60%);
+transform:scale(1.05);
+}
+
+/* LIGHTBOX */
+
+.lightbox{
+position:fixed;
+top:0;
+left:0;
+width:100vw;
+height:100vh;
+background:rgba(0,0,0,0.95);
+display:none;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+z-index:10000;
+overflow-y:auto;
+}
+
+.lightbox,.lightbox *{cursor:none !important;}
+
+.lightbox-inner{
+position:relative;
+max-width:1000px;
+aspect-ratio:4/3;
+overflow:hidden;
+border-radius:8px;
+}
+
+.lightbox-track{
+display:flex;
+width:200%;
+height:100%;
+transform:translateX(0);
+transition:transform .4s ease;
+}
+
+.lightbox-track img{
+width:50%;
+height:100%;
+object-fit:cover;
+border-radius:8px;
+user-select:none;
+}
+
+/* INFO */
+
+.lightbox-info{
+text-align:center;
+font-size:14px;
+letter-spacing:2px;
+line-height:28px;
+color:#aaa;
+margin-top:30px;
+}
+
+.lightbox-info strong{color:#fff}
+
+/* BACK TO TOP */
+
+.back-to-top{
+position:fixed;
+bottom:30px;
+left:30px;
+width:40px;
+height:40px;
+border-radius:50%;
+background:#fff;
+color:red;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:20px;
+z-index:9999;
+box-shadow:0 0 10px rgba(0,0,0,0.6);
+}
+
+@media(max-width:1000px){
+.container{grid-template-columns:repeat(2,1fr);}
+.lightbox-inner{width:80%;height:50%;}
+}
+@media(max-width:600px){
+.container{grid-template-columns:1fr;}
+.lightbox-inner{width:90%;height:40%;}
+
+/* esconder topo no telemovel */
+.top-right{
+display:none;
+}
+
+}
+/* MOBILE */
+
+@media (max-width:768px){
+
+html,body,*{
+cursor:auto !important;
+}
+
+.cursor{
+display:none !important;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="top"></div>
+
+<div class="page-title">CÃES PUROS</div>
+
+<div class="sub-categories">
+<a href="index.html">(Página Inicial)</a>
+<a href="gatos.html">(Gatos)</a>
+</div>
+
+<div class="top-right">
+<span class="valongo">V A L O N G O</span>
+<span>BREETHE</span>
+</div>
+
+<div class="container">
+
+<!-- 1 -->
+<div class="dog-card" data-index="0">
+<img src="">
+<span>Bob</span>
+</div>
+
+<!-- 2 -->
+<div class="dog-card" data-index="1">
+<img src="">
+<span>Maya</span>
+</div>
+
+<!-- 3 -->
+<div class="dog-card" data-index="2">
+<img src="">
+<span>Duque</span>
+</div>
+
+<!-- 4 -->
+<div class="dog-card" data-index="3">
+<img src="">
+<span>Safira</span>
+</div>
+
+<!-- 5 -->
+<div class="dog-card" data-index="4">
+<img src="">
+<span>Milu</span>
+</div>
+
+<!-- 6 -->
+<div class="dog-card" data-index="5">
+<img src="">
+<span>Staples</span>
+</div>
+
+<!-- 7 -->
+<div class="dog-card" data-index="6">
+<img src="">
+<span>King</span>
+</div>
+
+<!-- 8 -->
+<div class="dog-card" data-index="7">
+<img src="">
+<span>Bela</span>
+</div>
+
+<!-- 9 -->
+<div class="dog-card" data-index="8">
+<img src="">
+<span>Preta</span>
+</div>
+
+<!-- 10 -->
+<div class="dog-card" data-index="9">
+<img src="">
+<span>Teo</span>
+</div>
+
+<!-- 11 -->
+<div class="dog-card" data-index="10">
+<img src="">
+<span>Jeitoso</span>
+</div>
+
+<!-- 12 -->
+<div class="dog-card" data-index="11">
+<img src="">
+<span>Nestor</span>
+</div>
+
+<!-- 13 -->
+<div class="dog-card" data-index="12">
+<img src="">
+<span>Caramelo</span>
+</div>
+
+<!-- 14 -->
+<div class="dog-card" data-index="13">
+<img src="">
+<span>Peter</span>
+</div>
+
+<!-- 15 -->
+<div class="dog-card" data-index="14">
+<img src="">
+<span>Negrito</span>
+</div>
+
+<!-- 16 -->
+<div class="dog-card" data-index="15">
+<img src="">
+<span>Brownie</span>
+</div>
+
+<!-- 17 -->
+<div class="dog-card" data-index="16">
+<img src="">
+<span>Hyndia</span>
+</div>
+
+<!-- 18 -->
+<div class="dog-card" data-index="17">
+<img src="">
+<span>Teodoro</span>
+</div>
+
+<!-- 19 -->
+<div class="dog-card" data-index="18">
+<img src="">
+<span>Tomás</span>
+</div>
+
+<!-- 20 -->
+<div class="dog-card" data-index="19">
+<img src="">
+<span>Adotado</span>
+</div>
+
+<!-- 21 -->
+<div class="dog-card" data-index="20">
+<img src="">
+<span>Estrela</span>
+</div>
+
+<!-- 22 -->
+<div class="dog-card" data-index="21">
+<img src="">
+<span>Pipinho</span>
+</div>
+
+<!-- 23 -->
+<div class="dog-card" data-index="22">
+<img src="">
+<span>Igor</span>
+</div>
+
+<!-- 24 -->
+<div class="dog-card" data-index="23">
+<img src=""><span>Julieta</span>
+</div>
+
+<!-- 25 -->
+<div class="dog-card" data-index="24">
+<img src=""><span>Adotado</span>
+</div>
+
+<!-- 26 -->
+<div class="dog-card" data-index="25">
+<img src=""><span>Adotada</span>
+</div>
+
+<!-- 27 -->
+<div class="dog-card" data-index="26">
+<img src=""><span>Nash</span>
+</div>
+
+<!-- 28 -->
+<div class="dog-card" data-index="27">
+<img src=""><span>Rufina</span>
+</div>
+
+<!-- 29 -->
+<div class="dog-card" data-index="28">
+<img src=""><span>Lua</span>
+</div>
+
+<!-- 30 -->
+<div class="dog-card" data-index="29">
+<img src=""><span>Adotada</span>
+</div>
+
+<!-- 31 -->
+<div class="dog-card" data-index="30">
+<img src=""><span>Lobito</span>
+</div>
+
+<!-- 32 -->
+<div class="dog-card" data-index="31">
+<img src=""><span>Artur</span>
+</div>
+
+</div>
+
+<div class="lightbox" id="lightbox">
+
+<div class="lightbox-inner">
+<div class="lightbox-track" id="lightboxTrack">
+<img src="" id="lightboxImgCurrent">
+<img src="" id="lightboxImgNext">
+</div>
+</div>
+
+<div class="lightbox-info">
+
+<div><strong>IDADE</strong> <span id="dogAge"></span></div>
+<div><strong>PERSONALIDADE</strong> <span id="dogPersonality"></span></div>
+<div><strong>SEXO</strong> <span id="dogSex"></span></div>
+<div><strong>ESTERILIZAÇÃO</strong> <span id="dogSteril"></span></div>
+<div><strong>PORTE</strong> <span id="dogSize"></span></div>
+<div><strong>COR</strong> <span id="dogColor"></span></div>
+<div><strong>RAÇA PURA</strong> <span id="dogBreed"></span></div>
+
+</div>
+</div>
+
+<div class="back-to-top" id="backToTop">&#9650;</div>
+<div class="cursor" id="customCursor"></div>
+<div class="bottom-info">
+   <div class="contacts-title">CONTACTOS</div>
+
+  <div class="social-links">
+    <a href="https://www.facebook.com/vetmunicipalvalongo/?locale=pt_PT" target="_blank">FACEBOOK</a>
+    <a href="https://www.instagram.com/centrovetmunvalongo" target="_blank">INSTAGRAM</a>
+    <a href="https://petify.pt/profiles/view/cvm-valongo-centro-de-recolha-oficial" target="_blank">PETIFY</a>
+  </div>
+
+  <div class="contact-details">
+    <div>Rua de S. Domingos, Valongo, Portugal</div>
+    <div>+351 22 422 3039</div>
+    <div>GMVM@cm-valongo.pt</div>
+    <div>FBAUP 2026</div>
+  </div>
+</div>
+
+<script>
+
+const cursor=document.getElementById('customCursor')
+
+document.addEventListener('mousemove',e=>{
+cursor.style.left=e.clientX+'px'
+cursor.style.top=e.clientY+'px'
+})
+
+document.addEventListener('mousedown',()=>{
+cursor.style.background='red'
+cursor.style.transform='translate(-50%,-50%) scale(.8)'
+})
+
+document.addEventListener('mouseup',()=>{
+cursor.style.background='white'
+cursor.style.transform='translate(-50%,-50%) scale(1)'
+})
+
+const lightbox=document.getElementById('lightbox')
+const track=document.getElementById('lightboxTrack')
+const imgCurrent=document.getElementById('lightboxImgCurrent')
+const imgNext=document.getElementById('lightboxImgNext')
+
+const galleryImages=[
+
+
+['imagens/caes/cao1.png','imagens/caes/cao2.png','imagens/caes/cao3.png'],
+['imagens/caes/cao4.png','imagens/caes/cao5.png','imagens/caes/cao6.png'],
+['imagens/caes/cao7.png','imagens/caes/cao8.png','imagens/caes/cao9.png'],
+['imagens/caes/cao10.png','imagens/caes/cao11.png','imagens/caes/cao12.png'],
+['imagens/caes/cao13.png','imagens/caes/cao14.png','imagens/caes/cao15.png'],
+['imagens/caes/cao16.png','imagens/caes/cao17.png','imagens/caes/cao18.png'],
+['imagens/caes/cao19.png','imagens/caes/cao20.png','imagens/caes/cao21.png'],
+['imagens/caes/cao22.png','imagens/caes/cao23.png','imagens/caes/cao24.png'],
+['imagens/caes/cao25.png','imagens/caes/cao26.png','imagens/caes/cao27.png'],
+['imagens/caes/cao28.png','imagens/caes/cao29.png','imagens/caes/cao30.png'],
+['imagens/caes/cao31.png','imagens/caes/cao32.png','imagens/caes/cao33.png'],
+['imagens/caes/cao34.png','imagens/caes/cao35.png','imagens/caes/cao36.png'],
+['imagens/caes/cao37.png','imagens/caes/cao38.png','imagens/caes/cao39.png'],
+['imagens/caes/cao40.png','imagens/caes/cao41.png','imagens/caes/cao42.png'],
+['imagens/caes/cao43.png','imagens/caes/cao44.png','imagens/caes/cao45.png'],
+['imagens/caes/cao46.png','imagens/caes/cao47.png','imagens/caes/cao48.png'],
+['imagens/caes/cao49.png','imagens/caes/cao50.png','imagens/caes/cao51.png'],
+['imagens/caes/cao52.png','imagens/caes/cao53.png','imagens/caes/cao54.png'],
+['imagens/caes/cao55.png','imagens/caes/cao56.png','imagens/caes/cao57.png'],
+['imagens/caes/cao58.png','imagens/caes/cao59.png','imagens/caes/cao60.png'],
+['imagens/caes/cao61.png','imagens/caes/cao62.png','imagens/caes/cao63.png'],
+['imagens/caes/cao64.png','imagens/caes/cao65.png','imagens/caes/cao66.png'],
+['imagens/caes/cao67.png','imagens/caes/cao68.png','imagens/caes/cao69.png'],
+['imagens/caes/cao70.png','imagens/caes/cao71.png','imagens/caes/cao72.png'],
+['imagens/caes/cao73.png','imagens/caes/cao74.png','imagens/caes/cao75.png'],
+['imagens/caes/cao76.png','imagens/caes/cao77.png','imagens/caes/cao78.png'],
+['imagens/caes/cao79.png','imagens/caes/cao80.png','imagens/caes/cao81.png'],
+['imagens/caes/cao82.png','imagens/caes/cao83.png','imagens/caes/cao84.png'],
+['imagens/caes/cao85.png','imagens/caes/cao86.png','imagens/caes/cao87.png'],
+['imagens/caes/cao88.png','imagens/caes/cao89.png','imagens/caes/cao90.png'],
+['imagens/caes/cao91.png','imagens/caes/cao92.png','imagens/caes/cao93.png'],
+['imagens/caes/cao94.png','imagens/caes/cao95.png','imagens/caes/cao96.png']
+
+];
+document.querySelectorAll('.dog-card').forEach((card,i)=>{
+const img=card.querySelector("img")
+if(galleryImages[i]){
+img.src=galleryImages[i][0]
+}
+})
+
+const dogInfo = [
+
+{
+age:"8 anos",
+personality:"destruidor de corações",
+sex:"macho",
+steril:"sim",
+size:"médio",
+color:"castanho",
+breed:"(?)"
+},
+
+{
+age:"4 anos",
+personality:"meiga, calma, muito inteligente",
+sex:"feminino",
+steril:"sim",
+size:"médio",
+color:"bege",
+breed:"(?)"
+},
+
+{
+age:"8 anos",
+personality:"potencial candidato ao big brother",
+sex:"macho",
+steril:"sim",
+size:"pequeno",
+color:"bege",
+breed:"(?)"
+},
+
+{
+age:"3 anos",
+personality:"sorridente",
+sex:"feminino",
+steril:"sim",
+size:"médio",
+color:"castanho",
+breed:"(?)"
+},
+
+{
+age:"6 meses",
+personality:"desconfiada",
+sex:"feminino",
+steril:"não",
+size:"médio-grande",
+color:"castanho e branco",
+breed:"(?)"
+},
+
+{
+age:"2 anos",
+personality:"meigo, preguiçoso",
+sex:"macho",
+steril:"sim",
+size:"grande",
+color:"castanho",
+breed:"(?)"
+},
+
+{
+age:"2 anos",
+personality:"bem treinado e meigo",
+sex:"macho",
+steril:"sim",
+size:"grande",
+color:"amarelo",
+breed:"(?)"
+},
+
+{
+age:"3 anos",
+personality:"brincalhona",
+sex:"fêmea",
+steril:"sim",
+size:"médio",
+color:"castanho",
+breed:"(?)"
+},
+
+{
+age:"3 anos",
+personality:"dócil, obediente",
+sex:"feminino",
+steril:"sim",
+size:"médio",
+color:"preto e branco",
+breed:"(?)"
+},
+
+{
+age:"2 anos",
+personality:"meigo, atormentado",
+sex:"macho",
+steril:"sim",
+size:"médio",
+color:"preto",
+breed:"(?)"
+},
+
+{
+age:"3 anos",
+personality:"meigo, jeitoso",
+sex:"macho",
+steril:"sim",
+size:"médio",
+color:"preto e castanho",
+breed:"(?)"
+},
+
+{
+age:"6 meses",
+personality:"independente",
+sex:"macho",
+steril:"não",
+size:"médio",
+color:"tigrado",
+breed:"(?)"
+},
+
+{
+age:"2 anos",
+personality:"refilão e enérgico",
+sex:"macho",
+steril:"sim",
+size:"médio",
+color:"castanho",
+breed:"(?)"
+},
+
+{
+age:"3 anos",
+personality:"carinhoso e tímido",
+sex:"masculino",
+steril:"sim",
+size:"pequeno",
+color:"preto e castanho",
+breed:"(?)"
+},
+
+{
+age:"6 meses",
+personality:"brincalhão",
+sex:"masculino",
+steril:"não",
+size:"médio-grande",
+color:"preto e branco",
+breed:"(?)"
+},
+
+{
+age:"5 anos",
+personality:"brincalhão",
+sex:"masculino",
+steril:"sim",
+size:"grande",
+color:"castanho claro",
+breed:"(?)"
+},
+
+{
+age:"3 anos",
+personality:"modelo, enérgica",
+sex:"feminino",
+steril:"sim",
+size:"médio",
+color:"tigrada",
+breed:"(?)"
+},
+
+{
+age:"2 anos",
+personality:"extrovertido, rock and roll",
+sex:"macho",
+steril:"sim",
+size:"médio",
+color:"preto",
+breed:"(?)"
+},
+
+{
+age:"3 anos",
+personality:"soldadinho de chumbo, ama passear",
+sex:"macho",
+steril:"sim",
+size:"médio-grande",
+color:"castanho",
+breed:"(?)"
+},
+
+{
+age:"6 meses",
+personality:"sonolenta",
+sex:"feminino",
+steril:"não",
+size:"médio-grande",
+color:"castanho e branco",
+breed:"(?)"
+},
+
+{
+age:"3 anos",
+personality:"eterna namorada do Pipinho",
+sex:"feminino",
+steril:"sim",
+size:"médio",
+color:"bege",
+breed:"(?)"
+},
+
+{
+age:"4 anos",
+personality:"eterno namorado da Estrela",
+sex:"macho",
+steril:"sim",
+size:"grande",
+color:"lobeiro",
+breed:"(?)"
+},
+
+{
+age:"6 meses",
+personality:"brincalhão",
+sex:"macho",
+steril:"não",
+size:"médio",
+color:"branco e castanho",
+breed:"(?)"
+},
+
+{
+age:"4 anos",
+personality:"timida",
+sex:"feminino",
+steril:"sim",
+size:"médio",
+color:"preto e branco",
+breed:"(?)"
+},
+
+{
+age:"6 meses",
+personality:"corajoso",
+sex:"macho",
+steril:"não",
+size:"médio",
+color:"castanho e branco",
+breed:"(?)"
+},
+
+{
+age:"6 meses",
+personality:"tímida",
+sex:"feminino",
+steril:"não",
+size:"grande",
+color:"malhada",
+breed:"(?)"
+},
+
+{
+age:"11 anos",
+personality:"calmo e dócil",
+sex:"macho",
+steril:"sim",
+size:"médio",
+color:"camurça",
+breed:"(?)"
+},
+
+{
+age:"1 ano",
+personality:"dócil, beijoqueira",
+sex:"feminino",
+steril:"sim",
+size:"médio",
+color:"castanho",
+breed:"(?)"
+},
+
+{
+age:"4 anos",
+personality:"dócil, leal",
+sex:"feminino",
+steril:"sim",
+size:"médio",
+color:"preto",
+breed:"(?)"
+},
+
+{
+age:"2 anos",
+personality:"amante de festinhas",
+sex:"feminino",
+steril:"sim",
+size:"médio",
+color:"bege e cinzento",
+breed:"(?)"
+},
+
+{
+age:"5 anos",
+personality:"apreciador de boas caminhadas",
+sex:"macho",
+steril:"sim",
+size:"grande",
+color:"preto e castanho",
+breed:"(?)"
+},
+
+{
+age:"6 meses",
+personality:"curioso",
+sex:"macho",
+steril:"não",
+size:"médio",
+color:"castanho",
+breed:"(?)"
+},
+
+]
+
+let currentCard=0
+let currentImage=0
+let sliding=false
+
+document.querySelectorAll('.dog-card').forEach((card,i)=>{
+card.addEventListener('click',()=>{
+
+currentCard=i
+currentImage=0
+
+const info = dogInfo[i]
+
+if(info){
+document.getElementById("dogAge").textContent = info.age
+document.getElementById("dogPersonality").textContent = info.personality
+document.getElementById("dogSex").textContent = info.sex
+document.getElementById("dogSteril").textContent = info.steril
+document.getElementById("dogSize").textContent = info.size
+document.getElementById("dogColor").textContent = info.color
+document.getElementById("dogBreed").textContent = info.breed
+}
+
+const imgs=galleryImages[currentCard]
+
+imgCurrent.src=imgs[0]
+imgNext.src=imgs[1]
+
+track.style.transition='none'
+track.style.transform='translateX(0)'
+
+lightbox.style.display='flex'
+
+})
+})
+
+function nextImage(){
+
+if(sliding)return
+
+const imgs=galleryImages[currentCard]
+
+sliding=true
+
+const next=(currentImage+1)%imgs.length
+
+imgNext.src=imgs[next]
+
+track.style.transition='transform .4s ease'
+track.style.transform='translateX(-50%)'
+
+track.addEventListener('transitionend',function handler(e){
+
+if(e.propertyName!=='transform')return
+
+track.removeEventListener('transitionend',handler)
+
+currentImage=next
+
+imgCurrent.src=imgs[currentImage]
+
+const upcoming=(currentImage+1)%imgs.length
+
+imgNext.src=imgs[upcoming]
+
+track.style.transition='none'
+track.style.transform='translateX(0)'
+
+sliding=false
+
+})
+
+}
+
+imgCurrent.addEventListener('click',e=>{
+e.stopPropagation()
+nextImage()
+})
+
+imgNext.addEventListener('click',e=>{
+e.stopPropagation()
+nextImage()
+})
+track.addEventListener('mouseenter',()=>{
+cursor.classList.add('pointer')
+})
+
+track.addEventListener('mouseleave',()=>{
+cursor.classList.remove('pointer')
+})
+lightbox.addEventListener('click',e=>{
+if(e.target===lightbox){
+lightbox.style.display='none'
+}
+})
+
+const backToTop=document.getElementById('backToTop')
+
+backToTop.addEventListener('click',()=>{
+window.scrollTo({top:0,behavior:'smooth'})
+})
+
+</script>
+
+</body>
+</html> 
