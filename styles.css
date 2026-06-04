@@ -1,0 +1,663 @@
+:root {
+  --bg: #020202;
+  --text: #f6f2eb;
+  --muted: rgba(246, 242, 235, 0.82);
+  --line: rgba(246, 242, 235, 0.92);
+  --line-soft: rgba(246, 242, 235, 0.3);
+  --line-dark: rgba(0, 0, 0, 0.82);
+  --blue: #1f32ff;
+  --poster-width: 1180px;
+  --poster-scale: 1;
+  --poster-shift-x: -92px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  font-family: "Space Grotesk", sans-serif;
+  background: var(--bg);
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 22% 18%, rgba(255, 255, 255, 0.045), transparent 0.9%),
+    radial-gradient(circle at 68% 64%, rgba(255, 255, 255, 0.04), transparent 1.1%);
+  background-size: 34px 34px, 46px 46px;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.poster-shell {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: var(--poster-width);
+  margin: 0;
+  padding: 12px 0 42px;
+  transform-origin: top center;
+  transform: translateX(calc(-50% + var(--poster-shift-x))) scale(var(--poster-scale));
+}
+
+.poster-stage {
+  position: relative;
+  width: calc(var(--poster-width) * var(--poster-scale));
+  margin: 0 auto;
+}
+
+.poster-header {
+  position: relative;
+}
+
+.meta-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  width: 1096px;
+  margin-left: 132px;
+  gap: 18px;
+}
+
+.scribble-note {
+  font-family: "Permanent Marker", cursive;
+}
+
+.meta-label {
+  margin: 0;
+  color: var(--muted);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.76rem;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-align: right;
+}
+
+.hero-stage {
+  position: relative;
+  min-height: 1028px;
+  padding-top: 12px;
+}
+
+.scribble-note {
+  position: absolute;
+  top: 22px;
+  left: 238px;
+  margin: 0;
+  z-index: 4;
+  font-size: 1rem;
+  line-height: 1;
+  transform: rotate(-5deg);
+}
+
+.title-stack {
+  position: relative;
+  width: 944px;
+  margin-top: -152px;
+  margin-left: 10px;
+  transform: rotate(-5deg);
+  transform-origin: left center;
+  z-index: 3;
+}
+
+.title-main-art {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.title-main-art {
+  position: relative;
+  z-index: 2;
+}
+
+.title-addon {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  gap: 4px;
+  margin: -176px 0 0 214px;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 5.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 0.85;
+  text-transform: uppercase;
+}
+
+.title-addon span {
+  display: block;
+}
+
+.title-addon span:nth-child(2) {
+  padding-left: 0.7em;
+}
+
+.title-addon span:nth-child(3) {
+  padding-left: 1.35em;
+}
+
+.intro-text {
+  position: relative;
+  z-index: 3;
+  max-width: 60ch;
+  margin: 50px 0 0 132px;
+  color: var(--muted);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.98rem;
+  line-height: 1.75;
+}
+
+.revolver-wrap {
+  position: absolute;
+  top: 152px;
+  right: -208px;
+  width: 900px;
+  transform: rotate(29deg);
+  transform-origin: center;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.revolver-art {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.revolver-art {
+  filter: drop-shadow(20px 24px 30px rgba(0, 0, 0, 0.5));
+}
+
+.works-section {
+  position: relative;
+  margin-top: -244px;
+  margin-left: 132px;
+  width: 1096px;
+  padding-top: 18px;
+}
+
+.works-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 804px;
+  border-top: 4px solid var(--line);
+}
+
+.works-title {
+  margin: 0 0 28px;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 4rem;
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
+
+.student-board {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.work-tile {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  perspective: 1400px;
+  background: transparent;
+  touch-action: manipulation;
+}
+
+.tile-inner {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 700ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.work-tile.is-flipped .tile-inner,
+.work-tile:focus-within .tile-inner {
+  transform: rotateY(180deg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .work-tile:hover .tile-inner {
+    transform: rotateY(180deg);
+  }
+}
+
+.tile-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  backface-visibility: hidden;
+  border: 4px solid var(--line);
+  border-radius: 18px 14px 28px 26px / 16px 24px 20px 32px;
+}
+
+.tile-front {
+  background: #080808;
+}
+
+.tile-front::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 38%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.42), transparent);
+}
+
+.tile-preview {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
+.tile-graphic,
+.tile-flap {
+  position: absolute;
+  display: none;
+}
+
+.work-tile.is-placeholder .tile-front {
+  background: var(--text);
+}
+
+.work-tile.is-placeholder .tile-front::after {
+  display: none;
+}
+
+.work-tile.is-placeholder .tile-preview {
+  display: none;
+}
+
+.work-tile.is-placeholder .tile-graphic,
+.work-tile.is-placeholder .tile-flap {
+  display: block;
+}
+
+.tile-back {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px;
+  color: var(--text);
+  background: rgba(6, 6, 6, 0.98);
+  transform: rotateY(180deg);
+}
+
+.student-name {
+  position: relative;
+  max-width: 10ch;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.7rem;
+  line-height: 0.95;
+  letter-spacing: 0.03em;
+  white-space: pre-line;
+}
+
+.student-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 42px;
+  margin-top: auto;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  color: var(--text);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.student-link:hover,
+.student-link:focus-visible {
+  color: var(--bg);
+  background: var(--text);
+  transform: translateY(-1px);
+}
+
+.student-link[aria-disabled="true"] {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.student-link[aria-disabled="true"]:hover,
+.student-link[aria-disabled="true"]:focus-visible {
+  color: var(--text);
+  background: transparent;
+  transform: none;
+}
+
+.work-tile.is-placeholder[data-pattern="0"] .tile-graphic {
+  left: 0;
+  top: 38%;
+  width: 36%;
+  height: 5px;
+  background: var(--bg);
+}
+
+.work-tile.is-placeholder[data-pattern="0"] .tile-flap {
+  left: 0;
+  top: 40%;
+  width: 37%;
+  height: 34%;
+  background: var(--text);
+  clip-path: polygon(0 0, 100% 12%, 100% 100%, 0 82%);
+  box-shadow: inset -1px 0 0 var(--line-dark), inset 0 1px 0 var(--line-dark);
+}
+
+.work-tile.is-placeholder[data-pattern="1"] .tile-graphic {
+  right: 18%;
+  bottom: 0;
+  width: 42%;
+  height: 42%;
+  background: var(--bg);
+  clip-path: polygon(100% 0, 0 100%, 100% 100%);
+}
+
+.work-tile.is-placeholder[data-pattern="1"] .tile-flap {
+  right: 0;
+  top: 18%;
+  width: 30%;
+  height: 48%;
+  background: var(--text);
+  clip-path: polygon(0 4%, 100% 0, 100% 88%, 0 100%);
+  box-shadow: inset 1px 0 0 var(--line-dark), inset 0 1px 0 var(--line-dark);
+}
+
+.work-tile.is-placeholder[data-pattern="2"] .tile-graphic {
+  left: 0;
+  top: 0;
+  width: 28%;
+  height: 28%;
+  background: var(--bg);
+}
+
+.work-tile.is-placeholder[data-pattern="2"] .tile-flap {
+  left: 0;
+  bottom: 22%;
+  width: 45%;
+  height: 30%;
+  background: var(--text);
+  clip-path: polygon(0 0, 100% 10%, 100% 100%, 0 86%);
+  box-shadow: inset -1px 0 0 var(--line-dark), inset 0 1px 0 var(--line-dark);
+}
+
+.work-tile.is-placeholder[data-pattern="3"] .tile-graphic {
+  left: 44%;
+  top: 0;
+  width: 12%;
+  height: 64%;
+  background: var(--bg);
+}
+
+.work-tile.is-placeholder[data-pattern="3"] .tile-flap {
+  left: 44%;
+  bottom: 0;
+  width: 28%;
+  height: 40%;
+  background: var(--text);
+  clip-path: polygon(0 0, 100% 18%, 100% 100%, 0 86%);
+  box-shadow: inset -1px 0 0 var(--line-dark), inset 0 1px 0 var(--line-dark);
+}
+
+.work-tile.is-placeholder[data-pattern="4"] .tile-graphic {
+  right: 0;
+  top: 0;
+  width: 44%;
+  height: 44%;
+  background: var(--bg);
+  clip-path: polygon(28% 0, 100% 0, 100% 72%, 0 100%);
+}
+
+.work-tile.is-placeholder[data-pattern="4"] .tile-flap {
+  right: 0;
+  top: 22%;
+  width: 30%;
+  height: 44%;
+  background: var(--text);
+  clip-path: polygon(0 0, 100% 0, 100% 86%, 0 100%);
+  box-shadow: inset 1px 0 0 var(--line-dark), inset 0 1px 0 var(--line-dark);
+}
+
+.work-tile.is-placeholder[data-pattern="5"] .tile-graphic {
+  left: 0;
+  bottom: 0;
+  width: 52%;
+  height: 22%;
+  background: var(--bg);
+}
+
+.work-tile.is-placeholder[data-pattern="5"] .tile-flap {
+  left: 18%;
+  top: 0;
+  width: 44%;
+  height: 30%;
+  background: var(--text);
+  clip-path: polygon(0 16%, 100% 0, 100% 100%, 0 80%);
+  box-shadow: inset -1px 0 0 var(--line-dark), inset 0 1px 0 var(--line-dark);
+}
+
+.work-tile.is-placeholder[data-pattern="6"] .tile-graphic {
+  right: 0;
+  bottom: 0;
+  width: 32%;
+  height: 32%;
+  background: var(--bg);
+}
+
+.work-tile.is-placeholder[data-pattern="6"] .tile-flap {
+  right: 0;
+  bottom: 20%;
+  width: 34%;
+  height: 38%;
+  background: var(--text);
+  clip-path: polygon(0 0, 100% 16%, 100% 100%, 0 86%);
+  box-shadow: inset 1px 0 0 var(--line-dark), inset 0 1px 0 var(--line-dark);
+}
+
+.work-tile.is-placeholder[data-pattern="7"] .tile-graphic {
+  left: 0;
+  top: 48%;
+  width: 100%;
+  height: 10%;
+  background: var(--bg);
+}
+
+.work-tile.is-placeholder[data-pattern="7"] .tile-flap {
+  left: 0;
+  top: 49%;
+  width: 42%;
+  height: 40%;
+  background: var(--text);
+  clip-path: polygon(0 0, 100% 12%, 100% 100%, 0 86%);
+  box-shadow: inset -1px 0 0 var(--line-dark), inset 0 1px 0 var(--line-dark);
+}
+
+.empty-card {
+  grid-column: 1 / -1;
+  padding: 24px;
+  border: 4px solid var(--line);
+  border-radius: 22px;
+  font-family: "Permanent Marker", cursive;
+  font-size: 1.6rem;
+}
+
+@media (max-width: 1440px) {
+  :root {
+    --poster-shift-x: -72px;
+  }
+}
+
+@media (max-width: 1180px) {
+  :root {
+    --poster-shift-x: -36px;
+  }
+}
+
+@media (max-width: 920px) {
+  :root {
+    --poster-shift-x: -12px;
+  }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --poster-shift-x: 0px;
+  }
+
+  .poster-stage {
+    width: 100% !important;
+    max-width: 100%;
+    padding: 0 16px 30px;
+  }
+
+  .poster-shell {
+    position: relative;
+    top: 0;
+    left: auto;
+    width: min(100%, 640px);
+    margin: 0 auto;
+    padding: 12px 0 34px;
+    transform: none !important;
+  }
+
+  .meta-row {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 0;
+  }
+
+  .meta-label {
+    font-size: 0.42rem;
+    letter-spacing: 0.12em;
+  }
+
+  .hero-stage {
+    min-height: auto;
+    margin-top: -18px;
+    padding-top: 8px;
+  }
+
+  .scribble-note {
+    top: 45px;
+    left: 50%;
+    font-size: 0.48rem;
+    transform: translateX(-132%) rotate(-5deg);
+  }
+
+  .title-stack {
+    width: min(112%, 620px);
+    margin: -40px 0 0 -18px;
+  }
+
+  .title-addon {
+    width: fit-content;
+    margin: -42px auto 0;
+    font-size: 4.05rem;
+    left: -8px;
+  }
+
+  .title-addon span:nth-child(2) {
+    padding-left: 0.51em;
+  }
+
+  .title-addon span:nth-child(3) {
+    padding-left: 0.99em;
+  }
+
+  .intro-text {
+    width: calc(100% - 18px);
+    max-width: 42ch;
+    margin: 22px auto 0;
+    font-size: 0.90rem;
+    line-height: 1.55;
+    text-align: center;
+    text-wrap: pretty;
+  }
+
+  .revolver-wrap {
+    top: 118px;
+    right: -50px;
+    width: min(70vw, 390px);
+  }
+
+  .works-section {
+    width: 100%;
+    max-width: 100%;
+    margin: 24px auto 0;
+    padding-top: 16px;
+  }
+
+  .works-section::before {
+    left: 0;
+    width: 100%;
+    transform: none;
+  }
+
+  .works-title {
+    margin: 0 0 20px;
+    font-size: 2.34rem;
+    line-height: 0.96;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .student-board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .student-name {
+    font-size: 1.5rem;
+  }
+
+  .tile-back {
+    gap: 10px;
+    padding: 14px;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  body,
+  body * {
+    cursor: url("./assets/alvo-cursor.png") 25 32, auto;
+  }
+
+  .student-link[aria-disabled="true"] {
+    cursor: url("./assets/alvo-cursor.png") 25 32, not-allowed;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  body,
+  body * {
+    cursor: auto !important;
+  }
+}
