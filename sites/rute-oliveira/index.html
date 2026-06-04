@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I WANT TO GO HOME</title>
+  <link href="https://fonts.googleapis.com/css2?family=Gasoek+One:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background: #000000;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      touch-action: none;
+    }
+
+    .bg-wrapper {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      background: #000000;
+    }
+
+    .bg-content {
+      position: absolute;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      transform: scale(1) translateX(0);
+      transition: transform 0.02s linear;
+    }
+
+    .main-image {
+      position: absolute;
+      top: 23%;
+      left: 35%;
+      width: clamp(300px, 40vw, 450px);
+      height: clamp(300px, 40vh, 450px);
+      object-fit: contain;
+      z-index: 1;
+    }
+
+    #img1 {
+      position: absolute;
+      top: 52%;
+      left: 42.5%;
+      width: clamp(10px, 2vw, 25px);
+      height: clamp(10px, 2vw, 25px);
+      object-fit: contain;
+      z-index: 3;
+    }
+
+    #img2 {
+      position: absolute;
+      top: 51.5%;
+      left: 42.5%;
+      width: clamp(10px, 2vw, 25px);
+      height: clamp(10px, 2vw, 25px);
+      object-fit: contain;
+      z-index: 3;
+    }
+
+    #img1, #img2 {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .olhos-ativos #img1, .olhos-ativos #img2 {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .escondida {
+      display: none;
+    }
+
+    .footer-text {
+      position: relative;
+      z-index: 2;
+      font-family: "Gasoek One", system-ui, sans-serif;
+      font-size: clamp(1.5rem, 8vw, 4rem);
+      color: #ffffff;
+      padding: clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px);
+      border-radius: 6px;
+      letter-spacing: 1px;
+      text-align: center;
+      font-weight: 600;
+      text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+      line-height: 1.2;
+    }
+
+    .footer-text {
+  margin-bottom: 190px !important;  /* Desktop */
+}
+
+@media (max-width: 768px) {
+  .footer-text {
+    font-family: "Gasoek One", system-ui, sans-serif !important;
+    margin-bottom: 300px !important;  /* Telemóvel */
+  }
+}
+
+    .scroll-layer {
+      position: absolute;
+      inset: 0;
+      overflow-y: scroll;
+      z-index: 10;
+      background: transparent;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .spacer {
+      height: 3000px;
+    }
+
+    @media (max-width: 768px) {
+      .main-image {
+        top: 20%;
+        left: 25%;
+        width: 50vw;
+        height: 50vh;
+      }
+
+      #img1 {
+        top: 48%;
+        left: 38%;
+        width: 3vw;
+        height: 3vw;
+      }
+
+      #img2 {
+        top: 47%;
+        left: 38%;
+        width: 3vw;
+        height: 3vw;
+      }
+
+      .footer-text {
+        margin-bottom: 15vh;
+        font-size: clamp(1.2rem, 7vw, 2.5rem);
+        padding: 12px 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main-image {
+        top: 15%;
+        left: 20%;
+        width: 60vw;
+        height: 60vh;
+      }
+
+      #img1, #img2 {
+        top: 45%;
+        left: 35%;
+        width: 4vw;
+        height: 4vw;
+      }
+
+      .footer-text {
+        margin-bottom: 10vh;
+        font-size: clamp(1rem, 6vw, 2rem);
+        padding: 10px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-wrapper">
+    <div class="bg-content" id="bgContent">
+      <img src="imagens/casa_sfundo.svg" alt="Imagem de fundo" class="main-image" id="bgImage">
+      <img id="img1" src="imagens/olhos fechados.svg" alt="Olhos fechados">
+      <img id="img2" src="imagens/olhos abertos.svg" alt="Olhos abertos" class="escondida">
+      <div class="footer-text">I WANT TO GO HOME</div>
+    </div>
+  </div>
+
+  <div class="scroll-layer" id="scrollLayer">
+    <div class="spacer"></div>
+  </div>
+
+  <script>
+    const bgContent = document.getElementById('bgContent');
+    const scrollLayer = document.getElementById('scrollLayer');
+    const img1 = document.getElementById('img1');
+    const img2 = document.getElementById('img2');
+
+    // SALVAR ESTADO atual antes de ir para próxima página
+    function saveStateToSession() {
+      sessionStorage.setItem('zoomState', JSON.stringify({
+        scale: scale,
+        translateX: translateX,
+        phase: phase
+      }));
+    }
+
+    // Estado inicial do zoom/pan (carrega do sessionStorage se existir)
+    let scale = parseFloat(sessionStorage.getItem('zoomState')?.scale || 1);
+    let translateX = parseFloat(sessionStorage.getItem('zoomState')?.translateX || 0);
+    let phase = parseInt(sessionStorage.getItem('zoomState')?.phase || 1);
+
+    const isMobile = window.innerWidth <= 768;
+
+  const minScale = 1;
+  const firstMaxScale = isMobile ? 3 : 5;      // Mobile: 2.5x | Desktop: 5x
+  const secondMaxScale = isMobile ? 45 : 65;     // Mobile: 20x | Desktop: 65x
+
+  const firstZoomSpeed = isMobile ? 0.005 : 0.0015;   // Mobile: mais rápido
+  const secondZoomSpeed = isMobile ? 0.04 : 0.020;    // Mobile: mais rápido
+  const panSpeed = isMobile ? 0.4 : 0.15;             // Mobile: pan mais rápido
+  const maxPanRight = isMobile ? -110 : -215;         // Mobile: menos lateral
+
+
+    // ANIMAÇÃO INDEPENDENTE DOS OLHOS
+    let mostrarPrimeira = true;
+    let intervalOlhos = null;
+
+    function updateTransformOrigin() {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  
+  const isMobile = vw <= 768;
+  
+  // 👇 VALORES INDEPENDENTES - MUDA AQUI
+  const focusX_desktop = 40;    // ← DESKTOP: primeiro número  
+  const focusY_desktop = 46;    // ← DESKTOP: segundo número
+  const focusX_mobile  = 37;    // ← MOBILE:  primeiro número
+  const focusY_mobile  = 45;    // ← MOBILE:  segundo número
+  
+  const focusX = (isMobile ? focusX_mobile : focusX_desktop) / 88 * vw;
+  const focusY = (isMobile ? focusY_mobile : focusY_desktop) / 88 * vh;
+  
+  const originXPercent = (focusX / vw) * 100;
+  const originYPercent = (focusY / vh) * 100;
+  bgContent.style.transformOrigin = `${originXPercent}% ${originYPercent}%`;
+}
+    
+
+    updateTransformOrigin();
+    window.addEventListener('resize', updateTransformOrigin);
+
+    window.addEventListener('pageshow', (e) => {
+      if (e.persisted || sessionStorage.getItem('zoomState')) {
+        bgContent.style.transform = `scale(${scale}) translateX(${translateX}px)`;
+      }
+    });
+
+    function iniciarAnimacaoOlhos() {
+      if (intervalOlhos) clearInterval(intervalOlhos);
+      
+      intervalOlhos = setInterval(() => {
+        if (mostrarPrimeira) {
+          img1.classList.remove('escondida');
+          img2.classList.add('escondida');
+        } else {
+          img2.classList.remove('escondida');
+          img1.classList.add('escondida');
+        }
+        mostrarPrimeira = !mostrarPrimeira;
+      }, 700);
+    }
+
+    function pararAnimacaoOlhos() {
+      if (intervalOlhos) {
+        clearInterval(intervalOlhos);
+        intervalOlhos = null;
+      }
+      img1.classList.remove('escondida');
+      img2.classList.add('escondida');
+      mostrarPrimeira = true;
+    }
+
+    let startY = 0;
+    let isScrolling = false;
+
+    scrollLayer.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const delta = e.deltaY;
+      handleScroll(delta);
+    }, { passive: false });
+
+    scrollLayer.addEventListener('touchstart', (e) => {
+      startY = e.touches[0].clientY;
+      isScrolling = true;
+    }, { passive: false });
+
+    scrollLayer.addEventListener('touchmove', (e) => {
+      if (!isScrolling) return;
+      e.preventDefault();
+      const currentY = e.touches[0].clientY;
+      const deltaY = startY - currentY;
+      handleScroll(deltaY * 0.5);
+      startY = currentY;
+    }, { passive: false });
+
+    scrollLayer.addEventListener('touchend', () => {
+      isScrolling = false;
+    });
+
+    function handleScroll(delta) {
+      const direction = delta > 0 ? 1 : -1;
+
+      if (direction > 0) {
+        if (phase === 1 && scale < firstMaxScale) {
+          scale += firstZoomSpeed * Math.abs(delta);
+          if (scale >= firstMaxScale) {
+            scale = firstMaxScale;
+            phase = 2;
+            bgContent.classList.add('olhos-ativos');
+            iniciarAnimacaoOlhos();
+          }
+        } else if (phase === 2 && translateX > maxPanRight) {
+          translateX -= panSpeed * Math.abs(delta);
+          if (translateX <= maxPanRight) {
+            translateX = maxPanRight;
+            phase = 3;
+          }
+        } else if (phase === 3 && scale < secondMaxScale) {
+          scale += secondZoomSpeed * Math.abs(delta);
+          if (scale >= secondMaxScale) {
+            scale = secondMaxScale;
+            saveStateToSession();
+            // ✅ EXATAMENTE COMO PEDISTE
+            window.location.href = "people.html";
+          }
+        }
+      } else if (direction < 0) {
+        if (phase === 3) {
+          scale += direction * secondZoomSpeed * Math.abs(delta);
+          if (scale <= firstMaxScale) {
+            phase = 2;
+            scale = firstMaxScale;
+            translateX = maxPanRight;
+          }
+        } else if (phase === 2) {
+          translateX += panSpeed * Math.abs(delta);
+          if (translateX >= 0) {
+            phase = 1;
+            translateX = 0;
+            bgContent.classList.remove('olhos-ativos');
+            pararAnimacaoOlhos();
+          }
+        } else if (phase === 1) {
+          scale += direction * firstZoomSpeed * Math.abs(delta);
+          if (scale <= minScale) scale = minScale;
+        }
+      }
+
+      bgContent.style.transform = `scale(${scale}) translateX(${translateX}px)`;
+    }
+  </script>
+</body>
+</html>

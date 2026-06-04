@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I CAN NOT FIND MY HOME HERE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Gasoek+One:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: "Gasoek One", sans-serif;
+        }
+        
+        body {
+            background: rgb(0, 0, 0);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .texto-central {
+            text-align: center;
+            color: white;
+            font-size: 2.0em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            max-width: 80%;
+            position: absolute;
+            z-index: 2;
+            transition: opacity 0.5s ease;
+        }
+
+        .texto-central span {
+            display: inline-block;
+            transition: all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: pointer;
+        }
+
+        .texto-central span.caido {
+            transform: translateY(400px);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Texto só aparece NO FINAL */
+        .texto-final {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 400px;
+            width: 80%;
+            opacity: 0;
+            pointer-events: none; /* 🔒 BLOQUEIA CLICKS QUANDO INVISÍVEL */
+            transition: all 1s ease;
+            z-index: 10;
+            cursor: pointer;
+            color: white;
+            text-align: center;
+            font-size: 1.5em;
+        }
+
+        .texto-final.mostrar {
+            opacity: 1;
+            pointer-events: auto; /* ✅ ATIVA CLICKS QUANDO VISÍVEL */
+        }
+
+        .texto-final:hover {
+            filter: brightness(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="texto-central">
+        <h1>
+            <span>I</span>
+            <span>CAN</span>
+            <span>NOT</span>
+            <span>FIND</span>
+            <span>MY</span>
+            <span>HOME</span>
+            <span>HERE</span>
+        </h1>
+    </div>
+
+    <!-- TEXTO FINAL CLICÁVEL -->
+    <p class="texto-final" id="textoFinal">
+        HOME
+    </p>
+
+    <script>
+        const spans = document.querySelectorAll('.texto-central span');
+        const textoFinal = document.getElementById('textoFinal');
+        let contador = 0;
+        const total = spans.length;
+
+        // fazer as palavras "cair"
+        spans.forEach(span => {
+            span.addEventListener('mouseenter', function() {
+                if (!this.classList.contains('caido')) {
+                    this.classList.add('caido');
+                    contador++;
+                    
+                    if (contador === total) {
+                        setTimeout(() => {
+                            textoFinal.classList.add('mostrar');
+                        }, 1000);
+                    }
+                }
+            });
+        });
+
+        // clique no texto final para mudar de página
+        textoFinal.addEventListener('click', function() {
+            // ALTERA ESTE NOME SE O TEU FICHEIRO NÃO FOR index.html
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

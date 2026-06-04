@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <title>IS IT PEOPLE?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Gasoek+One:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    body {
+      min-height: 400vh;
+      background: rgb(0, 0, 0); /* MUDA AQUI A COR DO FUNDO */
+      overflow-x: hidden;
+      font-family: "Gasoek One", sans-serif;
+    }
+
+    .shake-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: inherit;
+      will-change: transform;
+      z-index: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 100px;
+      color: white;
+      text-shadow: 0 0 5px black;
+      box-sizing: border-box;
+    }
+
+      .shake-image {
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      max-width: 80vw;
+      max-height: 80vh;
+      object-fit: contain;
+      z-index: -1;
+    }
+
+    .texto-lado {
+      max-width: 300px;
+    }
+
+    /* POSIÇÕES BASE PARA ECRÃ GRANDE (COMPUTADOR) */
+    .texto-esquerda {
+      text-align: left;
+      margin-left: 0px;
+      margin-top: 0;
+    }
+
+    .texto-direita {
+      text-align: right;
+      margin-right: -20px;
+      margin-top: 0;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      padding: 40px;
+      color: white;
+      text-shadow: 0 0 5px black;
+    }
+
+    /* AQUI MUDAS A POSIÇÃO NO TELEMÓVEL */
+    @media (max-width: 768px) {
+      .shake-layer {
+        padding: 40px;
+        justify-content: center;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .shake-image {
+        top: 35%;
+        left: 50%;
+        width: 70vw;
+        height: auto;
+        transform: translateX(-50%);
+      }
+
+      .texto-esquerda {
+        text-align: left;
+        margin-left: 0px;
+        margin-top: -120px; /* ajusta à vontade */
+      }
+
+      .texto-direita {
+        text-align: right;
+        margin-right: 0px;
+        margin-top: 120px; /* ajusta à vontade */
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shake-layer" id="shakeLayer">
+    <img src="imagens/pessoas_sfundo.svg" alt="Imagem" class="shake-image">
+    
+    <div class="texto-lado texto-esquerda">
+      <h1>IS IT</h1>
+    </div>
+
+    <div class="texto-lado texto-direita">
+      <h1>PEOPLE?</h1>
+    </div>
+  </div>
+
+  <script>
+    const shakeLayer = document.getElementById('shakeLayer');
+    const maxScroll = 2500;
+    const maxIntensity = 25;
+    const changePageAt = 2200;
+    const targetPage = "job.html";
+
+    sessionStorage.removeItem('changedOnce');
+    let alreadyChanged = false;
+
+    function onScroll() {
+      const y = window.scrollY || window.pageYOffset;
+
+      if (!alreadyChanged && y >= changePageAt) {
+        alreadyChanged = true;
+        sessionStorage.setItem('changedOnce', 'true');
+        window.location.href = targetPage;
+        return;
+      }
+
+      if (!alreadyChanged) {
+        shakeLayer.style.background = 'inherit';
+
+        const progress = Math.min(y / maxScroll, 1);
+        const intensity = progress * maxIntensity;
+
+        const offsetX = (Math.random() * 2 - 1) * intensity;
+        const offsetY = (Math.random() * 2 - 1) * intensity;
+        shakeLayer.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+      } else {
+        shakeLayer.style.transform = 'translate(0, 0)';
+      }
+    }
+
+    window.addEventListener('scroll', onScroll);
+    window.addEventListener('load', onScroll);
+  </script>
+</body>
+</html>

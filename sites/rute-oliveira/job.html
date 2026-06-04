@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <title>IS IT MY CARRER?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Gasoek+One:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    body {
+      min-height: 400vh;
+      background: rgb(0, 0, 0); /* MUDA AQUI A COR DO FUNDO */
+      overflow-x: hidden;
+      font-family: "Gasoek One", sans-serif;
+    }
+
+    /* Camada que treme: agora com fundo de cor + imagem por cima */
+    .shake-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: inherit;
+      will-change: transform;
+      z-index: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 100px ;  /* ← PADDING MENOR NOS LADOS = VAI ATÉ À BORDA */
+      color: white;
+      text-shadow: 0 0 5px black;
+      box-sizing: border-box;
+    }
+
+    /* IMAGEM ÚNICA POR CIMA DO FUNDO DE COR */
+    .shake-image {
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      max-width: 80vw;
+      max-height: 80vh;
+      object-fit: contain;
+      z-index: -1;
+    }
+
+    .texto-lado {
+      max-width: 300px;
+    }
+
+    /* COMPUTADOR - COLADO NA BORDA */
+    .texto-esquerda {
+      text-align: left;
+      margin-left: 0px;
+      margin-top: 0;     /* ← BORDA ESQUERDA */
+    }
+
+    .texto-direita {
+      text-align: right;
+      margin-right: 0px; 
+      margin-top: 0;   
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      padding: 40px;
+      color: white;
+      text-shadow: 0 0 5px black;
+    }
+
+    /* TELEMÓVEL - POSIÇÕES DIFERENTES */
+    @media (max-width: 768px) {
+      .shake-layer {
+        padding: 40px ;
+        justify-content: center;
+        flex-direction: column;
+        gap: 30px;
+      }
+
+      .shake-image {
+        max-width: 90vw;
+        max-height: 50vh;
+      }
+
+      .texto-esquerda {
+        text-align: left;
+        margin-left: 10px;      /* ← ESQUERDA MOBILE */
+        margin-top: -100px;     /* ← VERTICAL MOBILE */
+        order: 1;
+      }
+
+      .texto-direita {
+        text-align: right;
+        margin-right: 10px;     /* ← DIREITA MOBILE */
+        margin-top: 100px;      /* ← VERTICAL MOBILE */
+        order: 3;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Tudo aqui dentro treme: fundo de cor + imagem + texto -->
+  <div class="shake-layer" id="shakeLayer">
+    <!-- A IMAGEM ÚNICA QUE TREME JUNTO -->
+    <img src="imagens/job_sfundo.svg" alt="Imagem" class="shake-image">
+    
+    <div class="texto-lado texto-esquerda">
+      <h1>IS IT</h1>
+    </div>
+
+    <div class="texto-lado texto-direita">
+      <h1>MY CARRER?</h1>
+    </div>
+  </div>
+
+  <script>
+    const shakeLayer = document.getElementById('shakeLayer');
+    const maxScroll = 2500;
+    const maxIntensity = 25;
+    const changePageAt = 2200;
+    const targetPage = "animals.html";
+
+    // Reinicia o "changedOnce" sempre que entra nesta página
+    sessionStorage.removeItem('changedOnce');
+    let alreadyChanged = false;
+
+    function onScroll() {
+      const y = window.scrollY || window.pageYOffset;
+
+      // 1) Se ainda não mudou e passou o ponto, muda de página
+      if (!alreadyChanged && y >= changePageAt) {
+        alreadyChanged = true;
+        sessionStorage.setItem('changedOnce', 'true');
+        window.location.href = targetPage;
+        return;
+      }
+
+      // 2) Enquanto não mudar, mantém tremor
+      if (!alreadyChanged) {
+        // Fundo já é cor sólida no CSS
+        shakeLayer.style.background = 'inherit';
+
+        const progress = Math.min(y / maxScroll, 1);
+        const intensity = progress * maxIntensity;
+
+        const offsetX = (Math.random() * 2 - 1) * intensity;
+        const offsetY = (Math.random() * 2 - 1) * intensity;
+        shakeLayer.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+      } else {
+        shakeLayer.style.transform = 'translate(0, 0)';
+      }
+    }
+
+    window.addEventListener('scroll', onScroll);
+    window.addEventListener('load', onScroll);
+  </script>
+</body>
+</html>
