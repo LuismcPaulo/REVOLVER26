@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Aves da Amazónia</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+
+<style>
+
+/* RESET */
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:Inter, sans-serif;
+color:#fffbeb;
+overflow-x:hidden;
+}
+
+
+/* HERO */
+
+.hero{
+position:relative;
+min-height:100vh;
+display:flex;
+flex-direction:column;
+justify-content:space-between;
+overflow:hidden;
+}
+
+
+/* VIDEO DE FUNDO */
+
+.hero-video{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+object-fit:cover;
+z-index:-2;
+animation:slowZoom 20s ease-in-out infinite alternate;
+}
+
+
+/* ZOOM CINEMATOGRÁFICO */
+
+@keyframes slowZoom{
+0%{
+transform:scale(1);
+}
+100%{
+transform:scale(1.08);
+}
+}
+
+
+/* OVERLAY VERDE */
+
+.hero::after{
+content:"";
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background-color:#223108;
+opacity:0.55;
+z-index:-1;
+}
+
+
+/* HEADER */
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:20px;
+padding:30px 60px;
+font-size:18px;
+opacity:0.9;
+flex-wrap:wrap;
+}
+
+.header div{
+white-space:nowrap;
+}
+
+
+/* CENTRO */
+
+.center{
+text-align:center;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+flex-grow:1;
+padding:20px;
+width:100%;
+max-width:900px;
+margin:0 auto;
+}
+
+
+/* TITULO */
+
+.title{
+font-family:"Playfair Display", serif;
+font-style:italic;
+font-size:clamp(48px, 10vw, 110px);
+line-height:0.92;
+margin-bottom:20px;
+animation:fadeUp 1.2s ease;
+}
+
+
+/* SUBTITULO */
+
+.subtitle{
+font-size:clamp(16px, 2.8vw, 20px);
+margin-bottom:40px;
+opacity:0.92;
+max-width:700px;
+line-height:1.5;
+animation:fadeUp 1.6s ease;
+padding:0 10px;
+}
+
+
+/* BOTÃO */
+
+.button{
+text-decoration:none;
+color:#fffbeb;
+border:2px solid #fffbeb;
+padding:14px 28px;
+border-radius:12px;
+display:inline-flex;
+align-items:center;
+justify-content:center;
+gap:10px;
+font-weight:600;
+transition:all 0.2s ease;
+animation:fadeUp 2s ease;
+min-height:52px;
+}
+
+.button:hover{
+background-color:rgba(255,255,255,0.15);
+transform:translateY(-2px);
+}
+
+
+/* ANIMAÇÃO TEXTO */
+
+@keyframes fadeUp{
+from{
+opacity:0;
+transform:translateY(20px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+
+/* TABLET */
+
+@media (max-width:900px){
+
+.header{
+padding:22px 30px;
+font-size:16px;
+gap:14px;
+}
+
+.center{
+padding:30px 20px 50px;
+}
+
+.title{
+line-height:0.95;
+}
+
+.subtitle{
+max-width:620px;
+}
+
+}
+
+
+/* TELEMÓVEL */
+
+@media (max-width:600px){
+
+.hero{
+min-height:100dvh;
+}
+
+.header{
+padding:18px 20px;
+flex-direction:column;
+align-items:flex-start;
+gap:10px;
+font-size:14px;
+}
+
+.header div{
+white-space:normal;
+}
+
+.center{
+padding:20px 20px 40px;
+}
+
+.title{
+font-size:clamp(42px, 14vw, 62px);
+margin-bottom:16px;
+}
+
+.subtitle{
+font-size:16px;
+margin-bottom:28px;
+max-width:320px;
+padding:0;
+}
+
+.button{
+width:100%;
+max-width:280px;
+padding:14px 20px;
+font-size:15px;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="hero">
+
+<!-- VIDEO FUNDO -->
+
+<video class="hero-video" autoplay muted loop playsinline>
+<source src="images/ararasgif.mp4" type="video/mp4">
+</video>
+
+<!-- HEADER -->
+
+<div class="header">
+<div>Plataforma Educativa</div>
+<div>2026</div>
+<div>Ciência · Arte · Biodiversidade</div>
+</div>
+
+<!-- TEXTO CENTRAL -->
+
+<div class="center">
+
+<h1 class="title">
+Aves da Amazónia
+</h1>
+
+<p class="subtitle">
+Explore, aprenda e inspire-se com as cores e formas das aves amazónicas
+</p>
+
+<a class="button" href="explorar.html">
+Comece a explorar →
+</a>
+
+</div>
+
+</div>
+
+</body>
+</html>

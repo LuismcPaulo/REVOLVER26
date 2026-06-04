@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Explorar — Aves da Amazónia</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+:root{
+--verde:#223108;
+--fundo:#fffbeb;
+--borda:rgba(0,0,0,0.08);
+}
+
+body{
+font-family:Inter, sans-serif;
+color:var(--verde);
+background:var(--fundo);
+overflow-x:hidden;
+}
+
+/* TOPO */
+
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:34px 70px;
+font-size:16px;
+gap:20px;
+}
+
+.nav{
+display:flex;
+gap:18px;
+align-items:center;
+flex-wrap:wrap;
+}
+
+.link{
+text-decoration:none;
+color:var(--verde);
+opacity:0.85;
+}
+
+.btn{
+text-decoration:none;
+border:2px solid var(--verde);
+color:var(--verde);
+padding:10px 16px;
+border-radius:12px;
+font-weight:600;
+display:inline-flex;
+align-items:center;
+justify-content:center;
+}
+
+/* CONTAINER */
+
+.container{
+max-width:1200px;
+margin:auto;
+padding:70px;
+}
+
+/* TITULO */
+
+.h-title{
+font-family:"Playfair Display", serif;
+font-style:italic;
+font-size:clamp(42px, 6vw, 56px);
+margin-bottom:20px;
+line-height:1.02;
+}
+
+.h-sub{
+font-size:18px;
+max-width:700px;
+margin-bottom:60px;
+line-height:1.5;
+}
+
+/* SEÇÃO */
+
+.section{
+margin-top:60px;
+}
+
+.section h2{
+font-size:18px;
+margin-bottom:20px;
+}
+
+/* GALERIA */
+
+.gallery{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:40px;
+}
+
+/* CARD */
+
+.gallery-item{
+position:relative;
+border-radius:14px;
+cursor:pointer;
+transition:transform 0.35s ease, box-shadow 0.35s ease;
+box-shadow:0 0 0 rgba(0,0,0,0);
+}
+
+.gallery-item:hover{
+transform:translateY(-8px);
+box-shadow:0 18px 40px rgba(0,0,0,0.25);
+}
+
+/* IMAGEM */
+
+.image-box{
+position:relative;
+overflow:hidden;
+border-radius:14px;
+}
+
+.image-box img{
+width:100%;
+height:360px;
+object-fit:cover;
+transition:transform 0.6s ease;
+display:block;
+}
+
+.gallery-item:hover .image-box img{
+transform:scale(1.08);
+}
+
+/* OVERLAY */
+
+.image-box::after{
+content:"";
+position:absolute;
+inset:0;
+background:linear-gradient(
+to bottom,
+rgba(0,0,0,0.25),
+rgba(0,0,0,0)
+);
+opacity:0.6;
+transition:opacity 0.4s ease;
+}
+
+.gallery-item:hover .image-box::after{
+opacity:0.8;
+}
+
+/* NOME DA AVE */
+
+.bird-name{
+position:absolute;
+bottom:20px;
+left:20px;
+right:20px;
+font-family:"Playfair Display", serif;
+font-style:italic;
+font-size:28px;
+color:white;
+text-shadow:0 4px 10px rgba(0,0,0,0.4);
+transition:all 0.4s ease;
+line-height:1.05;
+}
+
+.gallery-item:hover .bird-name{
+transform:translateY(-5px);
+}
+
+/* BOLAS DE COR */
+
+.dot{
+position:absolute;
+bottom:28px;
+width:26px;
+height:26px;
+border-radius:50%;
+opacity:0;
+pointer-events:none;
+box-shadow:0 0 12px rgba(255,255,255,0.4);
+}
+
+/* arara */
+.dot1{ background:#C21807; left:0px; }
+.dot2{ background:#F4C300; left:28px; }
+.dot3{ background:#0057B8; left:56px; }
+
+/* tucano */
+.tucano .dot1{ background:#000000; }
+.tucano .dot2{ background:#FF6A00; }
+.tucano .dot3{ background:#FFD400; }
+
+/* saíra */
+.saira .dot1{ background:#2FAF5A; }
+.saira .dot2{ background:#1FA4C9; }
+.saira .dot3{ background:#F2C94C; }
+
+/* cotinga */
+.cotinga .dot1{ background:#7A1E4D; }
+.cotinga .dot2{ background:#B43A64; }
+.cotinga .dot3{ background:#2E3FA8; }
+
+/* martim */
+.martim .dot1{ background:#1a2ad6; }
+.martim .dot2{ background:#F2C94C; }
+.martim .dot3{ background:#be19d7; }
+
+/* araçari */
+.aracari .dot1{ background:#3FA7C4; }
+.aracari .dot2{ background:#ff00008d; }
+.aracari .dot3{ background:#e3fa15; }
+
+.gallery-item:hover .dot{
+animation:floatDots 1s ease forwards;
+}
+
+.dot1{ animation-delay:0s; }
+.dot2{ animation-delay:0.15s; }
+.dot3{ animation-delay:0.3s; }
+
+@keyframes floatDots{
+0%{ transform:translateY(0); opacity:1; }
+100%{ transform:translateY(-10px); opacity:1; }
+}
+
+/* PAINEL INFO */
+
+.info-panel{
+background:white;
+padding:20px;
+margin-top:-80px;
+border-radius:0 0 14px 14px;
+opacity:0;
+transform:translateY(-20px);
+transition:all 0.35s ease;
+box-shadow:0 10px 20px rgba(0,0,0,0.12);
+}
+
+.gallery-item:hover .info-panel{
+opacity:1;
+transform:translateY(0);
+margin-top:0;
+}
+
+.info-panel p{
+font-size:14px;
+line-height:1.4;
+}
+
+/* RODAPÉ */
+
+.footer{
+margin-top:80px;
+padding:28px 0 10px;
+border-top:1px solid var(--borda);
+}
+
+.footer-top{
+display:flex;
+justify-content:space-between;
+flex-wrap:wrap;
+gap:30px;
+margin-bottom:18px;
+}
+
+.footer-brand{
+max-width:420px;
+}
+
+.footer-brand h3{
+font-size:18px;
+margin-bottom:8px;
+}
+
+.footer-brand p{
+font-size:14px;
+line-height:1.5;
+opacity:0.82;
+}
+
+.footer-links{
+display:flex;
+gap:16px;
+flex-wrap:wrap;
+}
+
+.footer-links a{
+text-decoration:none;
+color:var(--verde);
+font-size:14px;
+opacity:0.85;
+}
+
+.footer-note{
+font-size:13px;
+opacity:0.68;
+line-height:1.4;
+}
+
+/* TABLET */
+
+@media (max-width:1100px){
+
+.container{
+padding:40px 30px 60px;
+}
+
+.topbar{
+padding:24px 30px;
+}
+
+.gallery{
+grid-template-columns:repeat(2,1fr);
+gap:28px;
+}
+
+.image-box img{
+height:320px;
+}
+
+}
+
+/* TELEMÓVEL */
+
+@media (max-width:700px){
+
+.topbar{
+padding:20px;
+flex-direction:column;
+align-items:flex-start;
+gap:14px;
+font-size:15px;
+}
+
+.nav{
+gap:12px;
+width:100%;
+}
+
+.container{
+padding:24px 20px 50px;
+}
+
+.h-title{
+font-size:42px;
+margin-bottom:16px;
+}
+
+.h-sub{
+font-size:16px;
+margin-bottom:40px;
+}
+
+.section{
+margin-top:40px;
+}
+
+.gallery{
+grid-template-columns:1fr;
+gap:24px;
+}
+
+.image-box{
+border-radius:16px;
+}
+
+.image-box img{
+height:260px;
+}
+
+.bird-name{
+font-size:24px;
+bottom:16px;
+left:16px;
+right:16px;
+}
+
+.dot{
+width:22px;
+height:22px;
+bottom:24px;
+}
+
+.dot2{ left:24px; }
+.dot3{ left:48px; }
+
+.info-panel{
+opacity:1;
+transform:none;
+margin-top:0;
+border-radius:0 0 16px 16px;
+padding:16px;
+}
+
+.gallery-item:hover{
+transform:none;
+box-shadow:0 10px 24px rgba(0,0,0,0.16);
+}
+
+.gallery-item:hover .bird-name{
+transform:none;
+}
+
+.gallery-item:hover .image-box img{
+transform:none;
+}
+
+.footer{
+margin-top:60px;
+padding-top:24px;
+}
+
+.footer-top{
+flex-direction:column;
+gap:20px;
+}
+
+.footer-brand h3{
+font-size:17px;
+}
+
+.footer-brand p,
+.footer-links a,
+.footer-note{
+font-size:14px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+<div><strong>Aves da Amazónia</strong></div>
+
+<div class="nav">
+<a class="link" href="index.html">Início</a>
+<a class="btn" href="index.html">← Voltar</a>
+</div>
+</div>
+
+<div class="container">
+
+<h1 class="h-title">Comece a explorar</h1>
+
+<p class="h-sub">
+Escolha uma ave e descubra curiosidades científicas e as cores marcantes das aves da Amazónia.
+</p>
+
+<div class="section">
+<h2>Espécies em destaque</h2>
+
+<div class="gallery">
+
+<!-- ARARA -->
+<div class="gallery-item" onclick="abrirAve('somArara','arara.html')">
+<div class="image-box">
+<img src="images/araravermelha.jpg" alt="Arara-vermelha">
+<div class="bird-name">
+Arara-vermelha
+<span class="dot dot1"></span>
+<span class="dot dot2"></span>
+<span class="dot dot3"></span>
+</div>
+</div>
+<div class="info-panel">
+<p>A arara-vermelha é uma das aves mais emblemáticas da Amazónia.</p>
+</div>
+</div>
+
+<!-- TUCANO -->
+<div class="gallery-item tucano" onclick="abrirAve('somTucano','tucano.html')">
+<div class="image-box">
+<img src="images/tucanotoco.jpg" alt="Tucano Toco">
+<div class="bird-name">
+Tucano Toco
+<span class="dot dot1"></span>
+<span class="dot dot2"></span>
+<span class="dot dot3"></span>
+</div>
+</div>
+<div class="info-panel">
+<p>O tucano toco destaca-se pelo seu enorme bico colorido.</p>
+</div>
+</div>
+
+<!-- SAÍRA -->
+<div class="gallery-item saira" onclick="abrirAve('somSaira','saira.html')">
+<div class="image-box">
+<img src="images/saira.jpg" alt="Saíra-sete-cores">
+<div class="bird-name">
+Saíra-sete-cores
+<span class="dot dot1"></span>
+<span class="dot dot2"></span>
+<span class="dot dot3"></span>
+</div>
+</div>
+<div class="info-panel">
+<p>Pequena e extremamente colorida, vive nas copas das árvores.</p>
+</div>
+</div>
+
+<!-- COTINGA -->
+<div class="gallery-item cotinga" onclick="abrirAve('somCotinga','cotinga.html')">
+<div class="image-box">
+<img src="images/cotingaroxa.jpg" alt="Cotinga roxa">
+<div class="bird-name">
+Cotinga roxa
+<span class="dot dot1"></span>
+<span class="dot dot2"></span>
+<span class="dot dot3"></span>
+</div>
+</div>
+<div class="info-panel">
+<p>A cotinga roxa tem uma plumagem azul-arroxeada brilhante.</p>
+</div>
+</div>
+
+<!-- MARTIM -->
+<div class="gallery-item martim" onclick="abrirAve('somMartim','martim.html')">
+<div class="image-box">
+<img src="images/martimpescadoranao.jpg" alt="Martim-pescador anão">
+<div class="bird-name">
+Martim-pescador anão
+<span class="dot dot1"></span>
+<span class="dot dot2"></span>
+<span class="dot dot3"></span>
+</div>
+</div>
+<div class="info-panel">
+<p>Pequeno e rápido, vive perto da água.</p>
+</div>
+</div>
+
+<!-- ARAÇARI -->
+<div class="gallery-item aracari" onclick="abrirAve('somAracari','aracari.html')">
+<div class="image-box">
+<img src="images/aracarimulato.jpg" alt="Araçari-mulato">
+<div class="bird-name">
+Araçari-mulato
+<span class="dot dot1"></span>
+<span class="dot dot2"></span>
+<span class="dot dot3"></span>
+</div>
+</div>
+<div class="info-panel">
+<p>Parente dos tucanos, vive em bandos e alimenta-se de frutos.</p>
+</div>
+</div>
+
+</div>
+</div>
+
+<footer class="footer">
+<div class="footer-top">
+
+<div class="footer-brand">
+<h3>Aves da Amazónia</h3>
+<p>
+Projeto que explora a biodiversidade amazónica através da observação das aves, das cores e das formas presentes na natureza.
+</p>
+</div>
+
+<div class="footer-links">
+<a href="index.html">Início</a>
+<a href="explorar.html">Explorar</a>
+</div>
+
+</div>
+
+<div class="footer-note">
+Explorar aves é também explorar cor, som e diversidade da floresta amazónica.
+</div>
+
+</footer>
+
+</div>
+
+<!-- ÁUDIOS -->
+<audio id="somArara"><source src="sounds/arara.mp3"></audio>
+<audio id="somTucano"><source src="sounds/tucano.mp3"></audio>
+<audio id="somSaira"><source src="sounds/saira.mp3"></audio>
+<audio id="somCotinga"><source src="sounds/cotinga.mp3"></audio>
+<audio id="somMartim"><source src="sounds/martim.mp3"></audio>
+<audio id="somAracari"><source src="sounds/aracari.mp3"></audio>
+
+<script>
+
+function abrirAve(idAudio, pagina){
+const audio=document.getElementById(idAudio)
+
+if(audio){
+audio.currentTime=0
+audio.play()
+
+audio.onended=function(){
+window.location.href=pagina
+}
+
+}else{
+window.location.href=pagina
+}
+}
+
+</script>
+
+</body>
+</html>
