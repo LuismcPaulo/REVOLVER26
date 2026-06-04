@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BRAIN</title>
+    <style>
+        body {
+            background-color: #000000;
+            background-image: url('imagens/particulas.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .animation-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            flex: 1;
+        }
+
+        #neuronAnimation {
+        width: 1500px;          /* Tamanho fixo maior */
+        height: auto;
+        max-width: 95vw;        /* Ainda responsivo em ecrãs pequenos */
+        max-height: 90vh;
+        object-fit: contain;
+        transition: all 0.2s ease;
+}
+
+        .button-container {
+            padding: 20px;
+            text-align: center;
+            position: fixed;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+        }
+
+        .image-button {
+            width: 200px;
+            height: auto;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .image-button:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+        .image-button:active {
+            transform: scale(0.95);
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body> 
+    <div class="animation-container">
+        <img id="neuronAnimation" src="imagens/neuronio1e2.1e2.png" alt="Neuron Animation">
+    </div>
+    
+    <div class="button-container">
+        <img src="imagens/popup1.png" alt="Sinapse" onclick="nextFrame()" class="image-button" id="growButton">
+    </div>
+
+    <script>
+        // Neuron growth frames (8 frames)
+        const neuronFrames = [
+            'imagens/neuronio1e2.1e2.png',
+            'imagens/neuronframe1.1.png',
+            'imagens/neuronframe2.2.png',
+            'imagens/neuronframe3.3.png',
+            'imagens/neuronframe4.4.png',
+            'imagens/neuronframe5.5.png',
+            'imagens/neuronframe6.6.png',
+            'imagens/neuronframe7.7.png'  // Connected/synapse formed
+        ];
+        
+        // Synapse animation frames (27 frames of circle growing)
+        const synapseFrames = [];
+        for (let i = 1; i <= 27; i++) {
+            synapseFrames.push(`imagens/circleframe${i}.png`);
+        }
+        
+        let currentFrame = 0;
+        let currentPhase = 'neuron'; // 'neuron' or 'synapse'
+        let autoPlayInterval = null;
+        const animationImg = document.getElementById('neuronAnimation');
+        const growButton = document.getElementById('growButton');
+        
+// Add this function after your variables and before startSynapseAnimation()
+function nextFrame() {
+    if (currentPhase === 'neuron') {
+        // Still in neuron growth phase
+        if (currentFrame < neuronFrames.length - 1) {
+            currentFrame++;
+            animationImg.src = neuronFrames[currentFrame];
+            
+            // Check if we reached the synapse frame (last neuron frame)
+            if (currentFrame === neuronFrames.length - 1) {
+                // Disable the button
+                growButton.style.opacity = '0.5';
+                growButton.style.pointerEvents = 'none';
+                
+                // Start synapse animation after a short delay
+                setTimeout(() => {
+                    startSynapseAnimation();
+                }, 0); // Half second delay so user can see the connected neurons
+            }
+        }
+    }
+}
+
+
+        function startSynapseAnimation() {
+    currentPhase = 'synapse';
+    currentFrame = 0;
+    
+    // First, show the connected neurons frame while loading
+    animationImg.src = neuronFrames[neuronFrames.length - 1];
+    
+    // Debug: check if frames exist
+    console.log('========== STARTING SYNAPSE ANIMATION ==========');
+    console.log('Looking for 27 circle frames...');
+    console.log('First frame path:', synapseFrames[0]);
+    console.log('Last frame path:', synapseFrames[26]);
+    
+    // Preload all circle frames
+    let loadedCount = 0;
+    let errorCount = 0;
+    const preloadedImages = [];
+    
+    // Create image objects to preload
+    for (let i = 0; i < synapseFrames.length; i++) {
+        const img = new Image();
+        img.src = synapseFrames[i];
+        preloadedImages[i] = img;
+        
+        img.onload = function(index) {
+            return function() {
+                loadedCount++;
+                console.log('✅ Loaded frame ' + (index + 1) + ' of 27: ' + synapseFrames[index]);
+                
+                // When all 27 frames are loaded, start the animation
+                if (loadedCount === synapseFrames.length) {
+                    console.log('🎉 All 27 frames loaded successfully! Starting animation...');
+                    // Small delay to ensure everything is ready
+                    setTimeout(() => {
+                        startCircleAnimation();
+                    }, 200);
+                }
+            };
+        }(i); // Pass i to the closure
+        
+        // Fallback in case of loading error
+        img.onerror = function(index) {
+            return function() {
+                errorCount++;
+                console.log('❌ ERROR loading frame ' + (index + 1) + ': ' + synapseFrames[index]);
+                console.log('   Check if this file exists in your imagens folder!');
+                
+                loadedCount++; // Still count it so we don't get stuck
+                
+                // If too many errors, maybe show what's wrong
+                if (errorCount > 0) {
+                    console.log('⚠️ Total errors so far: ' + errorCount + ' of 27 frames');
+                }
+            };
+        }(i); // Pass i to the closure
+    }
+    
+    // Add a timeout in case loading takes too long
+    setTimeout(function() {
+        if (loadedCount < synapseFrames.length) {
+            console.log('⏰ TIMEOUT: Only loaded ' + loadedCount + ' of 27 frames after 5 seconds');
+            console.log('Attempting to start animation anyway with ' + loadedCount + ' frames...');
+            startCircleAnimation();
+        }
+    }, 5000);
+}
+
+function startCircleAnimation() {
+    console.log('▶️ Starting circle animation with frame 0:', synapseFrames[0]);
+    
+    // Start from frame 0
+    animationImg.src = synapseFrames[0];
+    
+    // Play the rest
+    autoPlayInterval = setInterval(function() {
+        currentFrame++;
+        
+        if (currentFrame < synapseFrames.length) {
+            console.log('▶️ Playing frame ' + (currentFrame + 1) + ': ' + synapseFrames[currentFrame]);
+            animationImg.src = synapseFrames[currentFrame];
+        }
+        
+        if (currentFrame === synapseFrames.length - 1) {
+            console.log('🏁 Animation complete! Redirecting to pagina3.html...');
+            clearInterval(autoPlayInterval);
+            
+            setTimeout(function() {
+                window.location.href = 'pagina3.html';
+            }, 500);
+        }
+    }, 50); // 100ms between frames
+}
+    </script>
+</body>
+</html>

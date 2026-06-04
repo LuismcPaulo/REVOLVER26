@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WINDOW</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilo para o texto typewriter */
+        .typewriter-container {
+            position: fixed;
+            bottom: 50px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            z-index: 100;
+            pointer-events: none;
+            font-family: 'Pixelify Sans', monospace;
+        }
+
+        .typewriter-text {
+    color: red;
+    font-size: 36px;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 0;
+    animation: typing 3.5s steps(30, end) forwards;
+}
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes blink-cursor {
+            from, to { border-color: transparent; }
+            50% { border-color: red; }
+        }
+
+        /* Ajuste para mobile */
+        @media (max-width: 768px) {
+            .typewriter-text {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="image-wrapper">
+            <img id="myImage" src="imagens/olho1.png" alt="erroimagem">
+            
+            <!-- Buttons that appear only over olho1 -->
+            <div class="button-container" id="buttonContainer">
+                <button class="overlay-button" id="button1" onclick="window.location.href = 'pagina2.html'"></button>
+                <button class="overlay-button" id="button2" onclick="window.location.href = 'pagina3.html'"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container para o texto typewriter (aparece apenas quando vem da pagina4) -->
+    <div id="typewriterContainer" class="typewriter-container" style="display: none;">
+        <span id="typewriterText" class="typewriter-text">After all the eyes say nothing</span>
+    </div>
+
+    <script>
+        // Verificar se veio da pagina4 com o parâmetro from=texto
+        const urlParams = new URLSearchParams(window.location.search);
+        const fromTexto = urlParams.get('from') === 'texto';
+    
+        // Get the image element
+        const image = document.getElementById('myImage');
+        const buttonContainer = document.getElementById('buttonContainer');
+        const typewriterContainer = document.getElementById('typewriterContainer');
+    
+        if (fromTexto) {
+            console.log('👁️ Modo: apenas olhos fechados com texto typewriter');
+            
+            // Mostrar apenas olho2.png (fechados)
+            image.src = 'imagens/olho2.png';
+            
+            // Esconder os botões
+            buttonContainer.style.display = 'none';
+            
+            // Mostrar o texto typewriter com um pequeno delay
+            setTimeout(function() {
+                typewriterContainer.style.display = 'block';
+                
+                // Ajustar a animação para o texto completo
+                const textElement = document.getElementById('typewriterText');
+                const textLength = textElement.textContent.length;
+                
+                // Reset da animação para Safari
+                textElement.style.animation = 'none';
+                setTimeout(function() {
+                    textElement.style.animation = `typing 3.5s steps(${textLength}, end) forwards, blink-cursor 0.75s step-end infinite`;
+                }, 50);
+            }, 500);
+            
+            // Parar qualquer intervalo que possa existir
+            if (window.intervalId) {
+                clearInterval(window.intervalId);
+                window.intervalId = null;
+            }
+        } else {
+            // MODO NORMAL (com alternância e botões)
+            console.log('👁️ Modo normal');
+            
+            // Esconder o container do texto typewriter
+            typewriterContainer.style.display = 'none';
+            
+            // Array of image paths
+            var images = ['imagens/olho1.png', 'imagens/olho2.png']; // Usei var em vez de const
+            var currentIndex = 0; // Usei var em vez de let
+            
+            // Function to check if current image is olho1
+            function checkImageAndShowButtons() {
+                if (currentIndex === 0) {
+                    buttonContainer.style.display = 'flex';
+                } else {
+                    buttonContainer.style.display = 'none';
+                }
+            }
+            
+            // Função para alternar imagens
+            function toggleImage() {
+                currentIndex = currentIndex === 0 ? 1 : 0;
+                image.src = images[currentIndex];
+                checkImageAndShowButtons();
+            }
+            
+            // Initial check - começa com olho1
+            image.src = images[0];
+            checkImageAndShowButtons();
+            
+            // Parar qualquer intervalo anterior
+            if (window.intervalId) {
+                clearInterval(window.intervalId);
+            }
+            
+            // Change image every 0.5 seconds - versão mais compatível com Safari
+            window.intervalId = setInterval(toggleImage, 500);
+            
+            // Garantir que o intervalo continua mesmo quando a aba não está ativa
+            // (alguns browsers limitam setInterval em abas inativas)
+            if (typeof window.requestAnimationFrame !== 'undefined') {
+                // Fallback para Safari
+                var lastTime = Date.now();
+                function safariFix() {
+                    var now = Date.now();
+                    if (now - lastTime >= 500) {
+                        toggleImage();
+                        lastTime = now;
+                    }
+                    window.requestAnimationFrame(safariFix);
+                }
+                // Comentar se não precisar
+                // safariFix();
+            }
+        }
+    
+        // Verificar se as imagens carregam
+        function testImageLoad() {
+            var img = new Image();
+            img.onload = function() { console.log('✅ olho1.png carregou'); };
+            img.onerror = function() { console.log('❌ olho1.png NÃO carregou'); };
+            img.src = 'imagens/olho1.png';
+            
+            var img2 = new Image();
+            img2.onload = function() { console.log('✅ olho2.png carregou'); };
+            img2.onerror = function() { console.log('❌ olho2.png NÃO carregou'); };
+            img2.src = 'imagens/olho2.png';
+        }
+        
+        // Testar após um pequeno delay
+        setTimeout(testImageLoad, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TRUTH?</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: rgb(0, 60, 255);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .eye-wrapper {
+            position: relative;
+            width: 800px;
+            height: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Olhos ABERTOS (olho1.png) - imagem completa */
+        .eye-open {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('imagens/olho1.png');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.8s ease, transform 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform-origin: center center;
+        }
+
+        .eye-open.revealed {
+            opacity: 1;
+        }
+
+        .eye-open.right-zoomed {
+            transform: translate(-120%, 0%) scale(4); /* Como pediste, não mexer */
+        }
+
+        /* Olhos FECHADOS (olho2.png) */
+        .eye-closed {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('imagens/olho2.png');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 2;
+            cursor: pointer;
+            opacity: 1;
+            transition: none;
+        }
+
+        /* Animações de tremor */
+        @keyframes tremor1 {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(-5px, -3px); }
+            50% { transform: translate(5px, 3px); }
+            75% { transform: translate(-3px, 2px); }
+            100% { transform: translate(3px, -2px); }
+        }
+
+        @keyframes tremor2 {
+            0% { transform: translate(0, 0); }
+            20% { transform: translate(-8px, -5px); }
+            40% { transform: translate(8px, 5px); }
+            60% { transform: translate(-6px, 4px); }
+            80% { transform: translate(6px, -4px); }
+            100% { transform: translate(-4px, 3px); }
+        }
+
+        @keyframes tremor3 {
+            0% { transform: translate(0, 0); }
+            16% { transform: translate(-12px, -8px); }
+            32% { transform: translate(12px, 8px); }
+            48% { transform: translate(-9px, 6px); }
+            64% { transform: translate(9px, -6px); }
+            80% { transform: translate(-7px, 5px); }
+            100% { transform: translate(7px, -5px); }
+        }
+
+        @keyframes tremor4 {
+            0% { transform: translate(0, 0); }
+            14% { transform: translate(-16px, -10px); }
+            28% { transform: translate(16px, 10px); }
+            42% { transform: translate(-12px, 8px); }
+            56% { transform: translate(12px, -8px); }
+            70% { transform: translate(-10px, 7px); }
+            84% { transform: translate(10px, -7px); }
+            100% { transform: translate(-8px, 6px); }
+        }
+
+        @keyframes tremor5 {
+            0% { transform: translate(0, 0); }
+            12% { transform: translate(-20px, -12px); }
+            24% { transform: translate(20px, 12px); }
+            36% { transform: translate(-15px, 9px); }
+            48% { transform: translate(15px, -9px); }
+            60% { transform: translate(-12px, 8px); }
+            72% { transform: translate(12px, -8px); }
+            84% { transform: translate(-9px, 6px); }
+            100% { transform: translate(9px, -6px); }
+        }
+
+        @keyframes tremor6 {
+            0% { transform: translate(0, 0); }
+            10% { transform: translate(-25px, -15px); }
+            20% { transform: translate(25px, 15px); }
+            30% { transform: translate(-18px, 11px); }
+            40% { transform: translate(18px, -11px); }
+            50% { transform: translate(-15px, 9px); }
+            60% { transform: translate(15px, -9px); }
+            70% { transform: translate(-12px, 7px); }
+            80% { transform: translate(12px, -7px); }
+            90% { transform: translate(-8px, 5px); }
+            100% { transform: translate(8px, -5px); }
+        }
+
+        /* Classes para cada nível de tremor */
+        .tremor-1 { animation: tremor1 0.3s infinite; }
+        .tremor-2 { animation: tremor2 0.3s infinite; }
+        .tremor-3 { animation: tremor3 0.3s infinite; }
+        .tremor-4 { animation: tremor4 0.3s infinite; }
+        .tremor-5 { animation: tremor5 0.3s infinite; }
+        .tremor-6 { animation: tremor6 0.3s infinite; }
+
+        /* Container para o texto animado */
+        .text-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #canvasTexto {
+            width: 600px;
+            height: 300px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        #canvasTexto.visible {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="eye-wrapper" id="eyeWrapper">
+            <!-- Olhos ABERTOS (começam invisíveis) -->
+            <div class="eye-open" id="eyeOpen"></div>
+            
+            <!-- Olhos FECHADOS (começam visíveis) -->
+            <div class="eye-closed" id="draggableEye"></div>
+            
+            <!-- Texto animado -->
+            <div class="text-container">
+                <canvas id="canvasTexto" width="600" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elementos
+        const eyeClosed = document.getElementById('draggableEye');
+        const eyeOpen = document.getElementById('eyeOpen');
+        const canvasTexto = document.getElementById('canvasTexto');
+        
+        // Variáveis de controle
+        let clickCount = 0;
+        const maxClicks = 7;
+        let textoIniciado = false;
+
+        // Função para remover todos os tremores
+        function removeAllTremors() {
+            for (let i = 1; i <= 6; i++) {
+                eyeClosed.classList.remove(`tremor-${i}`);
+            }
+        }
+
+        // Evento de clique
+        eyeClosed.addEventListener('click', function() {
+            if (clickCount >= maxClicks) return; // Já chegou ao máximo
+            
+            clickCount++;
+            console.log(`👆 Clique ${clickCount}/${maxClicks}`);
+            
+            // Remover tremor anterior
+            removeAllTremors();
+            
+            if (clickCount < maxClicks) {
+                // Adicionar tremor proporcional ao número de cliques
+                eyeClosed.classList.add(`tremor-${clickCount}`);
+            } else {
+                // ÚLTIMO CLIQUE (7) - desaparece e abre olhos
+                console.log('💥 7 cliques! Olhos fechados desaparecem!');
+                
+                // Remover tremor
+                removeAllTremors();
+                
+                // Desaparecer instantaneamente (sem transição)
+                eyeClosed.style.opacity = '0';
+                eyeClosed.style.pointerEvents = 'none';
+                
+                // Mostrar olhos abertos
+                eyeOpen.classList.add('revealed');
+                
+                // Zoom no olho direito
+                setTimeout(() => {
+                    eyeOpen.classList.add('right-zoomed');
+                    console.log('👁️ Zoom no olho direito!');
+                    
+                    // Iniciar texto após zoom
+                    setTimeout(() => {
+                        if (!textoIniciado) {
+                            iniciarTexto();
+                            textoIniciado = true;
+                        }
+                    }, 1500);
+                }, 100);
+            }
+        });
+
+        // ===== CÓDIGO DO TEXTO ANIMADO =====
+        function iniciarTexto() {
+            const canvas = canvasTexto;
+            const ctx = canvas.getContext('2d');
+            
+            const frase = "THE MORE YOU THINK, THE LESS YOU KNOW";
+            
+            const radius = 150;
+            let progresso = -0.85;
+            let pausado = false;
+            let timerPausa = null;
+            
+            const tamanhoFonteBase = 36;
+            const tamanhoFonte = `bold ${tamanhoFonteBase}px "Pixelify Sans", monospace`;
+            
+            // Redirecionamento após 23 segundos
+            const tempoRedirecionamento = 10000;
+            setTimeout(() => {
+                window.location.href = 'index.html?from=texto';
+            }, tempoRedirecionamento);
+            
+            function calcularLargurasLetras(ctx, frase, tamanhoFonte) {
+                ctx.save();
+                ctx.font = tamanhoFonte;
+                const larguras = [];
+                for (let i = 0; i < frase.length; i++) {
+                    const letra = frase[i];
+                    if (letra === ' ') {
+                        larguras.push(ctx.measureText(' ').width);
+                    } else if (letra === ',') {
+                        larguras.push(ctx.measureText(',').width);
+                    } else {
+                        larguras.push(ctx.measureText(letra).width);
+                    }
+                }
+                ctx.restore();
+                return larguras;
+            }
+            
+            function calcularComprimentoTotal(larguras) {
+                let total = 0;
+                for (let i = 0; i < larguras.length; i++) {
+                    total += larguras[i] * 1.15;
+                }
+                return total;
+            }
+            
+            function desenhar() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                const centerX = canvas.width / 2 - 110;
+                const centerY = canvas.height / 2 + 30;
+                
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                
+                ctx.font = tamanhoFonte;
+                ctx.fillStyle = 'red';
+                ctx.shadowColor = 'red';
+                ctx.shadowBlur = 15;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                const larguras = calcularLargurasLetras(ctx, frase, tamanhoFonte);
+                const comprimentoTotal = calcularComprimentoTotal(larguras);
+                
+                const anguloBase = -progresso * Math.PI;
+                let anguloAtual = anguloBase - (comprimentoTotal / radius) / 2;
+                
+                const maxAnguloVisivel = Math.PI * 1.0;
+                
+                for (let i = 0; i < frase.length; i++) {
+                    const letra = frase[i];
+                    const anguloLetra = anguloAtual;
+                    
+                    if (anguloLetra > -maxAnguloVisivel && anguloLetra < maxAnguloVisivel) {
+                        
+                        const x = Math.sin(anguloLetra) * radius;
+                        const z = Math.cos(anguloLetra) * radius;
+                        
+                        const fatorVisibilidade = Math.max(0, Math.cos(anguloLetra) * 1.5);
+                        const visibilidade = Math.min(1, fatorVisibilidade);
+                        
+                        const scale = 0.7 + (Math.cos(anguloLetra) * 0.5);
+                        
+                        if (visibilidade > 0.05) {
+                            ctx.save();
+                            ctx.translate(x, 0);
+                            ctx.scale(scale, scale);
+                            ctx.fillStyle = `rgba(255, 0, 0, ${visibilidade})`;
+                            ctx.fillText(letra, 0, 0);
+                            ctx.restore();
+                        }
+                    }
+                    
+                    anguloAtual += (larguras[i] * 1.15) / radius;
+                }
+                
+                ctx.restore();
+                
+                if (!pausado) {
+                    progresso += 0.003;
+                    
+                    if (progresso > 1.2) {
+                        pausado = true;
+                        
+                        if (timerPausa) {
+                            clearTimeout(timerPausa);
+                        }
+                        
+                        timerPausa = setTimeout(() => {
+                            progresso = -0.85;
+                            pausado = false;
+                            timerPausa = null;
+                        }, 500);
+                    }
+                }
+                
+                requestAnimationFrame(desenhar);
+            }
+            
+            canvasTexto.classList.add('visible');
+            desenhar();
+        }
+    </script>
+</body>
+</html>
