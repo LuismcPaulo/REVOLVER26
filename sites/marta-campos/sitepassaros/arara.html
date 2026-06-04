@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Arara-vermelha — Aves da Amazónia</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+:root{
+  --verde:#223108;
+  --fundo:#fffbeb;
+  --borda:rgba(0,0,0,0.08);
+  --sombra:0 12px 28px rgba(0,0,0,0.10);
+
+  --arara-vermelho:#c93c32;
+  --arara-verde:#708238;
+  --arara-azul:#3d68a8;
+  --arara-creme:#efe5cf;
+
+  --arara-bico:#2f2b28;
+  --arara-amarelo:#d9b24a;
+  --arara-rosa-claro:#f1d2c6;
+  --arara-sombra:#8a5f52;
+}
+
+body{
+  font-family:Inter, sans-serif;
+  background:var(--fundo);
+  color:var(--verde);
+  line-height:1.6;
+  overflow-x:hidden;
+}
+
+/* TOPO */
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:34px 70px;
+  font-size:16px;
+  gap:20px;
+}
+
+.brand{
+  font-weight:700;
+  flex-shrink:0;
+}
+
+.nav{
+  display:flex;
+  gap:18px;
+  align-items:center;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+.link{
+  text-decoration:none;
+  color:var(--verde);
+  opacity:0.85;
+}
+
+.btn-top{
+  text-decoration:none;
+  border:2px solid var(--verde);
+  color:var(--verde);
+  padding:10px 16px;
+  border-radius:12px;
+  font-weight:600;
+  transition:all 0.25s ease;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.btn-top:hover{
+  background:var(--verde);
+  color:var(--fundo);
+}
+
+/* CONTAINER */
+
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:30px 70px 80px;
+}
+
+/* HERO */
+
+.hero{
+  display:grid;
+  grid-template-columns:1.1fr 0.9fr;
+  gap:40px;
+  align-items:start;
+  margin-top:10px;
+}
+
+.hero-gallery{
+  display:grid;
+  grid-template-columns:1.2fr 0.8fr;
+  grid-template-rows:repeat(2, 250px);
+  gap:16px;
+}
+
+.hero-gallery img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:18px;
+  cursor:pointer;
+  box-shadow:0 10px 25px rgba(0,0,0,0.15);
+  transition:transform 0.3s ease;
+  display:block;
+}
+
+.hero-gallery img:hover{
+  transform:scale(1.03);
+}
+
+.hero-gallery .main-img{
+  grid-row:1 / span 2;
+  grid-column:1;
+}
+
+.hero-text{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+.kicker{
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  opacity:0.75;
+}
+
+.title{
+  font-family:"Playfair Display", serif;
+  font-style:italic;
+  font-size:clamp(42px, 6vw, 64px);
+  line-height:0.95;
+}
+
+.scientific{
+  font-size:22px;
+  font-style:italic;
+  opacity:0.82;
+}
+
+.description{
+  font-size:18px;
+  max-width:520px;
+}
+
+/* INFO CARDS */
+
+.info-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:22px;
+  margin-top:50px;
+}
+
+.info-card{
+  background:white;
+  border:1px solid var(--borda);
+  border-radius:18px;
+  padding:24px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.05);
+}
+
+.info-head{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+.icon{
+  width:22px;
+  height:22px;
+  fill:none;
+  stroke:var(--verde);
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  opacity:0.9;
+  flex-shrink:0;
+}
+
+.info-card h3{
+  font-size:16px;
+  margin:0;
+}
+
+.info-card p{
+  font-size:15px;
+  opacity:0.9;
+}
+
+/* SOM */
+
+.sound-section{
+  margin-top:60px;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:30px;
+  align-items:center;
+  background:white;
+  border:1px solid var(--borda);
+  border-radius:20px;
+  padding:28px;
+  box-shadow:var(--sombra);
+}
+
+.sound-text h2{
+  font-family:"Playfair Display", serif;
+  font-style:italic;
+  font-size:38px;
+  margin-bottom:10px;
+}
+
+.sound-text p{
+  font-size:16px;
+  max-width:700px;
+}
+
+.sound-ui{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+.sound-button{
+  border:none;
+  background:var(--verde);
+  color:var(--fundo);
+  padding:16px 22px;
+  border-radius:14px;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+  transition:transform 0.25s ease, opacity 0.25s ease;
+}
+
+.sound-button:hover{
+  transform:translateY(-2px);
+  opacity:0.92;
+}
+
+.wave{
+  display:flex;
+  align-items:flex-end;
+  gap:6px;
+  height:42px;
+  opacity:0.35;
+}
+
+.wave span{
+  display:block;
+  width:6px;
+  height:12px;
+  background:var(--verde);
+  border-radius:999px;
+  transform-origin:bottom;
+}
+
+.wave.playing span{
+  animation:waveBounce 0.9s ease-in-out infinite;
+}
+
+.wave.playing span:nth-child(2){ animation-delay:0.1s; }
+.wave.playing span:nth-child(3){ animation-delay:0.2s; }
+.wave.playing span:nth-child(4){ animation-delay:0.3s; }
+.wave.playing span:nth-child(5){ animation-delay:0.4s; }
+
+@keyframes waveBounce{
+  0%, 100%{
+    height:10px;
+    opacity:0.45;
+  }
+  50%{
+    height:38px;
+    opacity:1;
+  }
+}
+
+/* APRENDIZAGEM ARTÍSTICA */
+
+.learning-section{
+  margin-top:70px;
+}
+
+.learning-title{
+  font-family:"Playfair Display", serif;
+  font-style:italic;
+  font-size:46px;
+  margin-bottom:18px;
+}
+
+.learning-intro{
+  font-size:18px;
+  max-width:850px;
+  margin-bottom:30px;
+}
+
+.step-card{
+  background:white;
+  border:1px solid var(--borda);
+  border-radius:22px;
+  padding:28px;
+  box-shadow:0 10px 22px rgba(0,0,0,0.05);
+  margin-bottom:26px;
+}
+
+.step-label{
+  display:inline-block;
+  background:#eef3e2;
+  color:var(--verde);
+  border-radius:999px;
+  padding:8px 14px;
+  font-size:13px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.8px;
+  margin-bottom:14px;
+}
+
+.step-card h3{
+  font-size:28px;
+  margin-bottom:10px;
+}
+
+.step-text{
+  font-size:16px;
+  max-width:860px;
+  margin-bottom:22px;
+}
+
+/* COMPARADOR */
+
+.compare-wrapper{
+  margin-top:10px;
+  display:flex;
+  justify-content:center;
+}
+
+.compare-box{
+  --slider-pos:50%;
+  position:relative;
+  width:min(100%, 400px);
+  border-radius:22px;
+  overflow:hidden;
+  box-shadow:0 14px 34px rgba(0,0,0,0.14);
+  background:#f4efe2;
+}
+
+.compare-sizer{
+  display:block;
+  width:100%;
+  height:auto;
+  visibility:hidden;
+  pointer-events:none;
+  user-select:none;
+}
+
+.compare-fixed-image{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  background:#f7f2e5;
+  user-select:none;
+  pointer-events:none;
+}
+
+.compare-left-image{
+  clip-path:inset(0 calc(100% - var(--slider-pos)) 0 0);
+}
+
+.compare-right-image{
+  clip-path:inset(0 0 0 var(--slider-pos));
+}
+
+.compare-label{
+  position:absolute;
+  top:16px;
+  z-index:3;
+  padding:8px 12px;
+  background:rgba(255,255,255,0.94);
+  border:1px solid var(--borda);
+  border-radius:999px;
+  font-size:13px;
+  font-weight:700;
+  color:var(--verde);
+  box-shadow:0 8px 18px rgba(0,0,0,0.06);
+}
+
+.compare-label-left{
+  left:16px;
+}
+
+.compare-label-right{
+  right:16px;
+}
+
+.compare-divider{
+  position:absolute;
+  top:0;
+  bottom:0;
+  left:var(--slider-pos);
+  width:3px;
+  background:white;
+  transform:translateX(-50%);
+  box-shadow:0 0 0 1px rgba(0,0,0,0.08);
+  z-index:4;
+  pointer-events:none;
+}
+
+.compare-divider::before{
+  content:"↔";
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  width:54px;
+  height:54px;
+  border-radius:50%;
+  background:white;
+  color:var(--verde);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  font-weight:700;
+  box-shadow:0 6px 18px rgba(0,0,0,0.18);
+}
+
+.compare-slider{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  opacity:0;
+  cursor:ew-resize;
+  z-index:5;
+}
+
+/* EXPLORAÇÃO DE CORES */
+
+.color-exploration{
+  display:grid;
+  gap:18px;
+}
+
+.color-band-card{
+  border:1px solid var(--borda);
+  border-radius:20px;
+  background:#fffdf8;
+  padding:18px;
+  box-shadow:0 8px 18px rgba(0,0,0,0.04);
+}
+
+.color-band-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  margin-bottom:12px;
+}
+
+.color-band-title{
+  font-size:18px;
+  font-weight:700;
+}
+
+.color-band-code{
+  font-size:13px;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid var(--borda);
+  background:white;
+  opacity:0.9;
+}
+
+.color-band{
+  height:56px;
+  border-radius:16px;
+  overflow:visible;
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,0.04);
+}
+
+.band-segment{
+  position:relative;
+  transition:transform 0.22s ease, filter 0.22s ease;
+  cursor:pointer;
+}
+
+.band-segment:first-child{
+  border-radius:16px 0 0 16px;
+}
+
+.band-segment:last-child{
+  border-radius:0 16px 16px 0;
+}
+
+.band-segment:hover{
+  transform:scaleY(1.08);
+  filter:brightness(1.05);
+  z-index:2;
+}
+
+.tooltip{
+  position:absolute;
+  left:50%;
+  bottom:calc(100% + 10px);
+  transform:translateX(-50%) translateY(6px);
+  background:#223108;
+  color:#fffbeb;
+  font-size:12px;
+  line-height:1.3;
+  padding:8px 10px;
+  border-radius:10px;
+  white-space:nowrap;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.18s ease, transform 0.18s ease;
+  box-shadow:0 10px 18px rgba(0,0,0,0.16);
+}
+
+.tooltip::after{
+  content:"";
+  position:absolute;
+  top:100%;
+  left:50%;
+  transform:translateX(-50%);
+  border-width:6px;
+  border-style:solid;
+  border-color:#223108 transparent transparent transparent;
+}
+
+.band-segment:hover .tooltip,
+.minor-color:hover .tooltip{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+.minor-colors{
+  margin-top:8px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+}
+
+.minor-color{
+  position:relative;
+  border:1px solid var(--borda);
+  border-radius:16px;
+  background:#fff;
+  padding:12px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-height:68px;
+  transition:transform 0.22s ease, box-shadow 0.22s ease;
+  cursor:pointer;
+}
+
+.minor-color:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 16px rgba(0,0,0,0.06);
+}
+
+.minor-swatch{
+  width:54px;
+  height:38px;
+  border-radius:10px;
+  border:1px solid rgba(0,0,0,0.08);
+  flex-shrink:0;
+}
+
+.minor-info strong{
+  display:block;
+  font-size:14px;
+  margin-bottom:2px;
+}
+
+.minor-info span{
+  display:block;
+  font-size:12px;
+  opacity:0.72;
+}
+
+.minor-color .tooltip{
+  bottom:calc(100% + 8px);
+}
+
+/* PASSO 3 — MATERIAIS ARTÍSTICOS */
+
+.materials-playground{
+  display:grid;
+  grid-template-columns:220px 1fr;
+  gap:24px;
+  align-items:start;
+  max-width:700px;
+  margin:auto;
+}
+
+.materials-tools{
+  display:grid;
+  gap:14px;
+}
+
+.tool-card{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:16px 18px;
+  background:#fffdf8;
+  border:1px solid var(--borda);
+  border-radius:18px;
+  box-shadow:0 8px 18px rgba(0,0,0,0.04);
+  cursor:grab;
+  transition:transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  user-select:none;
+}
+
+.tool-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 22px rgba(0,0,0,0.07);
+  border-color:rgba(34,49,8,0.18);
+}
+
+.tool-card:active{
+  cursor:grabbing;
+}
+
+.tool-card.dragging{
+  opacity:0.65;
+  transform:scale(0.98);
+}
+
+.tool-icon{
+  width:48px;
+  height:48px;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  background:#f4f0df;
+  flex-shrink:0;
+}
+
+.tool-name{
+  font-size:16px;
+  font-weight:600;
+}
+
+.art-drop-zone{
+  position:relative;
+  min-height:300px;
+  border-radius:24px;
+  overflow:hidden;
+  border:2px dashed rgba(34,49,8,0.18);
+  background:#f7f2e5;
+  box-shadow:0 12px 26px rgba(0,0,0,0.06);
+  transition:border-color 0.22s ease, background 0.22s ease, transform 0.22s ease;
+}
+
+.art-drop-zone.active{
+  border-color:rgba(34,49,8,0.45);
+  background:#f1ead7;
+  transform:scale(1.01);
+}
+
+.drop-hint{
+  position:absolute;
+  top:18px;
+  left:18px;
+  z-index:2;
+  padding:8px 12px;
+  background:rgba(255,255,255,0.92);
+  border:1px solid var(--borda);
+  border-radius:999px;
+  font-size:13px;
+  font-weight:600;
+  color:var(--verde);
+  box-shadow:0 8px 18px rgba(0,0,0,0.06);
+}
+
+.material-preview{
+  width:100%;
+  height:100%;
+  min-height:300px;
+  object-fit:cover;
+  display:block;
+  transition:opacity 0.22s ease, transform 0.25s ease, filter 0.25s ease;
+}
+
+.material-preview.changing{
+  opacity:0.7;
+  transform:scale(1.01);
+  filter:saturate(1.05);
+}
+
+/* EXEMPLOS */
+
+.examples-section{
+  margin-top:70px;
+}
+
+.examples-title{
+  font-family:"Playfair Display", serif;
+  font-style:italic;
+  font-size:42px;
+  margin-bottom:20px;
+}
+
+.examples-strip{
+  display:flex;
+  gap:18px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  padding-bottom:6px;
+  scrollbar-width:thin;
+  -webkit-overflow-scrolling:touch;
+}
+
+.examples-strip::-webkit-scrollbar{
+  height:8px;
+}
+
+.examples-strip::-webkit-scrollbar-thumb{
+  background:rgba(34,49,8,0.25);
+  border-radius:999px;
+}
+
+.example-image{
+  flex:0 0 auto;
+  width:260px;
+  height:260px;
+  border-radius:20px;
+  object-fit:cover;
+  display:block;
+  cursor:pointer;
+  box-shadow:0 10px 24px rgba(0,0,0,0.10);
+  transition:transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.example-image:hover{
+  transform:translateY(-4px) scale(1.01);
+  box-shadow:0 14px 28px rgba(0,0,0,0.14);
+}
+
+/* LIGHTBOX */
+
+.lightbox{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.88);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  padding:30px;
+}
+
+.lightbox.open{
+  display:flex;
+}
+
+.lightbox-content{
+  position:relative;
+  max-width:1100px;
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.lightbox img{
+  max-width:100%;
+  max-height:82vh;
+  border-radius:18px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.4);
+}
+
+.lightbox-close{
+  position:absolute;
+  top:-10px;
+  right:0;
+  transform:translateY(-100%);
+  background:white;
+  color:#223108;
+  border:none;
+  border-radius:12px;
+  padding:10px 14px;
+  font-size:15px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.lightbox-nav{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  background:rgba(255,255,255,0.92);
+  border:none;
+  width:52px;
+  height:52px;
+  border-radius:50%;
+  font-size:24px;
+  font-weight:700;
+  cursor:pointer;
+  color:#223108;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.lightbox-prev{
+  left:-70px;
+}
+
+.lightbox-next{
+  right:-70px;
+}
+
+/* RESPONSIVO */
+
+@media (max-width:1100px){
+
+  .topbar{
+    padding:28px 30px;
+  }
+
+  .container{
+    padding:24px 30px 70px;
+  }
+
+  .hero{
+    grid-template-columns:1fr;
+    gap:28px;
+  }
+
+  .hero-gallery{
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:320px 220px;
+  }
+
+  .hero-gallery .main-img{
+    grid-column:1 / span 2;
+    grid-row:1;
+  }
+
+  .hero-gallery img{
+    height:100%;
+  }
+
+  .info-grid{
+    grid-template-columns:1fr;
+  }
+
+  .sound-section{
+    grid-template-columns:1fr;
+  }
+
+  .minor-colors{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .materials-playground{
+    grid-template-columns:1fr;
+  }
+
+  .materials-tools{
+    grid-template-columns:repeat(3, 1fr);
+  }
+
+  .tool-card{
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    gap:10px;
+  }
+
+  .lightbox-prev{
+    left:10px;
+  }
+
+  .lightbox-next{
+    right:10px;
+  }
+}
+
+@media (max-width:700px){
+
+  .topbar{
+    padding:20px;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:14px;
+    font-size:15px;
+  }
+
+  .nav{
+    gap:12px;
+    width:100%;
+  }
+
+  .container{
+    padding:18px 20px 50px;
+  }
+
+  .hero{
+    gap:22px;
+  }
+
+  .hero-gallery{
+    grid-template-columns:1fr;
+    grid-template-rows:auto;
+    gap:12px;
+  }
+
+  .hero-gallery .main-img{
+    grid-row:auto;
+    grid-column:auto;
+  }
+
+  .hero-gallery img{
+    height:220px;
+    border-radius:16px;
+  }
+
+  .title{
+    font-size:44px;
+    line-height:0.98;
+  }
+
+  .scientific{
+    font-size:18px;
+  }
+
+  .description{
+    font-size:16px;
+  }
+
+  .info-card{
+    padding:20px;
+  }
+
+  .sound-section{
+    margin-top:40px;
+    padding:22px;
+    gap:20px;
+    border-radius:18px;
+  }
+
+  .sound-text h2{
+    font-size:30px;
+  }
+
+  .sound-ui{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .sound-button{
+    width:100%;
+    justify-content:center;
+  }
+
+  .learning-section{
+    margin-top:50px;
+  }
+
+  .learning-title{
+    font-size:34px;
+  }
+
+  .learning-intro,
+  .step-text{
+    font-size:16px;
+  }
+
+  .step-card{
+    padding:20px;
+    border-radius:18px;
+  }
+
+  .step-card h3{
+    font-size:22px;
+  }
+
+  .compare-box{
+    width:min(100%, 360px);
+    border-radius:18px;
+  }
+
+  .compare-label{
+    top:10px;
+    padding:6px 10px;
+    font-size:11px;
+  }
+
+  .compare-label-left{
+    left:10px;
+  }
+
+  .compare-label-right{
+    right:10px;
+  }
+
+  .compare-divider::before{
+    width:42px;
+    height:42px;
+    font-size:16px;
+  }
+
+  .color-band-card{
+    padding:14px;
+    border-radius:16px;
+  }
+
+  .color-band-header{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:8px;
+  }
+
+  .color-band-title{
+    font-size:16px;
+  }
+
+  .color-band-code{
+    font-size:12px;
+  }
+
+  .color-band{
+    height:48px;
+    border-radius:14px;
+  }
+
+  .minor-colors{
+    grid-template-columns:1fr;
+  }
+
+  .minor-color{
+    min-height:64px;
+    border-radius:14px;
+  }
+
+  .minor-swatch{
+    width:48px;
+    height:34px;
+  }
+
+  .tooltip{
+    font-size:11px;
+    padding:7px 9px;
+  }
+
+  .materials-tools{
+    grid-template-columns:1fr;
+  }
+
+  .tool-card{
+    flex-direction:row;
+    text-align:left;
+  }
+
+  .tool-icon{
+    width:44px;
+    height:44px;
+    font-size:22px;
+  }
+
+  .art-drop-zone,
+  .material-preview{
+    min-height:260px;
+    border-radius:18px;
+  }
+
+  .drop-hint{
+    top:12px;
+    left:12px;
+    font-size:12px;
+    padding:7px 10px;
+  }
+
+  .examples-section{
+    margin-top:50px;
+  }
+
+  .examples-title{
+    font-size:32px;
+  }
+
+  .example-image{
+    width:190px;
+    height:190px;
+    border-radius:16px;
+  }
+
+  .lightbox{
+    padding:16px;
+  }
+
+  .lightbox-content{
+    width:100%;
+  }
+
+  .lightbox img{
+    max-height:72vh;
+  }
+
+  .lightbox-close{
+    top:10px;
+    right:10px;
+    transform:none;
+    padding:8px 12px;
+    font-size:14px;
+  }
+
+  .lightbox-nav{
+    width:42px;
+    height:42px;
+    font-size:20px;
+  }
+}
+
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">Aves da Amazónia</div>
+
+  <div class="nav">
+    <a class="link" href="index.html">Início</a>
+    <a class="link" href="explorar.html">Explorar</a>
+    <a class="btn-top" href="explorar.html">← Voltar</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <section class="hero">
+
+    <div class="hero-gallery">
+      <img class="main-img" src="https://i.pinimg.com/1200x/84/dc/8b/84dc8be5c22f27fc0b5567f26bf1e58f.jpg" alt="Arara-vermelha 1" onclick="abrirLightbox(0)">
+      <img src="https://i.pinimg.com/1200x/39/7b/4d/397b4d7845344463433fc39369488cb5.jpg" alt="Arara-vermelha 2" onclick="abrirLightbox(1)">
+      <img src="https://i.pinimg.com/736x/6b/0c/52/6b0c525c3431820bc4a7251a31fbad3a.jpg" alt="Arara-vermelha 3" onclick="abrirLightbox(2)">
+    </div>
+
+    <div class="hero-text">
+      <div class="kicker">Espécie em destaque</div>
+
+      <h1 class="title">Arara-vermelha</h1>
+
+      <div class="scientific">Ara chloropterus</div>
+
+      <p class="description">
+        A arara-vermelha é uma das aves mais marcantes da Amazónia. Destaca-se pela plumagem intensa,
+        pela inteligência e pela força do seu bico. Vive em zonas florestais e alimenta-se sobretudo
+        de frutos, sementes e nozes.
+      </p>
+
+      <p class="description">
+        Além da sua beleza, esta ave tem um papel importante na dispersão de sementes, ajudando a manter
+        o equilíbrio dos ecossistemas amazónicos.
+      </p>
+    </div>
+
+  </section>
+
+  <section class="info-grid">
+    <div class="info-card">
+      <div class="info-head">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 19c6.5 0 11-4 13-10 1-2.7 1-4 1-4s-1.3 0-4 1C9 8 5 12.5 5 19z"/>
+          <path d="M5 19c1.5-3 4-5.5 8-8"/>
+        </svg>
+        <h3>Habitat</h3>
+      </div>
+      <p>Florestas tropicais húmidas, copas das árvores e áreas próximas de rios.</p>
+    </div>
+
+    <div class="info-card">
+      <div class="info-head">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M7 14c1.2-2.5 3.3-4.2 6.6-4.8 1.4-.3 2.9-.3 4.4-.1"/>
+          <path d="M6 18c1.5-1.4 2.7-2.3 4.4-2.9 2.5-.9 5.4-.8 8.6.2"/>
+          <path d="M5 10c1.6-.7 3.1-1 4.8-1"/>
+        </svg>
+        <h3>Alimentação</h3>
+      </div>
+      <p>Frutos, sementes, castanhas e outras partes vegetais que encontra nas árvores.</p>
+    </div>
+
+    <div class="info-card">
+      <div class="info-head">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M9 18h6"/>
+          <path d="M10 21h4"/>
+          <path d="M12 3a7 7 0 00-4 12c1 1 1 2 1 3h6c0-1 0-2 1-3a7 7 0 00-4-12z"/>
+        </svg>
+        <h3>Curiosidade</h3>
+      </div>
+      <p>O seu bico é extremamente forte e permite abrir sementes e frutos de casca muito dura.</p>
+    </div>
+  </section>
+
+  <section class="sound-section">
+    <div class="sound-text">
+      <h2>Ouvir o som</h2>
+      <p>
+        Carrega no botão para ouvir o chamamento da arara-vermelha. Escutar os sons das aves ajuda-nos
+        a conhecê-las melhor e a perceber como comunicam na natureza.
+      </p>
+    </div>
+
+    <div class="sound-ui">
+      <button class="sound-button" onclick="tocarSom()">▶ Ouvir o canto</button>
+
+      <div class="wave" id="wave">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="learning-section">
+    <h2 class="learning-title">Aprendizagem artística</h2>
+
+    <p class="learning-intro">
+      Observa a ave, simplifica as formas e explora as cores.
+    </p>
+
+    <div class="step-card">
+      <div class="step-label">Passo 1</div>
+      <h3>Simplificar as formas</h3>
+      <p class="step-text">
+        Move o cursor para comparar a imagem real com a versão simplificada.
+      </p>
+
+      <div class="compare-wrapper">
+        <div class="compare-box" id="compareBox">
+
+          <img
+            src="images/arara-real.jpg"
+            alt=""
+            class="compare-sizer"
+            aria-hidden="true"
+          >
+
+          <img
+            src="images/arara-real.jpg"
+            alt="Arara-vermelha real"
+            class="compare-fixed-image compare-left-image"
+          >
+
+          <img
+            src="images/arara-formas.jpg"
+            alt="Arara-vermelha simplificada em formas"
+            class="compare-fixed-image compare-right-image"
+          >
+
+          <div class="compare-label compare-label-left">Original</div>
+          <div class="compare-label compare-label-right">Formas</div>
+
+          <div class="compare-divider" id="compareDivider"></div>
+
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value="50"
+            class="compare-slider"
+            id="compareSlider"
+            aria-label="Comparar imagem original e imagem simplificada"
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-label">Passo 2</div>
+      <h3>Observar as cores</h3>
+
+      <div class="color-exploration">
+
+        <div class="color-band-card">
+          <div class="color-band-header">
+            <div class="color-band-title">Vermelho</div>
+            <div class="color-band-code">mais intenso → menos intenso</div>
+          </div>
+
+          <div class="color-band">
+            <div class="band-segment" style="background:#8f241f;"><div class="tooltip">Vermelho 1 · #8F241F</div></div>
+            <div class="band-segment" style="background:#a92c25;"><div class="tooltip">Vermelho 2 · #A92C25</div></div>
+            <div class="band-segment" style="background:#c93c32;"><div class="tooltip">Vermelho 3 · #C93C32</div></div>
+            <div class="band-segment" style="background:#d85648;"><div class="tooltip">Vermelho 4 · #D85648</div></div>
+            <div class="band-segment" style="background:#e67a68;"><div class="tooltip">Vermelho 5 · #E67A68</div></div>
+            <div class="band-segment" style="background:#efa08e;"><div class="tooltip">Vermelho 6 · #EFA08E</div></div>
+            <div class="band-segment" style="background:#f6c9bb;"><div class="tooltip">Vermelho 7 · #F6C9BB</div></div>
+          </div>
+        </div>
+
+        <div class="color-band-card">
+          <div class="color-band-header">
+            <div class="color-band-title">Verde</div>
+            <div class="color-band-code">mais intenso → menos intenso</div>
+          </div>
+
+          <div class="color-band">
+            <div class="band-segment" style="background:#44511f;"><div class="tooltip">Verde 1 · #44511F</div></div>
+            <div class="band-segment" style="background:#56682a;"><div class="tooltip">Verde 2 · #56682A</div></div>
+            <div class="band-segment" style="background:#708238;"><div class="tooltip">Verde 3 · #708238</div></div>
+            <div class="band-segment" style="background:#87994f;"><div class="tooltip">Verde 4 · #87994F</div></div>
+            <div class="band-segment" style="background:#a0b36a;"><div class="tooltip">Verde 5 · #A0B36A</div></div>
+            <div class="band-segment" style="background:#c0cf98;"><div class="tooltip">Verde 6 · #C0CF98</div></div>
+            <div class="band-segment" style="background:#dde6c8;"><div class="tooltip">Verde 7 · #DDE6C8</div></div>
+          </div>
+        </div>
+
+        <div class="color-band-card">
+          <div class="color-band-header">
+            <div class="color-band-title">Azul</div>
+            <div class="color-band-code">mais intenso → menos intenso</div>
+          </div>
+
+          <div class="color-band">
+            <div class="band-segment" style="background:#23457a;"><div class="tooltip">Azul 1 · #23457A</div></div>
+            <div class="band-segment" style="background:#2d5690;"><div class="tooltip">Azul 2 · #2D5690</div></div>
+            <div class="band-segment" style="background:#3d68a8;"><div class="tooltip">Azul 3 · #3D68A8</div></div>
+            <div class="band-segment" style="background:#5b82bc;"><div class="tooltip">Azul 4 · #5B82BC</div></div>
+            <div class="band-segment" style="background:#7b9bcd;"><div class="tooltip">Azul 5 · #7B9BCD</div></div>
+            <div class="band-segment" style="background:#a5bcdf;"><div class="tooltip">Azul 6 · #A5BCDF</div></div>
+            <div class="band-segment" style="background:#d3dff0;"><div class="tooltip">Azul 7 · #D3DFF0</div></div>
+          </div>
+        </div>
+
+        <div class="color-band-card">
+          <div class="color-band-header">
+            <div class="color-band-title">Creme</div>
+            <div class="color-band-code">mais intenso → menos intenso</div>
+          </div>
+
+          <div class="color-band">
+            <div class="band-segment" style="background:#c8bba0;"><div class="tooltip">Creme 1 · #C8BBA0</div></div>
+            <div class="band-segment" style="background:#d7cab1;"><div class="tooltip">Creme 2 · #D7CAB1</div></div>
+            <div class="band-segment" style="background:#e5d8c1;"><div class="tooltip">Creme 3 · #E5D8C1</div></div>
+            <div class="band-segment" style="background:#efe5cf;"><div class="tooltip">Creme 4 · #EFE5CF</div></div>
+            <div class="band-segment" style="background:#f4ecda;"><div class="tooltip">Creme 5 · #F4ECDA</div></div>
+            <div class="band-segment" style="background:#f8f2e6;"><div class="tooltip">Creme 6 · #F8F2E6</div></div>
+            <div class="band-segment" style="background:#fcf9f1;"><div class="tooltip">Creme 7 · #FCF9F1</div></div>
+          </div>
+        </div>
+
+        <div class="minor-colors">
+          <div class="minor-color">
+            <div class="tooltip">Bico · #2F2B28</div>
+            <div class="minor-swatch" style="background:var(--arara-bico);"></div>
+            <div class="minor-info">
+              <strong>Bico</strong>
+              <span>#2F2B28</span>
+            </div>
+          </div>
+
+          <div class="minor-color">
+            <div class="tooltip">Amarelo · #D9B24A</div>
+            <div class="minor-swatch" style="background:var(--arara-amarelo);"></div>
+            <div class="minor-info">
+              <strong>Amarelo</strong>
+              <span>#D9B24A</span>
+            </div>
+          </div>
+
+          <div class="minor-color">
+            <div class="tooltip">Zona clara · #F1D2C6</div>
+            <div class="minor-swatch" style="background:var(--arara-rosa-claro);"></div>
+            <div class="minor-info">
+              <strong>Zona clara</strong>
+              <span>#F1D2C6</span>
+            </div>
+          </div>
+
+          <div class="minor-color">
+            <div class="tooltip">Sombra · #8A5F52</div>
+            <div class="minor-swatch" style="background:var(--arara-sombra);"></div>
+            <div class="minor-info">
+              <strong>Sombra</strong>
+              <span>#8A5F52</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-label">Passo 3</div>
+      <h3>Explorar materiais artísticos</h3>
+      <p class="step-text">
+        Arrasta um material para a imagem e observa como a mesma ave muda de estilo.
+      </p>
+
+      <div class="materials-playground">
+        <div class="materials-tools">
+          <div class="tool-card" draggable="true" data-material="lapis" tabindex="0">
+            <div class="tool-icon">✏️</div>
+            <div class="tool-name">Lápis de cor</div>
+          </div>
+
+          <div class="tool-card" draggable="true" data-material="aguarela" tabindex="0">
+            <div class="tool-icon">🎨</div>
+            <div class="tool-name">Aguarela</div>
+          </div>
+
+          <div class="tool-card" draggable="true" data-material="oleo" tabindex="0">
+            <div class="tool-icon">🖌️</div>
+            <div class="tool-name">Óleo</div>
+          </div>
+        </div>
+
+        <div class="art-drop-zone" id="artDropZone">
+          <div class="drop-hint" id="dropHint">Arrasta um material para aqui</div>
+
+          <img
+            id="materialPreview"
+            class="material-preview"
+            src="images/arara-original-material.jpg"
+            alt="Arara-vermelha original"
+          >
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <section class="examples-section">
+    <h2 class="examples-title">Exemplos</h2>
+
+    <div class="examples-strip">
+      <img class="example-image" src="https://i.pinimg.com/736x/c0/dd/ab/c0ddaba6a63d9d0c20dd93199904809a.jpg" alt="Exemplo artístico 1" onclick="abrirLightboxExemplo(0)">
+      <img class="example-image" src="https://i.pinimg.com/736x/86/0f/a6/860fa6de5089a043b1129ee943abc56d.jpg" alt="Exemplo artístico 2" onclick="abrirLightboxExemplo(1)">
+      <img class="example-image" src="https://i.pinimg.com/736x/16/f0/d0/16f0d06a6dd20f2a4056739a0d8e5340.jpg" alt="Exemplo artístico 3" onclick="abrirLightboxExemplo(2)">
+      <img class="example-image" src="https://i.pinimg.com/736x/20/bb/32/20bb32ee875ea23cb6ace5db55655cef.jpg" alt="Exemplo artístico 4" onclick="abrirLightboxExemplo(3)">
+    </div>
+  </section>
+
+</div>
+
+<audio id="somAraraLongo" preload="auto">
+  <source src="sounds/arara-longo.mp3" type="audio/mpeg">
+</audio>
+
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-content">
+    <button class="lightbox-close" onclick="fecharLightbox()">Fechar ✕</button>
+    <button class="lightbox-nav lightbox-prev" onclick="imagemAnterior()">‹</button>
+    <img id="lightboxImg" src="" alt="Imagem ampliada">
+    <button class="lightbox-nav lightbox-next" onclick="imagemSeguinte()">›</button>
+  </div>
+</div>
+
+<script>
+function tocarSom(){
+  const audio = document.getElementById("somAraraLongo");
+  const wave = document.getElementById("wave");
+
+  audio.currentTime = 0;
+  wave.classList.add("playing");
+
+  audio.play().catch(function(erro){
+    console.log("Erro ao tocar o áudio:", erro);
+    wave.classList.remove("playing");
+  });
+
+  audio.onended = function(){
+    wave.classList.remove("playing");
+  };
+}
+
+const imagens = [
+  "https://i.pinimg.com/1200x/84/dc/8b/84dc8be5c22f27fc0b5567f26bf1e58f.jpg",
+  "https://i.pinimg.com/1200x/39/7b/4d/397b4d7845344463433fc39369488cb5.jpg",
+  "https://i.pinimg.com/736x/6b/0c/52/6b0c525c3431820bc4a7251a31fbad3a.jpg",
+  "https://i.pinimg.com/1200x/8b/d0/b6/8bd0b635d747d87cd6e7693f36e69a73.jpg",
+  "https://i.pinimg.com/1200x/86/d7/63/86d7635a5efe3b735ab0dee86a74014b.jpg",
+  "https://i.pinimg.com/736x/e1/76/e4/e176e4a3c49689c037319c254c6099c4.jpg"
+];
+
+let indiceAtual = 0;
+
+function abrirLightbox(indice){
+  indiceAtual = indice;
+  document.getElementById("lightboxImg").src = imagens[indiceAtual];
+  document.getElementById("lightbox").classList.add("open");
+}
+
+function fecharLightbox(){
+  document.getElementById("lightbox").classList.remove("open");
+}
+
+document.addEventListener("keydown", function(event){
+  const lightboxAberta = document.getElementById("lightbox").classList.contains("open");
+
+  if(!lightboxAberta) return;
+
+  if(event.key === "Escape"){
+    fecharLightbox();
+  }
+
+  if(event.key === "ArrowRight"){
+    imagemSeguinte();
+  }
+
+  if(event.key === "ArrowLeft"){
+    imagemAnterior();
+  }
+});
+
+document.getElementById("lightbox").addEventListener("click", function(event){
+  if(event.target.id === "lightbox"){
+    fecharLightbox();
+  }
+});
+
+/* COMPARADOR PASSO 1 */
+
+const compareSlider = document.getElementById("compareSlider");
+const compareBox = document.getElementById("compareBox");
+
+function atualizarComparador(valor){
+  if(!compareBox) return;
+  compareBox.style.setProperty("--slider-pos", valor + "%");
+}
+
+if(compareSlider){
+  atualizarComparador(compareSlider.value);
+
+  compareSlider.addEventListener("input", function(){
+    atualizarComparador(this.value);
+  });
+}
+
+/* PASSO 3 — MATERIAIS ARTÍSTICOS */
+
+const materialPreview = document.getElementById("materialPreview");
+const artDropZone = document.getElementById("artDropZone");
+const dropHint = document.getElementById("dropHint");
+const toolCards = document.querySelectorAll(".tool-card");
+
+const materialImages = {
+  original: {
+    src: "images/arara-original-material.jpg",
+    alt: "Arara-vermelha original"
+  },
+  lapis: {
+    src: "images/arara-lapis-cor.jpg",
+    alt: "Arara-vermelha em lápis de cor"
+  },
+  aguarela: {
+    src: "images/arara-aguarela.jpg",
+    alt: "Arara-vermelha em aguarela"
+  },
+  oleo: {
+    src: "images/arara-oleo.jpg",
+    alt: "Arara-vermelha em pintura a óleo"
+  }
+};
+
+function nomeMaterial(material){
+  if(material === "lapis") return "lápis de cor";
+  if(material === "aguarela") return "aguarela";
+  if(material === "oleo") return "óleo";
+  return "original";
+}
+
+function mudarMaterial(material){
+  const dados = materialImages[material];
+  if(!dados || !materialPreview) return;
+
+  materialPreview.classList.add("changing");
+
+  setTimeout(function(){
+    materialPreview.src = dados.src;
+    materialPreview.alt = dados.alt;
+    dropHint.textContent = "Material aplicado: " + nomeMaterial(material);
+  }, 120);
+
+  setTimeout(function(){
+    materialPreview.classList.remove("changing");
+  }, 260);
+}
+
+toolCards.forEach(function(card){
+  card.addEventListener("dragstart", function(event){
+    event.dataTransfer.setData("text/plain", card.dataset.material);
+    card.classList.add("dragging");
+  });
+
+  card.addEventListener("dragend", function(){
+    card.classList.remove("dragging");
+  });
+
+  card.addEventListener("click", function(){
+    mudarMaterial(card.dataset.material);
+  });
+
+  card.addEventListener("keydown", function(event){
+    if(event.key === "Enter" || event.key === " "){
+      event.preventDefault();
+      mudarMaterial(card.dataset.material);
+    }
+  });
+});
+
+if(artDropZone){
+  artDropZone.addEventListener("dragover", function(event){
+    event.preventDefault();
+    artDropZone.classList.add("active");
+  });
+
+  artDropZone.addEventListener("dragenter", function(event){
+    event.preventDefault();
+    artDropZone.classList.add("active");
+  });
+
+  artDropZone.addEventListener("dragleave", function(event){
+    if(event.target === artDropZone){
+      artDropZone.classList.remove("active");
+    }
+  });
+
+  artDropZone.addEventListener("drop", function(event){
+    event.preventDefault();
+    artDropZone.classList.remove("active");
+
+    const material = event.dataTransfer.getData("text/plain");
+    mudarMaterial(material);
+  });
+}
+
+/* GALERIA DE EXEMPLOS */
+
+const imagensExemplos = [
+  "https://i.pinimg.com/736x/c0/dd/ab/c0ddaba6a63d9d0c20dd93199904809a.jpg",
+  "https://i.pinimg.com/736x/86/0f/a6/860fa6de5089a043b1129ee943abc56d.jpg",
+  "https://i.pinimg.com/736x/16/f0/d0/16f0d06a6dd20f2a4056739a0d8e5340.jpg",
+  "https://i.pinimg.com/736x/20/bb/32/20bb32ee875ea23cb6ace5db55655cef.jpg"
+];
+
+function abrirLightboxExemplo(indice){
+  indiceAtual = indice;
+  document.getElementById("lightboxImg").src = imagensExemplos[indiceAtual];
+  document.getElementById("lightbox").classList.add("open");
+}
+
+function imagemSeguinte(){
+  const lightboxAberta = document.getElementById("lightbox").classList.contains("open");
+  if(!lightboxAberta) return;
+
+  const srcAtual = document.getElementById("lightboxImg").src;
+
+  const estaNaGaleriaExemplos = imagensExemplos.some(function(img){
+    return srcAtual.includes(img);
+  });
+
+  if(estaNaGaleriaExemplos){
+    indiceAtual = (indiceAtual + 1) % imagensExemplos.length;
+    document.getElementById("lightboxImg").src = imagensExemplos[indiceAtual];
+  }else{
+    indiceAtual = (indiceAtual + 1) % imagens.length;
+    document.getElementById("lightboxImg").src = imagens[indiceAtual];
+  }
+}
+
+function imagemAnterior(){
+  const lightboxAberta = document.getElementById("lightbox").classList.contains("open");
+  if(!lightboxAberta) return;
+
+  const srcAtual = document.getElementById("lightboxImg").src;
+
+  const estaNaGaleriaExemplos = imagensExemplos.some(function(img){
+    return srcAtual.includes(img);
+  });
+
+  if(estaNaGaleriaExemplos){
+    indiceAtual = (indiceAtual - 1 + imagensExemplos.length) % imagensExemplos.length;
+    document.getElementById("lightboxImg").src = imagensExemplos[indiceAtual];
+  }else{
+    indiceAtual = (indiceAtual - 1 + imagens.length) % imagens.length;
+    document.getElementById("lightboxImg").src = imagens[indiceAtual];
+  }
+}
+</script>
+
+</body>
+</html>
