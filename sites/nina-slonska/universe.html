@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Partículas Fluídas RÁPIDO - NINA</title>
+<style>
+body {
+    margin: 0;
+    overflow: hidden;
+    background: #000;
+    cursor: none;
+    transition: opacity 2.5s ease-in-out;
+}
+
+canvas {
+    display: block;
+    transition: opacity 2.5s ease-in-out;
+}
+
+#cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 25px;
+    height: 25px;
+    border: 2px solid #00ff44;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    mix-blend-mode: difference;
+    box-shadow: 0 0 25px #00ff44;
+    transition: transform 0.1s ease-out, opacity 2.5s ease-in-out;
+}
+
+#cursor::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: #00ff44;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 15px #00ff44;
+}
+
+.fade-out {
+    opacity: 0 !important;
+}
+
+#overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    opacity: 0;
+    z-index: 10000;
+    transition: opacity 2s ease-in-out 0.6s;
+}
+
+#overlay.show {
+    opacity: 1;
+}
+</style>
+</head>
+<body>
+<div id="cursor"></div>
+<div id="overlay"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script>
+/* ================= SCENE & CAMERA ================= */
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 2000);
+camera.position.z = 6;
+
+const renderer = new THREE.WebGLRenderer({antialias: true});
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+/* ================= PARTICLE SYSTEM ================= */
+const count = 20000;
+const geometry = new THREE.BufferGeometry();
+const positions = new Float32Array(count * 3);
+const velocities = new Float32Array(count * 3);
+const colors = new Float32Array(count * 3);
+const sizes = new Float32Array(count);
+const phases = new Float32Array(count);
+const ages = new Float32Array(count);
+const opacities = new Float32Array(count);
+
+let expandMode = false;
+let warpMode = false;
+let transitionActive = false;
+
+/* CORES GRADIENT */
+function getGradientColor(t) {
+    let r, g, b;
+    if (t < 0.25) { r = 0; g = 1; b = 0.2; }
+    else if (t < 0.5) { r = 1; g = 0.5 - (t - 0.25) * 0.6; b = 0; }
+    else if (t < 0.75) { r = 1; g = 0.2 - (t - 0.5) * 0.2; b = 0.05; }
+    else { r = 0.7; g = 0.1; b = 0.03; }
+    return { r, g, b };
+}
+
+/* INICIALIZAÇÃO */
+for (let i = 0; i < count; i++) {
+    let idx = i * 3;
+    positions[idx] = 0;
+    positions[idx + 1] = 0;
+    positions[idx + 2] = 0;
+    
+    velocities[idx] = (Math.random() - 0.5) * 0.15;
+    velocities[idx + 1] = (Math.random() - 0.5) * 0.15;
+    velocities[idx + 2] = (Math.random() - 0.5) * 0.12;
+    
+    let col = getGradientColor(Math.random());
+    colors[idx] = col.r;
+    colors[idx + 1] = col.g;
+    colors[idx + 2] = col.b;
+    sizes[i] = 0.18;
+    phases[i] = Math.random() * Math.PI * 2;
+    ages[i] = 0;
+    opacities[i] = 1.0;
+}
+
+geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+geometry.setAttribute('velocity', new THREE.BufferAttribute(velocities, 3));
+geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+geometry.setAttribute('phase', new THREE.BufferAttribute(phases, 1));
+geometry.setAttribute('age', new THREE.BufferAttribute(ages, 1));
+geometry.setAttribute('opacity', new THREE.BufferAttribute(opacities, 1));
+
+const material = new THREE.PointsMaterial({
+    vertexColors: true,
+    size: 0.22,
+    transparent: true,
+    opacity: 0.95,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending
+});
+
+const points = new THREE.Points(geometry, material);
+scene.add(points);
+
+/* ================= MOUSE ================= */
+let mouse = { x: 0, y: 0 };
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+    mouse.x = (e.clientX / window.innerWidth - 0.5) * 25;
+    mouse.y = -(e.clientY / window.innerHeight - 0.5) * 25;
+    cursor.style.left = (e.clientX - 12.5) + 'px';
+    cursor.style.top = (e.clientY - 12.5) + 'px';
+});
+
+/* ================= ANIMATION ================= */
+let time = 0;
+let expandStartTime = 0;
+
+setTimeout(() => { 
+    expandMode = true; 
+    expandStartTime = time;
+}, 5000);
+
+function animateParticles() {
+    const pos = geometry.attributes.position.array;
+    const vel = geometry.attributes.velocity.array;
+    const sizesArr = geometry.attributes.size.array;
+    const phasesArr = geometry.attributes.phase.array;
+    const agesArr = geometry.attributes.age.array;
+    const opacArr = geometry.attributes.opacity.array;
+    time += 0.016;
+
+    for (let i = 0; i < count; i++) {
+        let idx = i * 3;
+        let x = pos[idx], y = pos[idx + 1], z = pos[idx + 2];
+
+        /* ================= MODO EXPANSÃO - ULTRA RÁPIDA ================= */
+        if (expandMode && !warpMode) {
+            // **EXPANSÃO 3X MAIS RÁPIDA**
+            let expandForce = 0.6 + (time - 5) * 0.12; // **era 0.18 + 0.035**
+            pos[idx] += vel[idx] * expandForce;
+            pos[idx + 1] += vel[idx + 1] * expandForce;
+            pos[idx + 2] += vel[idx + 2] * expandForce * 1.8; // **mais Z**
+            
+            let spiralAngle = time * 5 + phasesArr[i]; // **espiral 2x mais rápida**
+            pos[idx] += Math.cos(spiralAngle) * 0.15;
+            pos[idx + 1] += Math.sin(spiralAngle) * 0.15;
+
+            // **FADE AINDA MAIS PRECOCE**
+            let expandProgress = (time - expandStartTime) / 0.3; // **era 0.4s → 0.3s**
+            opacArr[i] = Math.max(0, 1.0 - expandProgress * 1.0);
+
+            if (i === count - 1) {
+                let allExpanded = true;
+                for (let j = 0; j < count; j++) {
+                    let jj = j * 3;
+                    let dist = Math.sqrt(pos[jj]**2 + pos[jj + 1]**2 + pos[jj + 2]**2);
+                    if (dist < 4) { allExpanded = false; break; } // **distância menor**
+                }
+                if (allExpanded) warpMode = true;
+            }
+            continue;
+        }
+
+        /* ================= MODO WARP ================= */
+        if (warpMode) {
+            pos[idx] += vel[idx] * 25;
+            pos[idx + 1] += vel[idx + 1] * 25;
+            pos[idx + 2] += vel[idx + 2] * 35;
+
+            opacArr[i] *= 0.98;
+            opacArr[i] = Math.max(0, opacArr[i]);
+
+            if (Math.abs(pos[idx]) > 120 || Math.abs(pos[idx + 1]) > 120 || Math.abs(pos[idx + 2]) > 120) {
+                sizesArr[i] = 0;
+                opacArr[i] = 0;
+            }
+            continue;
+        }
+
+        /* ================= MODO NORMAL ================= */
+        let spiralRadius = 6 + Math.sin(time * 0.35 + i * 0.0008) * 2.5;
+        let spiralAngle = time * 1.1 + phasesArr[i];
+        let spiralZ = Math.sin(time * 0.3 + phasesArr[i] * 0.7) * 6;
+        
+        let targetX = Math.cos(spiralAngle) * spiralRadius;
+        let targetY = Math.sin(spiralAngle) * spiralRadius * 0.85;
+        let targetZ = spiralZ;
+        
+        pos[idx] += (targetX - x) * 0.035 + vel[idx] * 0.35;
+        pos[idx + 1] += (targetY - y) * 0.035 + vel[idx + 1] * 0.35;
+        pos[idx + 2] += (targetZ - z) * 0.06 + vel[idx + 2] * 0.45;
+
+        opacArr[i] = 1.0;
+    }
+
+    geometry.attributes.opacity.needsUpdate = true;
+    geometry.attributes.position.needsUpdate = true;
+    geometry.attributes.size.needsUpdate = true;
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+    animateParticles();
+
+    if (warpMode) {
+        let avgOpacity = 0;
+        for (let i = 0; i < count; i++) {
+            avgOpacity += geometry.attributes.opacity.array[i];
+        }
+        avgOpacity /= count;
+
+        if (avgOpacity < 0.1 && !transitionActive) {
+            transitionActive = true;
+            document.body.classList.add('fade-out');
+            renderer.domElement.classList.add('fade-out');
+            cursor.classList.add('fade-out');
+
+            setTimeout(() => {
+                document.getElementById('overlay').classList.add('show');
+            }, 500);
+
+            setTimeout(() => {
+                window.location.href = "index.html";
+            }, 3000);
+        }
+    }
+    
+    renderer.render(scene, camera);
+}
+
+animate();
+
+window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>

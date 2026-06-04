@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>?</title>
+
+<style>
+body { 
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    background: black;
+    color: #09ff00;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    position: relative;
+}
+
+#ascii-bg {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1.8); /* ⬆️ AUMENTA ISTO (1.5 a 2.5) */
+    font-family: monospace;
+    font-size: 8px;        /* ⬆️ AUMENTADO (era 8px) */
+    line-height: 12px;      /* Igual ao font-size */
+    letter-spacing: 1px;
+    color: #09ff00;
+    opacity: 0.25;          /* ⬇️ Reduzi um pouco porque vai ficar maior */
+    text-shadow: 0 0 5px rgba(9, 255, 0, 0.4);
+    pointer-events: none;
+    z-index: 0;
+    white-space: pre;
+    overflow: visible;
+    user-select: none;
+    text-align: left;
+}
+
+h1, p, button {
+    position: relative;
+    z-index: 1;
+}
+
+h1 { margin-top: 40px; margin-bottom: 40px; }
+
+button {
+    font-family: 'Franklin Gothic', 'Arial Narrow', Arial, sans-serif;
+    background-color: white;
+    border: none;
+    font-size: x-large;
+    color: #09ff00;
+    cursor: pointer;
+    padding: 10px 20px;
+    margin: 20px;
+}
+
+p {
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto 30px;
+}
+</style>
+</head>
+<body>
+
+<!-- 🎨 OLHO GIGANTE ASCII -->
+<div id="ascii-bg"></div>
+
+<h1>Let´s start</h1>
+<p> This work explores the interactions that we have with the new digital world. <br>
+    It examines the power imbalance of agency and questions the truthfulness of the information within it<br>
+     We rely on this ever-changing, mutable network to live. </p>
+
+<button id="startBtn">Do you want to try?</button>
+
+<script>
+// 🎨 TEU OLHO ASCII (versão gigante)
+const eyeAscii = `
+                                                                                                    
+                                  :::: :           :                                                
+                                ::::-::-:--===+=+++++**+***+++=--=                                  
+                               :::--==+**#*+*++++=++=+++++++**++=+*+++-                             
+                             :::=++*+****++=======--==-==+++*++=++++++=++=:                         
+                        :::::+**+*++++=*+++===--::::--===+++*++==+++++=======-                      
+                         -=+*++=+++=++=*++====-::::::+=:--+++*==-++++++========-                    
+                       -**++===--===++=+*+-===+-::::::+-==+++=--+**=++--=+========                  
+                     :=*=====--::+==:=+:++*++*+=---::::::-++::::=+*++=::=====-+=-===                
+                    =++====----::=+=-::====+==-+--::: ::    :   ::== ::=-------=-----:              
+                  =*+==-=-==:::-----:  :-   :        ::::::              :::::-::----=::            
+                =+*++++===--==--::::   -      :::-====++++++=---          ::-++---=-----:           
+             ::-++++++======+-::::::        --=+***+***#*******+=-          : :::::::::--::         
+              -=++++**++**+--:::          :-+******+**+***+******+=-        :: ::----:-:-:          
+            :-=+++++****+-:-::           =+****+++**+**+*+++++++++**=:        ::::: :::::-:         
+        ::::--=++*+**++::::::          :=*****++++********++++=+++*#*+-        :::::: ::::-:        
+       ::::==+*****+--:::::::         :=*+*++*+***#*###*##***++=+=++**=         :: -::: ::::::      
+      ::-::--===++=-:::::::::         =**++*******##########*++=++*+#*+-         :: ::::::::::      
+        ::--+===--:-: ::::::::       :+#*+++++++**#####*#####++++++****:          ::::::::::::      
+   ::::::--:::-=-=:   ::::::::       :+#**++++*+**###########*++=++****:           :::::::          
+::::-::    :--=++==-:::----::::      :+#**+=++=++*###-=*#####**++++++*+-           ::--::::         
+        :::==+=---=--::-==-::::       =*#*++++++++**#**####**=+++++++*=:         :::::-::           
+         ---       :-:-::=+=::         +**+*+++=+++++****+*=++====++**=         :::::-:  ::         
+      :::     :-----::-::::=--:        :=***+++=+=+==++=+=++======+**+         ::::---::::::::      
+            ::::  :::---:::::--:         =*#*+===++==+=+**++====++*+:         ::-=-===--:-:--::     
+               :::      ::::::::::         =**=+=+==+++++*+++=+=**=         ::-++**#****+===:::     
+                       :-::::::::::::       --+**+++++++*+++***+-:       :-:-------=-:::::::::      
+                     :-:::::::::::::           :-====+=+*++++--      :::::::::::::::::: ::::::      
+                   :::::::::::::::::::               ::::   :::::::::::::::::::::::::               
+                  :::  :    ::::::::::: :::              :     :::::::::::::::::::::                
+                             :::::::    :::    : : :   :: --  :   ::    ::::::  :                   
+                             :::::      :      : ::-      ::   -:: ::::::::                         
+                                      :        :: +-       ::   :: :                                
+                                                ::-    :    :    :                                  
+                                                 :::                                                
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                        
+`;
+
+document.getElementById('ascii-bg').textContent = eyeAscii;
+// Define o olho gigante como fundo
+document.getElementById('ascii-bg').textContent = eyeAscii;
+
+// Ajusta a escala automaticamente conforme o tamanho do ecrã
+function adjustScale() {
+    const bg = document.getElementById('ascii-bg');
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    
+    // Calcula escala baseada no ecrã (ecrãs maiores = mais escala)
+    let scale = 1;
+    if (screenWidth > 1920) scale = 3.5;
+    else if (screenWidth > 1440) scale = 3;
+    else if (screenWidth > 1024) scale = 2.5;
+    else if (screenWidth > 768) scale = 2;
+    else scale = 1.5;
+    
+    bg.style.transform = `translate(-50%, -50%) scale(${scale})`;
+}
+
+adjustScale();
+window.addEventListener('resize', adjustScale);
+
+// ===== RESTO DO TEU CÓDIGO ORIGINAL (áudio, etc.) =====
+sessionStorage.setItem("lastPage", "index");
+
+let audioCtx = null;
+let audioInitialized = false;
+
+function getAudioContext() {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return null;
+    if (!audioCtx) {
+        audioCtx = new AudioContext();
+    }
+    return audioCtx;
+}
+
+function playRealisticClick() {
+    const ctx = getAudioContext();
+    if (!ctx) return false;
+    if (ctx.state === 'suspended') {
+        ctx.resume().catch(() => {});
+    }
+    try {
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1500, now);
+        osc.frequency.exponentialRampToValueAtTime(300, now + 0.02);
+        gain.gain.setValueAtTime(0.4, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.04);
+        
+        const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.02, ctx.sampleRate);
+        const data = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < data.length; i++) {
+            data[i] = (Math.random() * 2 - 1) * 0.1;
+        }
+        const noise = ctx.createBufferSource();
+        const noiseGain = ctx.createGain();
+        noise.buffer = noiseBuffer;
+        noiseGain.gain.setValueAtTime(0.3, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+        noise.connect(noiseGain);
+        noiseGain.connect(ctx.destination);
+        noise.start(now);
+        noise.stop(now + 0.02);
+        return true;
+    } catch (e) {
+        console.warn("Erro no som Web Audio:", e);
+        return false;
+    }
+}
+
+function playFallbackClick() {
+    try {
+        const fallback = new Audio("audio/wav;base64,UklGRiQAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=");
+        fallback.volume = 0.3;
+        return fallback.play().then(() => true).catch(() => false);
+    } catch (e) {
+        return false;
+    }
+}
+
+function startQuiz(event) {
+    if (event) event.preventDefault();
+    const btn = document.getElementById("startBtn");
+    btn.style.transform = "scale(0.95)";
+    setTimeout(() => btn.style.transform = "", 100);
+    const soundPlayed = playRealisticClick();
+    if (!soundPlayed) {
+        playFallbackClick();
+    }
+    audioInitialized = true;
+    setTimeout(() => {
+        window.location.href = "quiz.html";
+    }, 100);
+}
+
+const startBtn = document.getElementById("startBtn");
+startBtn.addEventListener("click", startQuiz);
+
+function primeAudio() {
+    const ctx = getAudioContext();
+    if (ctx && ctx.state === 'suspended') {
+        ctx.resume().catch(() => {
+            console.log("Audio resume pendente até próximo clique");
+        });
+    }
+    ['touchstart', 'mousedown', 'keydown'].forEach(evt => 
+        document.removeEventListener(evt, primeAudio)
+    );
+}
+['touchstart', 'mousedown', 'keydown'].forEach(eventType => {
+    document.addEventListener(eventType, primeAudio, { passive: true });
+});
+
+window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+        const ctx = getAudioContext();
+        if (ctx && ctx.state === 'suspended') {
+            ctx.resume().catch(() => {});
+        }
+    }
+});
+
+console.log("🎵 Script de áudio carregado. Estado inicial:", audioCtx?.state || "não criado");
+</script>
+
+</body>
+</html>

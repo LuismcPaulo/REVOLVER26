@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>HAVE</title>
+<style>
+  body {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    background: #000000;
+    color: rgba(255, 255, 255, 0.356);
+    text-align: center;
+    padding-top: 50px;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+  
+  /* TEXTO ORIGINAL */
+  .original-text {
+    position: relative;
+    z-index: 1000; /* NO TOPO */
+    margin-bottom: 30px;
+    display: inline-block;
+  }
+  
+
+  #titulo, #texto {
+    margin: 10px 0;
+    display: block;
+  }
+  
+ /* COPIAS */
+  .floating {
+    position: fixed;
+    margin: 0;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.7;
+    animation: fadeIn 0.5s;
+    font-size: inherit;
+    text-shadow: 0 0 5px rgba(17, 194, 41, 0.3);
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 0.7; transform: scale(1); }
+  }
+  
+
+  a.floating {
+    text-decoration: none;
+    color: rgba(1, 252, 13, 0.356);
+  }
+  
+  h1.floating {
+    font-size: 2em;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<div class="original-text">   
+  <h1 id="titulo">Why don´t you ask them</h1>  
+  <a href="MAZE.html" style="text-decoration: none; color: rgba(255, 255, 255, 0.356);" id="texto">They know everything right...</a>
+</div>
+
+<script>
+  // 🎵 AudioContext global partilhado
+  let audioCtx = null;
+
+  function getAudioContext() {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return null;
+      if (!audioCtx) {
+          audioCtx = new AudioContext();
+      }
+      return audioCtx;
+  }
+
+  // 🕐 Variáveis de controlo temporal
+  let startTime = Date.now();
+  let currentInterval = 800;
+  let maxIntensityReached = false;
+
+  // 📈 Calcula fator de intensidade (0.0 a 1.0)
+ // 📈 Calcula fator de intensidade (0.0 a 1.0) - VERSÃO ACELERADA
+function getIntensityFactor() {
+    const elapsed = (Date.now() - startTime) / 1000; // segundos
+    
+    // ⚡ MUDA ISTO: de 180 para 45 segundos para chegar ao máximo 4x mais rápido
+    const timeToMax = 45; // Segundos para intensidade máxima (era 180)
+    
+    const factor = Math.min(1, elapsed / timeToMax);
+    
+    // Easing cúbico para transição dramática e suave
+    return factor * factor * (3 - 2 * factor);
+}
+
+  // 🔊 Função de áudio evoluído
+  function playBassPulse() {
+      try {
+          const ctx = getAudioContext();
+          if (!ctx) return;
+          if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+          
+          const now = ctx.currentTime;
+          const intensity = getIntensityFactor();
+          
+          const masterVolume = 0.3 + (intensity * 0.7);
+          const distortionAmount = 1.5 + (intensity * 2.5);
+          const filterBase = 150 + (intensity * 650);
+          const filterResonance = 0.7 + (intensity * 1.8);
+          const subGain = 0.4 + (intensity * 0.5);
+          const mainGain = 0.5 + (intensity * 0.4);
+          const harmGain = 0.05 + (intensity * 0.25);
+          const pulseDuration = 0.4 - (intensity * 0.15);
+          
+          const masterGain = ctx.createGain();
+          masterGain.gain.value = masterVolume;
+          masterGain.connect(ctx.destination);
+          
+          // OSC 1: Sub-baixo 36Hz
+          const osc1 = ctx.createOscillator();
+          const gain1 = ctx.createGain();
+          osc1.type = 'sine';
+          osc1.frequency.setValueAtTime(36, now);
+          if (intensity > 0.5) {
+              const lfo = ctx.createOscillator();
+              const lfoGain = ctx.createGain();
+              lfo.frequency.value = 0.3 + (intensity * 1.2);
+              lfoGain.gain.value = 2 + (intensity * 8);
+              lfo.connect(lfoGain);
+              lfoGain.connect(osc1.frequency);
+              lfo.start(now);
+              lfo.stop(now + pulseDuration);
+          }
+          gain1.gain.setValueAtTime(0, now);
+          gain1.gain.linearRampToValueAtTime(subGain, now + 0.01);
+          gain1.gain.exponentialRampToValueAtTime(0.001, now + pulseDuration);
+          osc1.connect(gain1);
+          gain1.connect(masterGain);
+          
+          // OSC 2: Baixo principal 72Hz
+          const osc2 = ctx.createOscillator();
+          const gain2 = ctx.createGain();
+          osc2.type = intensity > 0.7 ? 'sawtooth' : 'triangle';
+          osc2.frequency.setValueAtTime(72, now);
+          const dropTarget = 55 - (intensity * 15);
+          osc2.frequency.exponentialRampToValueAtTime(dropTarget, now + 0.08 + (intensity * 0.07));
+          gain2.gain.setValueAtTime(0, now);
+          gain2.gain.linearRampToValueAtTime(mainGain, now + 0.01 + (intensity * 0.02));
+          gain2.gain.exponentialRampToValueAtTime(0.001, now + pulseDuration - 0.05);
+          osc2.connect(gain2);
+          gain2.connect(masterGain);
+          
+          // OSC 3: Harmônicos (apenas se intensity > 0.2)
+          let osc3, gain3;
+          if (intensity > 0.2) {
+              osc3 = ctx.createOscillator();
+              gain3 = ctx.createGain();
+              osc3.type = 'sawtooth';
+              osc3.frequency.setValueAtTime(144, now);
+              osc3.frequency.linearRampToValueAtTime(144 + (intensity * 30), now + pulseDuration * 0.5);
+              gain3.gain.setValueAtTime(0, now);
+              gain3.gain.linearRampToValueAtTime(harmGain, now + 0.03);
+              gain3.gain.exponentialRampToValueAtTime(0.001, now + pulseDuration * 0.7);
+              osc3.connect(gain3);
+              gain3.connect(masterGain);
+          }
+          
+          // Filtro dinâmico
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(filterBase * 0.6, now);
+          filter.frequency.exponentialRampToValueAtTime(filterBase, now + 0.04);
+          filter.frequency.exponentialRampToValueAtTime(filterBase * 0.4, now + pulseDuration);
+          filter.Q.value = filterResonance;
+          
+          // Distorção progressiva
+          const shaper = ctx.createWaveShaper();
+          const samples = 44100;
+          const curve = new Float32Array(samples);
+          for (let i = 0; i < samples; i++) {
+              const x = (i * 2) / samples - 1;
+              const drive = distortionAmount;
+              curve[i] = Math.tanh(x * drive) * (0.6 + intensity * 0.4) + x * (0.4 - intensity * 0.2);
+          }
+          shaper.curve = curve;
+          shaper.oversample = intensity > 0.6 ? '4x' : '2x';
+          
+          // Conexões
+          gain1.connect(filter);
+          gain2.connect(filter);
+          if (intensity > 0.2 && gain3) gain3.connect(filter);
+          filter.connect(shaper);
+          shaper.connect(masterGain);
+          
+          // Play
+          osc1.start(now);
+          osc2.start(now);
+          if (intensity > 0.2 && osc3) osc3.start(now);
+          osc1.stop(now + pulseDuration + 0.1);
+          osc2.stop(now + pulseDuration + 0.1);
+          if (intensity > 0.2 && osc3) osc3.stop(now + pulseDuration);
+          
+          // Flag de intensidade máxima
+          if (intensity > 0.9 && !maxIntensityReached) {
+              maxIntensityReached = true;
+              console.log("🔥 MAX INTENSITY UNLOCKED");
+          }
+          
+      } catch (e) {
+          console.log("Bass pulse error:", e);
+      }
+  } // ← FECHA A FUNÇÃO playBassPulse() AQUI!
+
+  // 🎨 Elementos originais para clonar
+  const originalH1 = document.getElementById("titulo");
+  const originalP = document.getElementById("texto");
+  let cloneCount = 0;
+
+  // 🔄 Loop principal: áudio + clones sincronizados
+  setInterval(() => {
+      // 🔊 Toca o som
+      playBassPulse();
+      
+      // 👥 Cria clones visuais
+      const newH1 = originalH1.cloneNode(true);
+      newH1.classList.add("floating");
+      newH1.removeAttribute('id');
+      
+      const newP = originalP.cloneNode(true);
+      newP.classList.add("floating");
+      newP.removeAttribute('id');
+      
+      // Posicionamento aleatório
+      newH1.style.left = Math.random() * (window.innerWidth - 200) + "px";
+      newH1.style.top = Math.random() * (window.innerHeight - 100) + "px";
+      
+      if (Math.random() > 0.5) {
+          newP.style.left = (parseFloat(newH1.style.left) + (Math.random() * 100 - 50)) + "px";
+          newP.style.top = (parseFloat(newH1.style.top) + 40 + (Math.random() * 30)) + "px";
+      } else {
+          newP.style.left = Math.random() * (window.innerWidth - 200) + "px";
+          newP.style.top = Math.random() * (window.innerHeight - 100) + "px";
+      }
+      
+      // Estilo dinâmico
+      const opacity = 0.3 + Math.random() * 0.6;
+      newH1.style.opacity = opacity;
+      newP.style.opacity = opacity;
+      
+      const scale = 0.7 + Math.random() * 0.8;
+      newH1.style.fontSize = (scale * 2) + 'em';
+      newP.style.fontSize = scale + 'em';
+      
+      // Adiciona ao DOM
+      document.body.appendChild(newH1);
+      document.body.appendChild(newP);
+      
+      cloneCount += 2;
+
+      // Cleanup para não travar o browser
+      if (cloneCount > 100) {
+          const floating = document.querySelectorAll('.floating');
+          if (floating.length > 100) {
+              floating[0]?.remove();
+              floating[1]?.remove();
+          }
+      }
+      
+      if (cloneCount % 20 === 0) {
+          console.log(`${cloneCount} floating elements... intensity: ${getIntensityFactor().toFixed(2)}`);
+      }
+      
+  }, currentInterval);
+
+  // 🎚️ Acelera o ritmo gradualmente após 90s
+setTimeout(() => {
+    const accelerate = setInterval(() => {
+        if (currentInterval > 400) {
+            currentInterval -= 30; // Acelera um pouco mais
+            console.log(`🔁 Ritmo: ${currentInterval}ms`);
+        } else {
+            clearInterval(accelerate);
+        }
+    }, 5000); // Verifica a cada 5s (em vez de 10s)
+}, 30000); // Começa a acelerar após 30s (em vez de 90s)
+
+  // 🎧 Ativa áudio no primeiro clique (navegadores bloqueiam autoplay)
+  document.body.addEventListener('click', () => {
+      if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+          console.log("🔊 Audio enabled");
+      }
+  }, { once: true });
+
+  // ⏸️ Tecla P para pausar/retomar
+  document.addEventListener('keydown', (e) => {
+      if (e.key.toLowerCase() === 'p' && audioCtx) {
+          if (audioCtx.state === 'running') {
+              audioCtx.suspend();
+              console.log("🔇 Pausado");
+          } else {
+              audioCtx.resume();
+              console.log("🔊 Retomado");
+          }
+      }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Slonska.pt</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;600;900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+
+<style>
+body{ 
+    margin:0; 
+    background:black; 
+    font-family:'Playfair Display', serif; 
+    color:white; 
+    overflow-x:hidden; 
+    transition:opacity 0.6s ease; 
+    position:relative;
+    cursor: none;
+}
+
+/* CURSOR PERSONALIZADO - SÓ NO PC */
+#cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 25px;
+    height: 25px;
+    border: 2px solid #00ff44;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99999;
+    mix-blend-mode: difference;
+    box-shadow: 0 0 25px #00ff44;
+    transition: transform 0.1s ease-out, opacity 0.3s ease-in-out;
+    will-change: transform;
+    display: block; /* sempre visível no desktop */
+}
+
+
+#cursor::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: #00ff44;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 15px #00ff44;
+}
+
+/* ESCONDE CURSOR NO TELEMÓVEL */
+@media (max-width: 768px), (hover: none), (pointer: coarse) {
+    #cursor { display: none !important; }
+    body { cursor: auto !important; }
+}
+
+.botao-again {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+
+#btnGlitch, #btnInfiniteTrigger {
+    position: fixed !important;
+    top: 15vh !important;
+    left: 50vw !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+    padding: 16px 32px !important;
+    z-index: 99999 !important;
+    cursor: pointer !important;
+}
+
+.gallery{ width:85%; margin:auto; display:flex; flex-direction:column; }
+.section-img{ 
+    width:100%; height:400px; margin-top:80px; 
+    background-size:contain; background-position:center; background-repeat:no-repeat; 
+    opacity:0; transform:translateY(60px) scale(0.98); 
+    transition:all 1.2s ease, filter 0.3s ease, transform 0.3s ease; position:relative;
+    cursor: pointer !important;
+}
+
+#img1 { 
+    margin-top: -498px !important; 
+    margin-left: 35% !important; 
+    width: 80% !important; 
+    height: 350px !important;
+    position: relative !important;
+    transition: all 0.3s ease !important;
+}
+
+.texto-img{ margin-top:80px; align-self:flex-start; margin-left:20px; width:auto; height:auto; opacity:0; transform:translateY(60px) scale(0.98); transition:all 1.2s ease; cursor: pointer !important; }
+
+@keyframes crashGlitch {
+    0%{filter:none;transform:translate(0,0)scale(1)rotate(0deg);opacity:1;cursor:pointer !important;}
+    25%{filter:sepia(0.8)hue-rotate(30deg)brightness(1.3);transform:translate(-10px,8px)scale(1.1)rotate(-5deg);opacity:0.3;cursor:pointer !important;}
+    50%{filter:hue-rotate(120deg)saturate(3)contrast(1.5);transform:translate(12px,-10px)scale(0.9)rotate(8deg);opacity:0.7;cursor:pointer !important;}
+    75%{filter:hue-rotate(0deg)saturate(4)brightness(1.8);transform:translate(-8px,12px)scale(1.2)rotate(-3deg);opacity:0.4;cursor:pointer !important;}
+    100%{filter:none;transform:translate(0,0)scale(1)rotate(0deg);opacity:1;cursor:pointer !important;}
+}
+
+@keyframes infiniteGlitchMedium {
+    0% { filter: none; transform: translate(0,0) scale(1) rotate(0deg); opacity: 1; cursor:pointer !important; }
+    15% { filter: sepia(0.5) hue-rotate(30deg) brightness(1.4) contrast(1.8); transform: translate(-12px, 8px) scale(1.2) rotate(-8deg); opacity: 0.4; cursor:pointer !important; }
+    35% { filter: hue-rotate(180deg) saturate(2.5) contrast(2) brightness(0.8); transform: translate(18px, -15px) scale(0.85) rotate(12deg); opacity: 0.6; cursor:pointer !important; }
+    55% { filter: invert(0.6) hue-rotate(60deg) saturate(4) blur(1px); transform: translate(-20px, 20px) scale(1.3) rotate(-15deg); opacity: 0.3; cursor:pointer !important; }
+    75% { filter: grayscale(0.7) sepia(0.8) hue-rotate(120deg) brightness(1.8); transform: translate(15px, -18px) scale(0.7) rotate(10deg); opacity: 0.5; cursor:pointer !important; }
+    100% { filter: none; transform: translate(0,0) scale(1) rotate(0deg); opacity: 1; cursor:pointer !important; }
+}
+
+@keyframes infiniteGlitch {
+    0%{filter:none;transform:translate(0,0)scale(1);opacity:1;cursor:pointer !important;}
+    25%{filter:sepia(0.3)hue-rotate(15deg)brightness(1.1);transform:translate(-3px,2px)scale(1.02)rotate(-1deg);opacity:0.85;cursor:pointer !important;}
+    50%{filter:hue-rotate(30deg)saturate(1.2)contrast(1.1);transform:translate(2px,-2px)scale(0.98)rotate(1deg);opacity:0.95;cursor:pointer !important;}
+    75%{filter:hue-rotate(10deg)saturate(1.5)brightness(1.2);transform:translate(-1px,1px)scale(1.03)rotate(0.5deg);opacity:0.9;cursor:pointer !important;}
+    100%{filter:none;transform:translate(0,0)scale(1);opacity:1;cursor:pointer !important;}
+}
+
+#btnGlitch, #btnInfiniteTrigger {
+    position: relative !important; left: 50% !important; transform: translateX(-50%) !important; z-index: 100 !important;
+    font-family: 'JetBrains Mono', monospace !important; font-weight: 700 !important; border-radius: 12px !important;
+    text-transform: uppercase !important; letter-spacing: 1.5px !important; opacity: 0;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); margin: 0 auto; display: block;
+    cursor: pointer !important;
+}
+
+#btnGlitch { 
+    background: linear-gradient(90deg, #001a08 0%, #003311 100%) !important; 
+    color: #00ff41 !important; 
+    border: 2px solid #00ff41 !important; 
+    padding: 16px 32px !important; 
+    font-size: 16px !important; 
+    text-shadow: none !important; 
+    box-shadow: none !important; 
+    margin-top: 120px !important; 
+}
+
+#btnGlitch:hover { animation-play-state: running !important; transform: translateX(-50%) scale(1.15) !important; box-shadow: 0 8px 32px rgba(0,255,65,0.4) !important; cursor: pointer !important; }
+#btnInfiniteTrigger { background: linear-gradient(90deg, #1a0000 0%, #330000 100%) !important; color: #ff4444 !important; border: 3px solid #ff4444 !important; padding: 18px 36px !important; font-size: 20px !important; text-shadow: 0 0 12px #ff4444 !important; box-shadow: 0 0 28px rgba(255,68,68,0.8) !important; margin-top: 100px !important; cursor: pointer !important; }
+#btnInfiniteTrigger.visible, #btnGlitch.visible { opacity: 1; }
+
+#btnAgain {
+    position: fixed !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; z-index: 999999 !important;
+    font-family: 'JetBrains Mono', monospace !important; font-size: 32px !important; font-weight: 800 !important;
+    background: linear-gradient(90deg, #000000 0%, #330000 100%) !important; color: #ff0000 !important; border: 4px solid #ff0000 !important;
+    border-radius: 16px !important; padding: 28px 56px !important; text-shadow: 0 0 15px #ff0000 !important;
+    box-shadow: 0 0 50px rgba(255,0,0,0.9) !important; text-transform: uppercase !important; letter-spacing: 5px !important; display: none !important;
+    cursor: pointer !important;
+}
+#btnAgain.active { display: block !important; animation: simpleBlink 0.4s ease-in-out infinite !important; }
+
+@keyframes simpleBlink { 
+    0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); cursor:pointer !important; } 
+    50% { opacity: 0.3; transform: translate(-50%, -50%) scale(1.1); cursor:pointer !important; } 
+}
+
+body.crash-mode{animation:violentShake 0.25s infinite ease-in-out;}
+body.crash-mode::before{ 
+    content:"";position:fixed;inset:0;background:repeating-linear-gradient(to bottom,rgba(255,100,0,0.05) 0px,rgba(0,200,100,0.05) 1px,rgba(255,50,50,0.05) 2px,transparent 3px,transparent 4px); 
+    mix-blend-mode:screen;pointer-events:none;z-index:999;animation:crashScan 0.5s linear infinite; 
+}
+
+body.crash-mode *,
+body.crash-mode button,
+body.crash-mode .section-img,
+body.crash-mode .suck-item {
+    cursor: pointer !important;
+}
+
+@keyframes violentShake{
+    0%,100%{transform:translate(0,0)rotate(0deg);cursor:pointer !important;}
+    10%{transform:translate(-2px,1px)rotate(-0.5deg);cursor:pointer !important;}
+    20%{transform:translate(2px,-1px)rotate(0.5deg);cursor:pointer !important;}
+    30%{transform:translate(-1px,2px)rotate(-0.3deg);cursor:pointer !important;}
+    40%{transform:translate(2px,-1px)rotate(0.8deg);cursor:pointer !important;}
+    50%{transform:translate(-2px,1px)rotate(-0.5deg);cursor:pointer !important;}
+    60%{transform:translate(1px,-2px)rotate(0.3deg);cursor:pointer !important;}
+    70%{transform:translate(2px,1px)rotate(-0.8deg);cursor:pointer !important;}
+    80%{transform:translate(-1px,-1px)rotate(0.5deg);cursor:pointer !important;}
+    90%{transform:translate(1px,2px)rotate(-0.3deg);cursor:pointer !important;}
+}
+@keyframes crashScan{0%{transform:translateY(-100%);}100%{transform:translateY(100%);}}
+
+body.crash-level-2{--shake-duration:0.18s;--scan-duration:0.35s;}
+body.crash-level-3{--shake-duration:0.12s;--scan-duration:0.25s;}
+body.crash-level-4{--shake-duration:0.06s;--scan-duration:0.15s;}
+body.crash-level-5{--shake-duration:0.02s;--scan-duration:0.05s;}
+body.crash-mode{animation-duration:var(--shake-duration,0.25s);}
+body.crash-mode::before{animation-duration:var(--scan-duration,0.5s);}
+body.crash-mode .section-img{animation:crashGlitch 0.08s infinite !important;position:relative;}
+
+body.crash-mode .image-clone { animation: infiniteGlitchMedium 0.22s infinite ease-in-out !important; filter: drop-shadow(0 0 8px rgba(255,100,150,0.4)) !important; cursor:pointer !important;}
+body.crash-mode .image-clone:nth-child(odd) { animation-direction: alternate !important; animation-delay: -0.1s !important;}
+body.crash-mode .image-clone:nth-child(even) { animation-delay: 0.05s !important; filter: hue-rotate(90deg) drop-shadow(0 0 12px rgba(100,255,150,0.5)) !important;}
+body.crash-mode .infinite-clones::before {
+    content: ""; position: absolute; inset: 0;
+    background: repeating-linear-gradient(30deg, rgba(255,100,150,0.08) 0px,rgba(100,255,150,0.1) 2px,transparent 3px);
+    mix-blend-mode: screen; pointer-events: none; z-index: 5; animation: crashScan 0.15s linear infinite; transform: rotate(1deg);
+}
+
+body.crash-mode .infinite-container{position:relative !important;overflow:visible !important;}
+body.crash-mode .infinite-clones{position:absolute !important;left:0 !important;top:0 !important;width:100% !important;height:99999px !important;pointer-events:none !important;z-index:10 !important;}
+body.crash-mode .image-clone{position:absolute !important;width:100% !important;height:400px !important;background-size:contain !important;background-position:center !important;background-repeat:no-repeat !important;left:0 !important;cursor:pointer !important;}
+body.crash-mode .texto-container .image-clone{height:200px !important;width:400px !important;}
+.infinite-container.texto-container .image-clone{width:400px !important;height:200px !important;}
+.visible{opacity:1 !important;transform:translateY(0) scale(1) !important;}
+#webglCanvas{position:absolute !important;top:0 !important;left:0 !important;width:100vw !important;height:100% !important;z-index:1;pointer-events:none;opacity:0;transition:opacity 1s ease;}
+#glitchOverlay{position:fixed;inset:0;pointer-events:none;opacity:0;z-index:2;mix-blend-mode:screen;background:repeating-linear-gradient(0deg,rgba(0,255,140,0.04)0px,rgba(0,255,140,0.04)1px,transparent 1px,transparent 3px);animation:scanlines 6s linear infinite;}
+@keyframes scanlines{from{background-position:0 0;}to{background-position:0 200px;}}
+
+#blackHoleOverlay {
+    position: fixed;
+    inset: 0;
+    background: 
+        radial-gradient(circle at center, 
+            rgba(0,0,0,0) 0%, 
+            rgba(0,0,0,0.4) 35%, 
+            rgba(0,0,0,0.8) 50%, 
+            #000 65%
+        ),
+        radial-gradient(circle at center, transparent 0%, rgba(255,255,255,0.05) 25%, transparent 45%);
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(0.4) rotate(0deg);
+    transition: opacity 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 999998;
+}
+
+body.suck-transition #blackHoleOverlay {
+    opacity: 1;
+    transform: scale(2.2) rotate(360deg);
+}
+
+body.suck-transition::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+        radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.95) 60%);
+    pointer-events: none;
+    z-index: 999997;
+    opacity: 0;
+    animation: gravityWarp 1.4s ease-out forwards;
+}
+
+@keyframes gravityWarp {
+    0% { opacity: 0; transform: scale(0.2); filter: blur(0px); }
+    30% { opacity: 0.7; transform: scale(1.2); filter: blur(3px); }
+    70% { opacity: 1; transform: scale(1.8); filter: blur(8px); }
+    100% { opacity: 1; transform: scale(2.5); filter: blur(15px); }
+}
+
+.suck-item {
+    position: relative;
+    transition: all 1.4s cubic-bezier(0.6, 0, 0.4, 1);
+    transform-origin: 50% 50% !important;
+    cursor: pointer !important;
+}
+
+body.suck-transition .suck-item {
+    animation: suckToCenter 1.4s cubic-bezier(0.6, 0, 0.4, 1) forwards !important;
+}
+
+@keyframes suckToCenter {
+    0% {
+        transform: translate(0,0) scale(1) !important;
+        opacity: 1;
+        filter: blur(0px) brightness(1) !important;
+        cursor: pointer !important;
+    }
+    15% {
+        transform: translate(var(--suck-x, 0), var(--suck-y, 0)) scale(0.95) !important;
+        opacity: 0.85;
+        filter: blur(3px) brightness(0.9) !important;
+        cursor: pointer !important;
+    }
+    40% {
+        transform: translate(calc(var(--suck-x) * 0.6), calc(var(--suck-y) * 0.6)) scale(0.7) !important;
+        opacity: 0.5;
+        filter: blur(12px) brightness(0.5) !important;
+        cursor: pointer !important;
+    }
+    70% {
+        transform: translate(calc(var(--suck-x) * 0.3), calc(var(--suck-y) * 0.3)) scale(0.3) !important;
+        opacity: 0.2;
+        filter: blur(25px) brightness(0.2) !important;
+        cursor: pointer !important;
+    }
+    100% {
+        transform: translate(0, 0) scale(0.01) !important;
+        opacity: 0;
+        filter: blur(50px) brightness(0) !important;
+        cursor: pointer !important;
+    }
+}
+</style>
+</head>
+
+<body onload="window.scrollTo(0,0)">
+<div id="cursor"></div>
+<div id="glitchOverlay"></div>
+<div id="blackHoleOverlay"></div>
+<canvas id="webglCanvas"></canvas>
+
+<div class="gallery suck-item">
+    <div class="infinite-container">
+        <div class="infinite-clones"></div>
+        <div class="section-img original-img suck-item" style="background-image:url('imagem/capa.png')" id="capaSection"></div>
+    </div>
+    <div class="infinite-container">
+        <div class="infinite-clones"></div>
+        <div class="section-img original-img suck-item" style="background-image:url('imagem/port.png')" id="portSection"></div>
+    </div>
+    <div class="infinite-container texto-container">
+        <div class="infinite-clones"></div>
+        <img src="imagem/texto.png" class="texto-img original-img suck-item" id="textoSection">
+    </div>
+    <div class="infinite-container" id="img1">
+        <div class="infinite-clones"></div>
+        <div class="section-img original-img suck-item" style="background-image:url('imagem/1.jpg')"></div>
+    </div>
+    <button id="btnGlitch" class="suck-item">CLICK_ME</button>
+    <button id="btnInfiniteTrigger" class="suck-item">CLICK_AGAIN</button>
+    <div class="infinite-container">
+        <div class="infinite-clones"></div>
+        <div class="section-img original-img suck-item" style="background-image:url('imagem/2.jpg')"></div>
+    </div>
+    <div class="infinite-container">
+        <div class="infinite-clones"></div>
+        <div class="section-img original-img suck-item" style="background-image:url('imagem/3.jpg')"></div>
+    </div>
+    <div style="height:2000px" class="suck-item"></div>
+</div>
+<button id="btnAgain" class="suck-item">AGAIN</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+let crashMode=false,infiniteMode=false,crashLevel=0,crashTimer=null,scene,camera,renderer,points,geometry,velocities=[],basePositions=[],ready=false;
+const btnGlitch = document.getElementById('btnGlitch'), btnInfiniteTrigger = document.getElementById('btnInfiniteTrigger'), btnAgain = document.getElementById('btnAgain');
+
+// CURSOR PERSONALIZADO - SÓ NO PC, NUNCA NO TELEMÓVEL
+let cursor = document.getElementById('cursor');
+
+function isMobile() {
+    return window.innerWidth <= 768 || 
+           'ontouchstart' in window ||
+           navigator.maxTouchPoints > 1 ||
+           /Android|iPhone|iPad/i.test(navigator.userAgent);
+}
+
+if (!isMobile()) {
+    cursor.style.display = 'block';
+    cursor.style.opacity = '1';
+    cursor.style.filter = 'drop-shadow(0 0 10px #00ff44)';
+    document.addEventListener("mousemove", e => {
+        cursor.style.left = (e.clientX - 12.5) + 'px';
+        cursor.style.top = (e.clientY - 12.5) + 'px';
+    });
+}
+
+const img1Section = document.querySelector('#img1 .original-img');
+if (img1Section) {
+    img1Section.addEventListener("mouseenter", () => {
+        img1Section.classList.add("glitching");
+    });
+    img1Section.addEventListener("mouseleave", () => {
+        img1Section.classList.remove("glitching");
+    });
+}
+
+window.addEventListener('load', () => { window.scrollTo(0, 0); });
+window.addEventListener('pageshow', () => { window.scrollTo(0, 0); });
+
+btnGlitch.addEventListener('click',()=>{
+    if(crashMode) return;
+    window.scrollTo({top:0,behavior:'smooth'});
+    btnGlitch.style.display='none';
+    crashMode=true;
+    document.body.classList.add("crash-mode");
+    document.getElementById("glitchOverlay").classList.add("crash-active");
+    document.querySelectorAll('.section-img').forEach(img=>img.classList.add('glitching'));
+    document.getElementById("glitchOverlay").style.opacity=0.5;
+    crashTimer=setInterval(()=>{
+        crashLevel=Math.min(crashLevel+1,5);
+        for(let i=1;i<=5;i++) document.body.classList.remove(`crash-level-${i}`);
+        document.body.classList.add(`crash-level-${crashLevel}`);
+    },750);
+    btnInfiniteTrigger.classList.add('visible');
+    if(!ready){ startParticles(); ready=true; }
+});
+
+btnInfiniteTrigger.addEventListener('click',()=>{
+    if(!crashMode || infiniteMode) return;
+    infiniteMode=true;
+    btnInfiniteTrigger.style.display='none';
+    createInfiniteClonesAll();
+    btnAgain.classList.add('active');
+});
+
+btnAgain.addEventListener('click', () => {
+    const overlay = document.getElementById("blackHoleOverlay");
+    if (!overlay) return;
+
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    
+    document.querySelectorAll('.suck-item').forEach((item) => {
+        const rect = item.getBoundingClientRect();
+        const itemCenterX = rect.left + rect.width / 2;
+        const itemCenterY = rect.top + rect.height / 2;
+        
+        const suckX = (itemCenterX - centerX) * 0.002;
+        const suckY = (itemCenterY - centerY) * 0.002;
+        
+        item.style.setProperty('--suck-x', suckX + 'px');
+        item.style.setProperty('--suck-y', suckY + 'px');
+    });
+
+    document.body.classList.add("suck-transition");
+
+    void document.body.offsetWidth;
+
+    setTimeout(() => {
+        document.body.style.opacity = "0";
+        document.body.style.background = "black";
+        document.body.style.transition = "opacity 0.5s ease";
+        document.body.innerHTML = '<div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:white;font-size:24px;font-family:\'JetBrains Mono\',monospace;opacity:0.7;">...</div>';
+        
+        setTimeout(() => {
+            localStorage.setItem("transition","toBlob");
+            window.location.href="atelier.html";
+        }, 600);
+    }, 1400);
+});
+
+const sections=document.querySelectorAll(".section-img, .texto-img");
+window.addEventListener("scroll",()=>{
+    const windowHeight=window.innerHeight;
+    sections.forEach(sec=>{
+        const top=sec.getBoundingClientRect().top;
+        if(top<windowHeight-120){
+            sec.style.opacity="1";
+            sec.style.transform="translateY(0) scale(1)";
+            sec.classList.add('visible');
+        }
+    });
+    updateCanvasSize();
+});
+
+const revealGlitchBtn=()=>{
+    const rect=btnGlitch.getBoundingClientRect();
+    const winH=window.innerHeight;
+    if(rect.top<winH-150){
+        btnGlitch.classList.add('visible');
+        window.removeEventListener('scroll',revealGlitchBtn);
+    }
+};
+window.addEventListener('scroll',revealGlitchBtn);
+window.addEventListener("resize",updateCanvasSize);
+
+function updateCanvasSize(){
+    const canvas=document.getElementById("webglCanvas");
+    const pageHeight=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight,window.innerHeight);
+    canvas.width=window.innerWidth;
+    canvas.height=pageHeight;
+    canvas.style.width='100vw';
+    canvas.style.height=pageHeight+'px';
+    if(renderer) renderer.setSize(window.innerWidth,pageHeight);
+    if(camera){camera.aspect=window.innerWidth/pageHeight;camera.updateProjectionMatrix();}
+}
+
+function createInfiniteClonesAll(){
+    const containers = document.querySelectorAll('.infinite-container');
+    containers.forEach((container)=>{
+        const clonesContainer = container.querySelector('.infinite-clones');
+        const original = container.querySelector('.original-img');
+        const originalStyle = window.getComputedStyle(original);
+        const isTexto = container.classList.contains('texto-container');
+        const cloneHeight = isTexto ? 200 : 400;
+        clonesContainer.innerHTML = '';
+        
+        for(let i = 0; i < 120; i++){
+            const clone = document.createElement("div");
+            clone.className = "image-clone suck-item";
+            clone.style.backgroundImage = originalStyle.backgroundImage;
+            clone.style.opacity = Math.max(0.05, 0.85 - (i * 0.007) + (Math.sin(i * 0.2) * 0.08));
+            clone.style.top = `${i * cloneHeight}px`;
+            clone.style.animationDuration = `${0.18 + (Math.random() * 0.06)}s`;
+            clone.style.animationDelay = `${Math.random() * -0.15}s`;
+            clone.style.transform = `scale(${0.9 + Math.random() * 0.2})`;
+            clonesContainer.appendChild(clone);
+        }
+        
+        let scrollPos = window.scrollY;
+        const infiniteScroll = setInterval(()=>{
+            scrollPos += 9 + (Math.sin(Date.now() * 0.008) * 3);
+            window.scrollTo({top: scrollPos, behavior: 'auto'});
+            if(scrollPos > 45000) clearInterval(infiniteScroll);
+        }, 55);
+    });
+}
+
+function startParticles(){
+    const canvas=document.getElementById("webglCanvas");
+    canvas.style.opacity=1;
+    updateCanvasSize();
+    scene=new THREE.Scene();
+    camera=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
+    renderer=new THREE.WebGLRenderer({canvas,alpha:true});
+    const count=24000;
+    geometry=new THREE.BufferGeometry();
+    const pos=new Float32Array(count*3);
+    velocities=new Float32Array(count*3);
+    basePositions=new Float32Array(count*3);
+    for(let i=0;i<count*3;i+=3){
+        pos[i]=(Math.random()-0.5)*26;
+        pos[i+1]=(Math.random()-0.5)*26;
+        pos[i+2]=(Math.random()-0.5)*9;
+        basePositions[i]=pos[i];
+        basePositions[i+1]=pos[i+1];
+        basePositions[i+2]=pos[i+2];
+    }
+    geometry.setAttribute("position",new THREE.BufferAttribute(pos,3));
+    const material=new THREE.PointsMaterial({color:0x00ff66,size:0.025,transparent:true,opacity:0.95});
+    points=new THREE.Points(geometry,material);
+    scene.add(points);
+    camera.position.z=6;
+    animateParticles();
+}
+
+function animateParticles(){
+    requestAnimationFrame(animateParticles);
+    if(!points) return;
+    const pos=geometry.attributes.position.array;
+    const time=Date.now()*0.001;
+    const scrollOffset=window.scrollY*0.003;
+    for(let i=0;i<pos.length;i+=3){
+        velocities[i]*=0.94; velocities[i+1]*=0.94; velocities[i+2]*=0.94;
+        pos[i]+=velocities[i]; pos[i+1]+=velocities[i+1]; pos[i+2]+=velocities[i+2];
+        pos[i]+=(basePositions[i]-pos[i])*0.01; pos[i+1]+=(basePositions[i+1]-pos[i+1])*0.01;
+        pos[i]+=Math.sin(time+i*0.002+scrollOffset)*0.015; pos[i+1]+=Math.cos(time+i*0.002+scrollOffset)*0.015;
+    }
+    geometry.attributes.position.needsUpdate=true;
+    points.rotation.y+=0.0012; points.rotation.x+=0.0006;
+    renderer.render(scene,camera);
+}
+</script>
+</body>
+</html>

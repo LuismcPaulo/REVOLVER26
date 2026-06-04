@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maze</title>
+<style>
+body {
+    background: #09ff00;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    margin-bottom: 20px; 
+    text-align: center; 
+    font-weight: bold; 
+}
+
+#ascii-bg {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1.8); /* ⬆️ AUMENTA ISTO (1.5 a 2.5) */
+    font-family: monospace;
+    font-size: 14px;        /* ⬆️ AUMENTADO (era 8px) */
+    line-height: 16px;      /* Igual ao font-size */
+    letter-spacing: 1px;
+    color: #8800ff;
+    opacity: 0.25;          /* ⬇️ Reduzi um pouco porque vai ficar maior */
+    text-shadow: 0 0 5px rgba(9, 255, 0, 0.4);
+    pointer-events: none;
+    z-index: 0;
+    white-space: pre;
+    overflow: visible;
+    user-select: none;
+    text-align: left;
+}
+
+#maze {
+    width: min(600px, 90vw);        /* Máx 600px, mas encolhe para 90% do ecrã */
+    height: min(600px, 90vw);       /* Mantém quadrado */
+    display: grid;
+    grid-template-columns: repeat(20, 1fr);  /* 20 colunas iguais */
+    grid-template-rows: repeat(20, 1fr);     /* 20 linhas iguais */
+    gap: min(2px, 0.3vw);           /* Gap também escala */
+    margin-bottom: 20px;
+    z-index: 10;
+}
+
+.cell { 
+    width: 100%; 
+    height: 100%; 
+    aspect-ratio: 1/1;              /* Garante que cada célula é quadrada */
+}
+.wall { background: black; }
+.player { background: red !important; }
+.confuse { background: purple; }
+.finish { background: gold; }
+
+.buttons-custom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: rgba(24,18,18,0.2);
+    padding: 20px 30px;
+    border-radius: 30px;
+}
+
+.horizontal-row { display: flex; gap: 15px; justify-content: center; }
+.custom-btn {
+    width: 70px; height: 35px;
+    background: linear-gradient(145deg, #000000); 
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.01s ease;
+}
+.arrow {
+    border: solid white;
+    border-width: 0 5px 5px 0;
+    display: inline-block;
+    padding: 5%;
+}
+.arrow.right { transform: rotate(-45deg); }
+.arrow.left { transform: rotate(135deg); }
+.arrow.up { transform: rotate(-135deg); }
+.arrow.down { transform: rotate(45deg); }
+
+
+</style>
+</head>
+<body>
+
+<div id="ascii-bg"></div>
+
+<h2>Finish the Maze</h2>
+
+<p>YOU LOOK LOST</p>
+
+<div id="maze"></div>
+
+<!-- Maze controls -->
+<div class="buttons-custom">
+    <button class="custom-btn" id="btn-up"><i class="arrow up"></i></button>
+    <div class="horizontal-row">
+        <button class="custom-btn" id="btn-left"><i class="arrow left"></i></button>
+        <button class="custom-btn" id="btn-down"><i class="arrow down"></i></button>
+        <button class="custom-btn" id="btn-right"><i class="arrow right"></i></button>
+    </div>
+</div>
+
+<script>
+    const eyeAscii = `
+                                                                                                    
+                                  :::: :           :                                                
+                                ::::-::-:--===+=+++++**+***+++=--=                                  
+                               :::--==+**#*+*++++=++=+++++++**++=+*+++-                             
+                             :::=++*+****++=======--==-==+++*++=++++++=++=:                         
+                        :::::+**+*++++=*+++===--::::--===+++*++==+++++=======-                      
+                         -=+*++=+++=++=*++====-::::::+=:--+++*==-++++++========-                    
+                       -**++===--===++=+*+-===+-::::::+-==+++=--+**=++--=+========                  
+                     :=*=====--::+==:=+:++*++*+=---::::::-++::::=+*++=::=====-+=-===                
+                    =++====----::=+=-::====+==-+--::: ::    :   ::== ::=-------=-----:              
+                  =*+==-=-==:::-----:  :-   :        ::::::              :::::-::----=::            
+                =+*++++===--==--::::   -      :::-====++++++=---          ::-++---=-----:           
+             ::-++++++======+-::::::        --=+***+***#*******+=-          : :::::::::--::         
+              -=++++**++**+--:::          :-+******+**+***+******+=-        :: ::----:-:-:          
+            :-=+++++****+-:-::           =+****+++**+**+*+++++++++**=:        ::::: :::::-:         
+        ::::--=++*+**++::::::          :=*****++++********++++=+++*#*+-        :::::: ::::-:        
+       ::::==+*****+--:::::::         :=*+*++*+***#*###*##***++=+=++**=         :: -::: ::::::      
+      ::-::--===++=-:::::::::         =**++*******##########*++=++*+#*+-         :: ::::::::::      
+        ::--+===--:-: ::::::::       :+#*+++++++**#####*#####++++++****:          ::::::::::::      
+   ::::::--:::-=-=:   ::::::::       :+#**++++*+**###########*++=++****:           :::::::          
+::::-::    :--=++==-:::----::::      :+#**+=++=++*###-=*#####**++++++*+-           ::--::::         
+        :::==+=---=--::-==-::::       =*#*++++++++**#**####**=+++++++*=:         :::::-::           
+         ---       :-:-::=+=::         +**+*+++=+++++****+*=++====++**=         :::::-:  ::         
+      :::     :-----::-::::=--:        :=***+++=+=+==++=+=++======+**+         ::::---::::::::      
+            ::::  :::---:::::--:         =*#*+===++==+=+**++====++*+:         ::-=-===--:-:--::     
+               :::      ::::::::::         =**=+=+==+++++*+++=+=**=         ::-++**#****+===:::     
+                       :-::::::::::::       --+**+++++++*+++***+-:       :-:-------=-:::::::::      
+                     :-:::::::::::::           :-====+=+*++++--      :::::::::::::::::: ::::::      
+                   :::::::::::::::::::               ::::   :::::::::::::::::::::::::               
+                  :::  :    ::::::::::: :::              :     :::::::::::::::::::::                
+                             :::::::    :::    : : :   :: --  :   ::    ::::::  :                   
+                             :::::      :      : ::-      ::   -:: ::::::::                         
+                                      :        :: +-       ::   :: :                                
+                                                ::-    :    :    :                                  
+                                                 :::                                                
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                        
+`;
+
+document.getElementById('ascii-bg').textContent = eyeAscii;
+// Define o olho gigante como fundo
+document.getElementById('ascii-bg').textContent = eyeAscii;
+
+// Ajusta a escala automaticamente conforme o tamanho do ecrã
+function adjustScale() {
+    const bg = document.getElementById('ascii-bg');
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    
+    // Calcula escala baseada no ecrã (ecrãs maiores = mais escala)
+    let scale = 1;
+    if (screenWidth > 1920) scale = 3.5;
+    else if (screenWidth > 1440) scale = 3;
+    else if (screenWidth > 1024) scale = 2.5;
+    else if (screenWidth > 768) scale = 2;
+    else scale = 1.5;
+    
+    bg.style.transform = `translate(-50%, -50%) scale(${scale})`;
+}
+// 🎵 Audio setup
+let audioCtx = null;
+
+function getAudioContext() {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return null;
+    if (!audioCtx) {
+        audioCtx = new AudioContext();
+    }
+    return audioCtx;
+}
+
+// 🔊 Som de movimento (normal ou stoner fuzz)
+function playMoveSound(isConfused) {
+    try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+        
+        const now = ctx.currentTime;
+        
+        // === OSC PRINCIPAL ===
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        if (isConfused) {
+            // 🎸 MODO STONER: pesado, fuzz, quente
+            osc.type = 'square'; // Onda quadrada = harmonicos ricos
+            osc.frequency.setValueAtTime(330, now); // Mi grave, mais "gordo"
+            
+            // LFO sutil para instabilidade de "amp aquecido"
+            const lfo = ctx.createOscillator();
+            const lfoGain = ctx.createGain();
+            lfo.frequency.value = 0.8 + Math.random() * 0.4; // 0.8-1.2Hz
+            lfoGain.gain.value = 12; // ±12 cents de wobble
+            lfo.connect(lfoGain);
+            lfoGain.connect(osc.detune);
+            lfo.start(now);
+            lfo.stop(now + 0.2);
+            
+            // === SUB-OITAVA para peso extra ===
+            const subOsc = ctx.createOscillator();
+            const subGain = ctx.createGain();
+            subOsc.type = 'sine';
+            subOsc.frequency.value = 165; // 330/2 = sub grave
+            subGain.gain.value = 0.35; // Mistura subtil
+            subOsc.connect(subGain);
+            subGain.connect(gain);
+            subOsc.start(now);
+            subOsc.stop(now + 0.2);
+            
+            // === FILTRO WARM: lowpass para cortar agudos estridentes ===
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(900, now); // Frequência de corte "quente"
+            filter.Q.value = 0.8; // Suave, sem ressonância agressiva
+            
+            // === DISTORÇÃO FUZZ STYLE ===
+            const shaper = ctx.createWaveShaper();
+            const samples = 44100;
+            const curve = new Float32Array(samples);
+            for (let i = 0; i < samples; i++) {
+                const x = (i * 2) / samples - 1;
+                // Curva de fuzz: saturação agressiva mas "redonda"
+                const drive = 5.5; // Intensidade do fuzz
+                curve[i] = Math.tanh(x * drive) * 0.85 + x * 0.15;
+            }
+            shaper.curve = curve;
+            shaper.oversample = '4x'; // Qualidade na distorção
+            
+            // === ENVELOPE "PUNCHY" ===
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.4, now + 0.015); // Attack rápido
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18); // Decay médio
+            
+            // Conexões: osc → filter → shaper → gain
+            osc.connect(filter);
+            filter.connect(shaper);
+            shaper.connect(gain);
+            
+        } else {
+            // 🚶 MODO NORMAL: beep limpo e suave
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(440, now);
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.2, now + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+            osc.connect(gain);
+        }
+        
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.2);
+        
+    } catch (e) {
+        console.log("Move sound error:", e);
+    }
+}
+
+// ===== MAZE LOGIC =====
+const mazeElement = document.getElementById("maze");
+const maze = [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,0,1,1,1,0,1,0,1,1,1,1,1,0,1,1],
+    [1,0,0,0,1,0,1,0,0,0,1,0,0,0,0,0,1,0,0,1],
+    [1,0,1,0,1,0,1,0,1,1,1,1,1,0,1,0,1,1,0,1],
+    [1,0,1,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1],
+    [1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1],
+    [1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
+    [1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1],
+    [1,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1],
+    [1,0,1,1,1,0,1,0,1,1,1,1,1,0,1,1,1,1,0,1],
+    [1,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1],
+    [1,0,1,0,1,1,1,1,1,1,1,0,1,1,1,1,0,1,0,1],
+    [1,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,1],
+    [1,1,1,0,1,1,1,0,1,0,1,0,1,0,1,1,0,1,0,1],
+    [1,0,0,0,0,0,1,0,1,0,0,0,1,0,1,0,0,0,0,1],
+    [1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1],
+    [1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+    [1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1],
+];
+
+function findValidFinish(){
+    for(let y=8; y<=12; y++){
+        for(let x=8; x<=12; x++){
+            if(maze[y]?.[x] === 0) return {x, y};
+        }
+    }
+    return {x:10, y:10};
+}
+
+let player = {x:0, y:1};
+let finish = findValidFinish();
+const confuseRange = 3;
+
+function distance(a, b){ 
+    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y); 
+}
+
+function isInConfuseZone(pos) {
+    return distance(pos, finish) <= confuseRange;
+}
+
+function drawMaze(){
+    mazeElement.innerHTML = "";
+    for(let y=0; y<20; y++){
+        for(let x=0; x<20; x++){
+            const cell = document.createElement("div");
+            cell.classList.add("cell");
+            if(maze[y]?.[x] === 1) cell.classList.add("wall");
+            else if(x === finish.x && y === finish.y) cell.classList.add("finish");
+            else if(isInConfuseZone({x,y}) && maze[y]?.[x] !== 1) cell.classList.add("confuse");
+            if(player.x === x && player.y === y) cell.classList.add("player");
+            mazeElement.appendChild(cell);
+        }
+    }
+}
+
+function movePlayer(dx, dy){
+    const inConfuse = isInConfuseZone(player);
+    const finalDx = inConfuse ? -dx : dx;
+    const finalDy = inConfuse ? -dy : dy;
+    const newX = player.x + finalDx;
+    const newY = player.y + finalDy;
+    
+    // Verifica limites e paredes
+    if(maze[newY] && maze[newY][newX] !== undefined && maze[newY][newX] !== 1){
+        player.x = newX;
+        player.y = newY;
+        
+        // 🔊 Toca som de movimento
+        const nowConfused = isInConfuseZone(player);
+        playMoveSound(nowConfused);
+    }
+    
+    // ✅ Chegou ao fim? → Redireciona SEM som
+    if(player.x === finish.x && player.y === finish.y){
+        sessionStorage.setItem("lastPage", "Maze");
+        // 🚫 Sem playWinSound() aqui!
+        window.location.href = "Camara.html";
+        // ← Redirecionamento imediato, sem delay
+    }
+    
+    drawMaze();
+}
+
+// ===== Controls =====
+document.getElementById("btn-up").addEventListener("click", () => movePlayer(0, -1));
+document.getElementById("btn-down").addEventListener("click", () => movePlayer(0, 1));
+document.getElementById("btn-left").addEventListener("click", () => movePlayer(-1, 0));
+document.getElementById("btn-right").addEventListener("click", () => movePlayer(1, 0));
+
+document.addEventListener("keydown", (e) => {
+    let dx = 0, dy = 0;
+    if(e.key === "ArrowUp") dy = -1;
+    if(e.key === "ArrowDown") dy = 1;
+    if(e.key === "ArrowLeft") dx = -1;
+    if(e.key === "ArrowRight") dx = 1;
+    if(dx !== 0 || dy !== 0){ 
+        e.preventDefault(); 
+        // Ativa áudio no primeiro input do utilizador
+        if(audioCtx?.state === 'suspended') audioCtx.resume();
+        movePlayer(dx, dy); 
+    }
+});
+
+// 🎧 Ativa áudio no primeiro clique (navegadores bloqueiam autoplay)
+document.body.addEventListener('click', () => {
+    if(audioCtx?.state === 'suspended') audioCtx.resume();
+}, { once: true });
+
+drawMaze();
+</script>
+
+</body>
+</html>

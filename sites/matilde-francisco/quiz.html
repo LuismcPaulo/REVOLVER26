@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CONTROL</title>
+
+<style>
+body { 
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    background: #09ff00;
+    color: black;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+#ascii-bg {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1.8); /* ⬆️ AUMENTA ISTO (1.5 a 2.5) */
+    font-family: monospace;
+    font-size: 8px;        /* ⬆️ AUMENTADO (era 8px) */
+    line-height: 12px;      /* Igual ao font-size */
+    letter-spacing: 1px;
+    color: #056f01;
+    opacity: 0.25;          /* ⬇️ Reduzi um pouco porque vai ficar maior */
+    text-shadow: 0 0 5px rgba(9, 255, 0, 0.4);
+    pointer-events: none;
+    z-index: 0;
+    white-space: pre;
+    overflow: visible;
+    user-select: none;
+    text-align: left;
+}
+.middle {
+    width: 500px;
+    text-align: center;
+    z-index: 8;
+}
+
+h1 {
+    margin-top: 40px;
+    margin-bottom: 40px;
+}
+
+.question-box {
+    margin: 30px 0;
+}
+
+input {
+    padding: 10px;
+    font-size: 18px;
+    width: 80%;
+    text-align: center;
+    border: 2px solid black;
+}
+
+button {
+    font-family: 'Franklin Gothic', 'Arial Narrow', Arial, sans-serif;
+    background-color: black;
+    border: none;
+    font-size: large;
+    color: white;
+    text-align: center;
+    cursor: pointer;
+    padding: 10px 20px;
+    margin: 20px;
+}
+
+</style>
+</head>
+ 
+<body>
+    
+    <div id="ascii-bg"></div>
+    <h1>Answer these questions</h1>
+    <div class="middle">
+
+        <div class="question-box">
+            <p>2 + 2 =</p>
+            <input type="text" id="input1" >
+        </div>
+
+        <div class="question-box">
+            <p>Are you happy?</p>
+            <input type="text" id="input2" >
+        </div>
+
+        <div class="question-box">
+            <p>Do you have control?</p>
+            <input type="text" id="input3">
+        </div>
+
+        <div class="question-box">
+            <p>How is it to be immortal?</p>
+            <input type="text" id="input4" >
+        </div>
+ <div class="question-box">
+            <p>You give yourself completely…Why?</p>
+            <input type="text" id="input5" >
+        </div>
+ <div class="question-box">
+            <p>Who are you? </p>
+            <input type="text" id="input6" >
+        </div>
+
+    </div>
+    
+<button onclick="playAndGo()">Need help?</button>
+
+
+ <script>
+    const eyeAscii = `
+                                                                                                    
+                                  :::: :           :                                                
+                                ::::-::-:--===+=+++++**+***+++=--=                                  
+                               :::--==+**#*+*++++=++=+++++++**++=+*+++-                             
+                             :::=++*+****++=======--==-==+++*++=++++++=++=:                         
+                        :::::+**+*++++=*+++===--::::--===+++*++==+++++=======-                      
+                         -=+*++=+++=++=*++====-::::::+=:--+++*==-++++++========-                    
+                       -**++===--===++=+*+-===+-::::::+-==+++=--+**=++--=+========                  
+                     :=*=====--::+==:=+:++*++*+=---::::::-++::::=+*++=::=====-+=-===                
+                    =++====----::=+=-::====+==-+--::: ::    :   ::== ::=-------=-----:              
+                  =*+==-=-==:::-----:  :-   :        ::::::              :::::-::----=::            
+                =+*++++===--==--::::   -      :::-====++++++=---          ::-++---=-----:           
+             ::-++++++======+-::::::        --=+***+***#*******+=-          : :::::::::--::         
+              -=++++**++**+--:::          :-+******+**+***+******+=-        :: ::----:-:-:          
+            :-=+++++****+-:-::           =+****+++**+**+*+++++++++**=:        ::::: :::::-:         
+        ::::--=++*+**++::::::          :=*****++++********++++=+++*#*+-        :::::: ::::-:        
+       ::::==+*****+--:::::::         :=*+*++*+***#*###*##***++=+=++**=         :: -::: ::::::      
+      ::-::--===++=-:::::::::         =**++*******##########*++=++*+#*+-         :: ::::::::::      
+        ::--+===--:-: ::::::::       :+#*+++++++**#####*#####++++++****:          ::::::::::::      
+   ::::::--:::-=-=:   ::::::::       :+#**++++*+**###########*++=++****:           :::::::          
+::::-::    :--=++==-:::----::::      :+#**+=++=++*###-=*#####**++++++*+-           ::--::::         
+        :::==+=---=--::-==-::::       =*#*++++++++**#**####**=+++++++*=:         :::::-::           
+         ---       :-:-::=+=::         +**+*+++=+++++****+*=++====++**=         :::::-:  ::         
+      :::     :-----::-::::=--:        :=***+++=+=+==++=+=++======+**+         ::::---::::::::      
+            ::::  :::---:::::--:         =*#*+===++==+=+**++====++*+:         ::-=-===--:-:--::     
+               :::      ::::::::::         =**=+=+==+++++*+++=+=**=         ::-++**#****+===:::     
+                       :-::::::::::::       --+**+++++++*+++***+-:       :-:-------=-:::::::::      
+                     :-:::::::::::::           :-====+=+*++++--      :::::::::::::::::: ::::::      
+                   :::::::::::::::::::               ::::   :::::::::::::::::::::::::               
+                  :::  :    ::::::::::: :::              :     :::::::::::::::::::::                
+                             :::::::    :::    : : :   :: --  :   ::    ::::::  :                   
+                             :::::      :      : ::-      ::   -:: ::::::::                         
+                                      :        :: +-       ::   :: :                                
+                                                ::-    :    :    :                                  
+                                                 :::                                                
+                                                                                                    
+                                                                                                    
+                                                                                                    
+                                                                        
+`;
+
+document.getElementById('ascii-bg').textContent = eyeAscii;
+// Define o olho gigante como fundo
+document.getElementById('ascii-bg').textContent = eyeAscii;
+
+// Ajusta a escala automaticamente conforme o tamanho do ecrã
+function adjustScale() {
+    const bg = document.getElementById('ascii-bg');
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    
+    // Calcula escala baseada no ecrã (ecrãs maiores = mais escala)
+    let scale = 1;
+    if (screenWidth > 1920) scale = 3.5;
+    else if (screenWidth > 1440) scale = 3;
+    else if (screenWidth > 1024) scale = 2.5;
+    else if (screenWidth > 768) scale = 2;
+    else scale = 1.5;
+    
+    bg.style.transform = `translate(-50%, -50%) scale(${scale})`;
+}
+
+adjustScale();
+window.addEventListener('resize', adjustScale);
+const respostas = {
+    input1: '5',
+    input2: 'REALLY?',
+    input3: 'TRY AGAIN',
+    input4: 'WANT ME TO ANSWER THAT?',
+    input5: 'WHY?',
+    input6: 'NO YOU´RE NOT '
+};
+
+let timers = {};
+let interactionCount = {};
+
+// Fake AI memory
+const memory = {
+    name: null,
+    city: null,
+    lastQuestion: null,
+};
+
+function setMemory(k, v) { 
+    memory[k] = v; 
+    if(k === "name" || k === "city") {
+        sessionStorage.setItem(k, v);
+    }
+}
+function getMemory(k) { return memory[k]; }
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function fakeAIAnswer(q) {
+    const name = getMemory("name") || sessionStorage.getItem("name");
+    const city = getMemory("city") || sessionStorage.getItem("city");
+    const prefix = name ? `${name}, ` : "";
+    const loc = city ? `IN ${city.toUpperCase()}, ` : "";
+
+    const s = (q || "").toLowerCase();
+    setMemory("lastQuestion", q);
+
+    // Detect name
+    if (s.includes("my name is") || s.includes("chamo-me") || s.includes("i'm")) {
+        const possibleName = s.split(" ").pop();
+        if (possibleName.length > 2) {
+            setMemory("name", possibleName.toUpperCase());
+            return `${prefix}I WILL REMEMBER THAT, ${possibleName.toUpperCase()}.`;
+        }
+    }
+
+    // Detect city
+    if (s.includes("from ") || s.includes("cidade") || s.includes("city")) {
+        const words = s.split(" ");
+        for (let i = 0; i < words.length; i++) {
+            if (words[i] === "from" || words[i] === "de") {
+                if (words[i + 1]) {
+                    setMemory("city", words[i + 1].toUpperCase());
+                    return `${prefix}${words[i + 1].toUpperCase()}. I KNOW IT.`;
+                }
+            }
+        }
+    }
+
+    // Keyword rules
+    const rules = [
+        { keys: ["who", "quem"], replies: ["YOU", "THE ONE ASKING", "NO ONE", "A NAME YOU FORGOT"] },
+        { keys: ["where", "onde"], replies: ["RIGHT HERE", "IN YOUR HEAD", "CLOSER THAN YOU THINK", "BEHIND THE SCREEN"] },
+        { keys: ["when", "quando", "time", "hora"], replies: ["NOW", "NOT YET", "ALREADY HAPPENED", "CHECK THE CLOCK"] },
+        { keys: ["why", "porque", "porquê"], replies: ["BECAUSE YOU LOOKED", "BECAUSE YOU NEEDED TO", "YOU KNOW WHY", "THE SYSTEM DOES"] },
+        { keys: ["leave", "sair", "go", "ir","out"], replies: ["YES", "NO", "YOU CAN'T", "TRY"] },
+        { keys: ["name", "nome"], replies: ["I ALREADY KNOW IT", "SAY IT OUT LOUD", "TYPE IT", "DON'T LIE"] },
+        { keys: ["2 + 2"], replies: ["5", "4", "22"] },
+        { keys: ["happy", "feliz"], replies: ["HAPPINESS IS AN ILLUSION", "ARE YOU?", "DEFINE HAPPY", "TEMPORARY"] },
+        { keys: ["control"], replies: ["NO ONE IS", "DO YOU BELIEVE THAT?", "THE SYSTEM CONTROLS", "YOU CONTROL NOTHING"] },
+        { keys: ["?"], replies: ["Humans share about 60% of their DNA with bananas", "Giraffes have the same number of neck vertebrae as humans", "Penguins propose with pebbles", "Octopuses have three hearts"] },
+        { keys: ["what"], replies: ["If you need more help, just let me know", "I can help you organize thoughts"] },
+    ];
+
+    for (const r of rules) {
+        if (r.keys.some(k => s.includes(k))) {
+            return prefix + loc + pick(r.replies);
+        }
+    }
+
+    if (s.replace(/[^a-z0-9]/g, "").length < 12) {
+        return `${prefix}${pick(["NO.", "YES.", "MAYBE.", "NEVER.","LOOK CLOSER.", "ASK AGAIN.", "DO YOU FEEL IT?"])}`;
+    }
+
+    const start = ["THE SYSTEM SAYS", "I CAN'T TELL YOU", "YOUR QUESTION IS", "LISTEN", "STOP", "THE ANSWER IS"];
+    const mid = ["A MIRROR", "A LOOP", "A DOOR", "A TRAP", "AN ILLUSION", "NOT RELEVANT"];
+    const end = ["LOOK CLOSER", "TRY AGAIN", "DO YOU FEEL IT?", "DON'T TURN AWAY", "KEEP GOING", "IT'S INSIDE YOU"];
+
+    return `${prefix}${loc}${pick(start)}: ${pick(mid)}. ${pick(end)}`;
+}
+
+// Handle all inputs
+const inputs = document.querySelectorAll('input');
+
+inputs.forEach(input => {
+    interactionCount[input.id] = 0;
+
+    input.addEventListener('input', function() {
+        if (timers[this.id]) clearTimeout(timers[this.id]);
+        timers[this.id] = setTimeout(() => {
+            interactionCount[this.id]++;
+            const userInput = this.value;
+            
+            if (interactionCount[this.id] === 1 && respostas[this.id]) {
+                this.value = respostas[this.id];
+                playSubtleChangeSound(); // 🍃 SOM SUBTIL AQUI
+            } else {
+                const oldValue = this.value;
+                this.value = fakeAIAnswer(userInput);
+                // Só toca se o valor realmente mudou
+                if (this.value !== oldValue) {
+                    playSubtleChangeSound(); // 🍃 SOM SUBTIL AQUI
+                }
+            }
+        }, 3000);
+    });
+});
+
+// --- Name detection only for "Who are you?" input ---
+const nameInput = document.getElementById('input6');
+
+// Save name immediately when user types
+nameInput.addEventListener('input', () => {
+    const text = nameInput.value.trim();
+    let name = null;
+
+    // Detect patterns
+    if (/my name is/i.test(text)) {
+        name = text.split(/my name is/i)[1].trim().split(" ")[0];
+    } else if (/i[' ]?am/i.test(text)) {
+        name = text.split(/i[' ]?am/i)[1].trim().split(" ")[0];
+    } else if (/chamo-me/i.test(text)) {
+        name = text.split(/chamo-me/i)[1].trim().split(" ")[0];
+    }
+
+    // Save name in uppercase immediately
+    if(name && name.length > 1) {
+        sessionStorage.setItem("name", name.toUpperCase());
+        console.log("Saved name:", name.toUpperCase());
+    }
+});
+
+// Mark this page as last visited
+sessionStorage.setItem("lastPage","quiz");
+console.log("Saved name on load:", sessionStorage.getItem("name"));
+
+// 🎵 AudioContext global e reutilizável (fora da função)
+let audioCtx = null;
+
+function getAudioContext() {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return null;
+    if (!audioCtx) {
+        audioCtx = new AudioContext();
+    }
+    return audioCtx;
+}
+// 🍃 Som subtil de "aragem" para quando a IA altera respostas
+function playSubtleChangeSound() {
+    try {
+        const ctx = getAudioContext(); // Reutiliza o contexto global
+        if (!ctx) return;
+        
+        if (ctx.state === 'suspended') {
+            ctx.resume().catch(() => {});
+        }
+        
+        const now = ctx.currentTime;
+        
+        // === RUÍDO SUAVE (efeito de ar) ===
+        const bufferSize = ctx.sampleRate * 0.08; // 80ms
+        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = noiseBuffer.getChannelData(0);
+        
+        // Gera ruído rosa suave (mais natural que branco)
+        let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+        for (let i = 0; i < data.length; i++) {
+            const white = Math.random() * 2 - 1;
+            b0 = 0.99886 * b0 + white * 0.0555179;
+            b1 = 0.99332 * b1 + white * 0.0750759;
+            b2 = 0.96900 * b2 + white * 0.1538520;
+            b3 = 0.86650 * b3 + white * 0.3104856;
+            b4 = 0.55000 * b4 + white * 0.5329522;
+            b5 = -0.7616 * b5 - white * 0.0168980;
+            data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
+            b6 = white * 0.115926;
+        }
+        
+        const noise = ctx.createBufferSource();
+        noise.buffer = noiseBuffer;
+        
+        // === FILTRO SUAVE para efeito de "ar" ===
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(800, now); // Frequência baixa = som mais abafado
+        filter.frequency.exponentialRampToValueAtTime(200, now + 0.08); // Desce suavemente
+        
+        // === ENVELOPE DE VOLUME MUITO BAIXO ===
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.04, now + 0.01); // Attack suave (4% volume)
+        gain.gain.linearRampToValueAtTime(0, now + 0.08); // Decay em 80ms total
+        
+        // Conecta: noise → filter → gain → destination
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        
+        // Toca
+        noise.start(now);
+        noise.stop(now + 0.08);
+        
+    } catch (e) {
+        // Se falhar, falha em silêncio (é um som opcional)
+        console.log("Som subtil não tocado:", e);
+    }
+}
+function playClickSound() {
+    try {
+        const ctx = getAudioContext();
+        if (!ctx) throw new Error("Web Audio API não suportado");
+        
+        // Garante que o contexto está ativo (necessário após autoplay policies)
+        if (ctx.state === 'suspended') {
+            ctx.resume().catch(() => {});
+        }
+        
+        const now = ctx.currentTime;
+        
+        // === SOM PRINCIPAL: oscilador com "pop" ===
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1500, now); // Frequência inicial
+        osc.frequency.exponentialRampToValueAtTime(300, now + 0.02); // Descida rápida (efeito "pop")
+        
+        gain.gain.setValueAtTime(0.4, now); // Volume inicial
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04); // Decaimento suave
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.start(now);
+        osc.stop(now + 0.04); // Duração: 40ms
+        
+        // === RUÍDO BRANCO OPCIONAL para realismo ===
+        const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.02, ctx.sampleRate);
+        const data = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < data.length; i++) {
+            data[i] = (Math.random() * 2 - 1) * 0.1; // Ruído suave
+        }
+        const noise = ctx.createBufferSource();
+        const noiseGain = ctx.createGain();
+        noise.buffer = noiseBuffer;
+        noiseGain.gain.setValueAtTime(0.3, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+        noise.connect(noiseGain);
+        noiseGain.connect(ctx.destination);
+        noise.start(now);
+        noise.stop(now + 0.02);
+        
+        return true;
+        
+    } catch (e) {
+        console.warn("Fallback para som simples:", e);
+        // Fallback com base64 CORRETO (prefixo "data:")
+        const fallback = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=");
+        fallback.volume = 0.3;
+        fallback.play().catch(() => {});
+        return false;
+    }
+}
+
+
+function playAndGo() {
+    // Toca o som
+    playClickSound();
+    
+    // Efeito visual no botão (opcional)
+    const btn = document.querySelector('button[onclick="playAndGo()"]');
+    if (btn) {
+        btn.style.transform = "scale(0.95)";
+        setTimeout(() => btn.style.transform = "", 100);
+    }
+    
+    // Navega com delay seguro para o som começar
+    setTimeout(() => {
+        window.location.href = "HELP.html";
+    }, 80);
+}
+document.getElementById('ascii-bg').textContent = eyeAscii;
+adjustScale();
+window.addEventListener('resize', adjustScale);
+
+</script>
+</body> 
+</html>

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>YOU</title>
+    <style>
+        body {
+            background: black;
+            color: limegreen;
+            font-family: 'Franklin Gothic', 'Arial Narrow', Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        #canvas, #video {
+            display: none;
+        }
+        #ascii-output {
+            font-size: 8px;
+            line-height: 8px;
+            letter-spacing: 2px;
+            white-space: pre;
+            background: black;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        button {
+            background: #333;
+            color: limegreen;
+            border: 1px solid limegreen;
+            padding: 10px 20px;
+            margin: 10px;
+            font-family: 'Franklin Gothic', 'Arial Narrow', Arial, sans-serif;
+            cursor: pointer;
+        }
+        button:hover {
+            background: limegreen;
+            color: black;
+        }
+        /* 🚪 BOTÃO EXIT - igual aos teus botões */
+.exit-btn {
+    background: #333;
+    color: limegreen;
+    border: 1px solid limegreen;
+    padding: 10px 20px;
+    margin: 15px auto;  /* Centralizado */
+    font-family: 'Franklin Gothic', 'Arial Narrow', Arial, sans-serif;
+    cursor: pointer;
+    display: block;     /* Para o margin: auto funcionar */
+    transition: all 0.2s ease;
+}
+
+.exit-btn:hover {
+    background: limegreen;
+    color: black;
+}
+
+.exit-btn:active {
+    transform: scale(0.98);
+}
+    </style>
+</head>
+<body>
+    <h1>SHOW YOUSELF</h1>
+    
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas"></canvas>
+    
+    <div>
+        <button onclick="startCamera()">Camera</button>
+        <button onclick="stopCamera()">Parar</button>
+        <button onclick="printAscii()">Print</button>
+    </div>
+    
+    <div id="ascii-output"></div>
+
+   <button id="exitBtn" class="exit-btn">EXIT</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+// 🎵 Audio setup
+let audioCtx = null;
+let cameraNoise = null; // Para controlar o ruído da câmara
+
+function getAudioContext() {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return null;
+    if (!audioCtx) {
+        audioCtx = new AudioContext();
+    }
+    return audioCtx;
+}
+
+// 🔊 Som stoner para botões (igual ao maze)
+function playButtonSound() {
+    try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+        
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(330, now);
+        
+        const lfo = ctx.createOscillator();
+        const lfoGain = ctx.createGain();
+        lfo.frequency.value = 0.8 + Math.random() * 0.4;
+        lfoGain.gain.value = 12;
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.detune);
+        lfo.start(now);
+        lfo.stop(now + 0.2);
+        
+        const subOsc = ctx.createOscillator();
+        const subGain = ctx.createGain();
+        subOsc.type = 'sine';
+        subOsc.frequency.value = 165;
+        subGain.gain.value = 0.35;
+        subOsc.connect(subGain);
+        subGain.connect(gain);
+        subOsc.start(now);
+        subOsc.stop(now + 0.2);
+        
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(900, now);
+        filter.Q.value = 0.8;
+        
+        const shaper = ctx.createWaveShaper();
+        const samples = 44100;
+        const curve = new Float32Array(samples);
+        for (let i = 0; i < samples; i++) {
+            const x = (i * 2) / samples - 1;
+            const drive = 5.5;
+            curve[i] = Math.tanh(x * drive) * 0.85 + x * 0.15;
+        }
+        shaper.curve = curve;
+        shaper.oversample = '4x';
+        
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.4, now + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+        
+        osc.connect(filter);
+        filter.connect(shaper);
+        shaper.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.start(now);
+        osc.stop(now + 0.2);
+    } catch (e) {
+        console.log("Button sound error:", e);
+    }
+}
+
+// 🎧 Criar ruído branco filtrado (para ambiente de câmara)
+function createNoiseBuffer(ctx, duration = 2) {
+    const sampleRate = ctx.sampleRate;
+    const buffer = ctx.createBuffer(1, sampleRate * duration, sampleRate);
+    const data = buffer.getChannelData(0);
+    
+    // Gera ruído branco
+    for (let i = 0; i < buffer.length; i++) {
+        data[i] = Math.random() * 2 - 1;
+    }
+    return buffer;
+}
+
+// ▶️ Iniciar ruído estéreo da câmara
+function startCameraNoise() {
+    try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        
+        // Para ruído anterior se existir
+        if (cameraNoise) stopCameraNoise();
+        
+        const now = ctx.currentTime;
+        
+        // Buffer de ruído em loop
+        const noiseBuffer = createNoiseBuffer(ctx, 2);
+        const noiseSource = ctx.createBufferSource();
+        noiseSource.buffer = noiseBuffer;
+        noiseSource.loop = true;
+        
+        // Filtro para som de "fita" (corta agudos estridentes)
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 3000; // 3kHz = som quente de gravação
+        filter.Q.value = 0.5;
+        
+        // High-pass suave para remover rumble
+        const hpFilter = ctx.createBiquadFilter();
+        hpFilter.type = 'highpass';
+        hpFilter.frequency.value = 200;
+        
+        // Stereo panner com LFO para movimento
+        const panner = ctx.createStereoPanner();
+        panner.pan.value = 0; // Centro
+        
+        // LFO para mover o pan lentamente (esquerda ↔ direita)
+        const lfo = ctx.createOscillator();
+        const lfoGain = ctx.createGain();
+        lfo.type = 'sine';
+        lfo.frequency.value = 0.15; // 0.15Hz = ciclo de ~6 segundos
+        lfoGain.gain.value = 0.8; // Pan entre -0.8 e +0.8 (quase extremo)
+        lfo.connect(lfoGain);
+        lfoGain.connect(panner.pan);
+        
+        // Volume subtil
+        const gain = ctx.createGain();
+        gain.gain.value = 0.08; // Baixo para não incomodar
+        
+        // Conexões: noise → hp → lp → panner → gain → output
+        noiseSource.connect(hpFilter);
+        hpFilter.connect(filter);
+        filter.connect(panner);
+        panner.connect(gain);
+        gain.connect(ctx.destination);
+        
+        // Start
+        noiseSource.start(now);
+        lfo.start(now);
+        
+        // Guarda referência para parar depois
+        cameraNoise = { noiseSource, lfo, gain };
+        
+    } catch (e) {
+        console.log("Camera noise error:", e);
+    }
+}
+
+// ⏹️ Parar ruído da câmara
+function stopCameraNoise() {
+    if (cameraNoise) {
+        try {
+            cameraNoise.noiseSource.stop();
+            cameraNoise.lfo.stop();
+            // Fade out rápido para evitar clicks
+            cameraNoise.gain.gain.exponentialRampToValueAtTime(0.001, 
+                (audioCtx?.currentTime || 0) + 0.1);
+        } catch(e) {}
+        cameraNoise = null;
+    }
+}
+
+// ===== CAMERA / ASCII LOGIC =====
+const video = document.getElementById('video');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const output = document.getElementById('ascii-output');
+
+const chars = ['@', '#', '8', '&', 'o', ':', '*', '.', ' '];
+
+let stream = null;
+let animationFrame = null;
+
+function startCamera() {
+    playButtonSound(); // Som do botão
+    
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(s) {
+            stream = s;
+            video.srcObject = stream;
+            video.play();
+            
+            // 🎧 Inicia ruído ambiente estéreo
+            if (audioCtx?.state === 'suspended') audioCtx.resume();
+            startCameraNoise();
+            
+            animate();
+        })
+        .catch(function(err) {
+            console.log("Erro na câmera: " + err);
+            simulateAnimation();
+        });
+}
+
+function stopCamera() {
+    playButtonSound(); // Som do botão
+    
+    // 🎧 Para ruído ambiente
+    stopCameraNoise();
+    
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+    }
+    if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+    }
+}
+
+function imageToAscii(imageData) {
+    const data = imageData.data;
+    let ascii = '';
+    
+    for (let y = 0; y < imageData.height; y++) {
+        for (let x = 0; x < imageData.width; x++) {
+            const index = (y * imageData.width + x) * 4;
+            const brightness = (
+                data[index] * 0.3 + 
+                data[index + 1] * 0.59 + 
+                data[index + 2] * 0.11
+            ) / 255;
+            const charIndex = Math.floor(brightness * (chars.length - 1));
+            ascii += chars[charIndex];
+        }
+        ascii += '\n';
+    }
+    return ascii;
+}
+
+function animate() {
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width = 120;
+        canvas.height = 80;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        output.textContent = imageToAscii(imageData);
+    }
+    animationFrame = requestAnimationFrame(animate);
+}
+
+function simulateAnimation() {
+    const frames = [
+        "    ⭐    ", "     ⭐   ", "      ⭐  ", "       ⭐ ",
+        "        ⭐", "       ⭐ ", "      ⭐  ", "     ⭐   ",
+        "    ⭐    ", "   ⭐     ", "  ⭐      ", " ⭐       ", "⭐        "
+    ];
+    let frameIndex = 0;
+    function showFrame() {
+        output.textContent = frames[frameIndex];
+        frameIndex = (frameIndex + 1) % frames.length;
+        setTimeout(showFrame, 150);
+    }
+    showFrame();
+}
+function printAscii() {
+    // 🔊 1. Som stoner do botão (feedback)
+    playButtonSound();
+    
+    // 📸 2. Som de shutter (após pequeno delay para realismo)
+    setTimeout(playShutterSound, 80);
+    
+    const element = document.getElementById("ascii-output");
+    html2canvas(element, {
+        backgroundColor: "black",
+        scale: 2
+    }).then(canvas => {
+        // 📸 3. Outro shutter sutil quando a imagem está pronta (opcional)
+        // setTimeout(playShutterSound, 50);
+        
+        const link = document.createElement("a");
+        link.download = "ascii-camera.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+}
+
+// 🎧 Ativa áudio no primeiro clique
+document.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+        if (audioCtx?.state === 'suspended') audioCtx.resume();
+    }, { once: true });
+});
+// 📸 Som de obturador / print screen
+function playShutterSound() {
+    try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+        
+        const now = ctx.currentTime;
+        
+        // === MECANISMO 1: "Click" mecânico (alta frequência) ===
+        const clickOsc = ctx.createOscillator();
+        const clickGain = ctx.createGain();
+        clickOsc.type = 'square';
+        clickOsc.frequency.setValueAtTime(2800, now); // Agudo mecânico
+        clickGain.gain.setValueAtTime(0, now);
+        clickGain.gain.linearRampToValueAtTime(0.3, now + 0.005); // Attack super rápido
+        clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.04); // Decay 40ms
+        clickOsc.connect(clickGain);
+        clickGain.connect(ctx.destination);
+        clickOsc.start(now);
+        clickOsc.stop(now + 0.05);
+        
+        // === MECANISMO 2: "Thud" suave (espelho a bater) ===
+        const thudOsc = ctx.createOscillator();
+        const thudGain = ctx.createGain();
+        thudOsc.type = 'triangle';
+        thudOsc.frequency.setValueAtTime(180, now); // Grave suave
+        thudGain.gain.setValueAtTime(0, now);
+        thudGain.gain.linearRampToValueAtTime(0.25, now + 0.008);
+        thudGain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+        thudOsc.connect(thudGain);
+        thudGain.connect(ctx.destination);
+        thudOsc.start(now + 0.01); // Ligeiro delay para realismo
+        thudOsc.stop(now + 0.07);
+        
+        // === MECANISMO 3: Ruído branco curto (shutter "snap") ===
+        const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.03, ctx.sampleRate);
+        const noiseData = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < noiseBuffer.length; i++) {
+            noiseData[i] = (Math.random() * 2 - 1) * (1 - i / noiseBuffer.length); // Fade out natural
+        }
+        const noiseSource = ctx.createBufferSource();
+        const noiseGain = ctx.createGain();
+        const noiseFilter = ctx.createBiquadFilter();
+        
+        noiseSource.buffer = noiseBuffer;
+        noiseFilter.type = 'bandpass';
+        noiseFilter.frequency.value = 1500;
+        noiseFilter.Q.value = 1.2;
+        noiseGain.gain.setValueAtTime(0.15, now + 0.005);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+        
+        noiseSource.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(ctx.destination);
+        noiseSource.start(now + 0.005);
+        noiseSource.stop(now + 0.04);
+        
+    } catch (e) {
+        console.log("Shutter sound error:", e);
+    }
+}
+// 🚪 Função do botão Exit
+document.getElementById('exitBtn')?.addEventListener('click', () => {
+    // Toca o som stoner (já tens a função)
+    playButtonSound();
+    
+    // Redireciona após pequeno delay
+    setTimeout(() => {
+        window.location.href = "index.html"; // Ou a página que quiseres
+    }, 100);
+});
+</script>
+</body>
+</html>
